@@ -1,0 +1,43 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="styles.css" type="text/css">
+    <meta charset=UTF-8>      <!-- para caracteres acentuados -->
+    <title>Othello</title>    <!-- texto na decoração da janela -->
+  </head>
+
+  <body>
+    <!-- div geral -->
+    <div class="tabuleiro">
+      <div> <img class="imagem" src="othellopreto2.png" alt="othello"></div>
+      <!-- autenticaçao-->
+    	<div class="form" id="form">
+          <h1>Autenticação</h1>
+
+        <div class="form-group">
+          <p class="pequeno">Identificador</p>
+    		  <input type="text" placeholder="Username" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <p class="pequeno">Password</p>
+    		  <input type="password" placeholder="Password" class="form-control" required>
+        </div>
+        <!-- botao q ao clicar faz desaparecer o login e aparecer o outro div-->
+    		<button onclick="mostrar()" id="button" class="btn" >LOGIN</button>
+    	</div>
+
+      <!-- div a testar se aparecia ou n com o botao-->
+      <div id="novo">
+        <h1> hello world</h1>
+      </div>
+
+
+    </div>
+    <script src="js.js"></script>
+  </body>
+</html>
