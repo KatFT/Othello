@@ -2,6 +2,9 @@
   mostra inicialmente o bloco de autenticação e depois da inserção dos dados pedidos (identificador, password)
   e o posterior clique do botão 'LOGIN', esse mesmo bloco desaparece, é mostrado as opçoes de jogo
 */
+var humano = 'B';
+var computador = 'P';
+var dificuldade = 1;
 function areaAutenticacao() {
     
     document.getElementById("form").style.display="none";
@@ -13,9 +16,8 @@ function areaAutenticacao() {
 
 /*quando se clica no botao continuar nas op de jogo, essa pagina fecha e e nostrado o tabuleiro,
 accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai começa se a jogar*/
+function escolhaOp() {
 
-function escolhaOp(){
-    
     document.getElementById("op-jogo").style.display="none";
     document.getElementById("continue").style.display="none";
     document.body.style.backgroundImage = "url('Cu1aLQb.gif')";
@@ -23,20 +25,32 @@ function escolhaOp(){
     document.getElementById("container").style.display="block";
     document.getElementById("pontuacao").style.display="block";
     document.getElementById("passar").style.display="block";
-    document.getElementById("novo-jogo").style.display="block";
+    document.getElementById("desistir").style.display="block";
     document.getElementById("logout").style.display="block";
+    if (document.getElementById("preto").checked) {
+	humano = 'P';
+	computador = 'B';
+    }
+
+    if (document.getElementById("medio").checked) {
+	dificuldade = 2;
+    } else if (document.getElementById("dificil").checked) {
+	dificuldade = 3;
+    }
+    document.getElementById("vezJogada").style.display="block";
+    criar_tabuleiro(); // depois das escolhas o jogo começa
     
 }
 
 // quando é clicado o botao logout o tabuleiro é fechado assim como o accordion, os botões, o quadro da pontuação
 // e volta-se ao formulario de autenticação
-function logOut(){
+function logOut() {
     
     document.getElementById("area-de-jogo").style.display="none";
     document.getElementById("container").style.display="none";
     document.getElementById("pontuacao").style.display="none";
     document.getElementById("passar").style.display="none";
-    document.getElementById("novo-jogo").style.display="none";
+    document.getElementById("desistir").style.display="none";
     document.getElementById("logout").style.display="none";
     document.getElementById("form").style.display="block";
     document.getElementById("button").style.display="block";
@@ -80,10 +94,7 @@ var tabuleiro;
 var molduraTabuleiro;
 var pecasJogadorB = [];
 var pecasJogadorP = [];
-var humano = 'P';
-var computador = 'B';
 var jogadorAtual = 'P'; // jogador que inicia o jogo
-var dificuldade = 1;
 
 var fimJogada = false; // variável global que indicará o fim da propagação de cada jogada
 
@@ -92,7 +103,7 @@ window.onload = function() {
     molduraTabuleiro = document.createElement('div');
     molduraTabuleiro.setAttribute('class','molduraTabuleiro');
     tabuleiro = document.createElement('div');
-    criar_tabuleiro();
+    //criar_tabuleiro();
 }
 
 function criar_tabuleiro() {
@@ -136,6 +147,18 @@ function criar_tabuleiro() {
 	    
 	}
     }
+
+    console.log("IA: " + computador);
+    console.log("humano: " + humano);
+    console.log("Dificuldade: " + dificuldade);
+
+    if(jogadorAtual == computador) {
+
+	let pos = melhorJogada();
+	setTimeout(processarJogada, 2000, pos);
+	updatePont();
+	
+    }
 }
 
 /* movimentos horizontais possíveis */
@@ -177,9 +200,8 @@ function verificarJogadasHor(player, cont) {
 		if (y >= y_pos + 2 && cont[x_pos][y-1] == pecaAdversario) {
 		    // HE -> a jogada é propagada na HORIZONTAL para a ESQUERDA até ir de encontro a outra peça do jogador
 		    jogadas.push([j, "HE"]); 
-		    break;		
 		}
-		
+		break;
 	    }
 	}
 
@@ -204,10 +226,9 @@ function verificarJogadasHor(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (y <= y_pos - 2 && cont[x_pos][y+1] == pecaAdversario) {
 		    // HD -> a jogada é propagada na HORIZONTAL para a DIREITA até ir de encontro a outra peça do jogador
-		    jogadas.push([j, "HD"]);
-		    break;	
+		    jogadas.push([j, "HD"]);	
 		}
-		
+		break;
 	    }
 	}
 	
@@ -257,9 +278,8 @@ function verificarJogadasVer(player, cont) {
 		if (x >= x_pos + 2 && cont[x-1][y_pos] == pecaAdversario) {
 		    // VC -> a jogada é propagada na VERTICAL para CIMA até ir de encontro a outra peça do jogador
 		    jogadas.push([j, "VC"]);
-		    break;
 		}
-		
+		break;
 	    }
 	}
 
@@ -285,10 +305,8 @@ function verificarJogadasVer(player, cont) {
 		if (x <= x_pos - 2 && cont[x+1][y_pos] == pecaAdversario) {
 		    // VB -> a jogada é propagada na VERTICAL para BAIXO até ir de encontro a outra peça do jogador
 		    jogadas.push([j, "VB"]);
-		    break;
-		    
 		}
-		
+		break;		
 	    }
 	}
 	
@@ -337,11 +355,12 @@ function verificarJogadasDiag(player, cont) {
 		if (x >= x_pos + 2 && y >= y_pos + 2 && cont[x-1][y-1] == pecaAdversario) {
 		    // SE -> a jogada é propagada na diagonal SUPERIOR ESQUERDA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
-		    jogadas.push([j, "SE"]); 
-		    break;	
-		}
+		    jogadas.push([j, "SE"]); 	
+		} 
+
+		break;
 		
-	    }
+	    } 
 	}
 
 	// parte inferior esquerda
@@ -366,9 +385,8 @@ function verificarJogadasDiag(player, cont) {
 		    // SD -> a jogada é propagada na diagonal SUPERIOR DIREITA da peça colocada
 		    // até ao outro extremo que contenha outra peça do jogador
 		    jogadas.push([j, "SD"]); 
-		    break;	
-		}
-		
+		} 
+		break;
 	    }
 	}
 	
@@ -394,10 +412,8 @@ function verificarJogadasDiag(player, cont) {
 		    // ID -> a jogada é propagada na diagonal INFERIOR DIREITA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
 		    jogadas.push([j, "ID"]);
-		    break;
-		    
 		}
-		
+		break;
 	    }
 	}
 
@@ -423,10 +439,9 @@ function verificarJogadasDiag(player, cont) {
 		    // IE -> a jogada é propagada na diagonal INFERIOR ESQUERDA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
 		    jogadas.push([j, "IE"]);
-		    break;
-		    
-		}
-		
+
+		} 
+		break;
 	    }
 	}
     }
@@ -506,7 +521,12 @@ function processarJogada(pos) {
     let X = Math.floor(pos % 8);
     let Y = Math.floor(pos / 8);
 
-    if (conteudo[X][Y] !== ' ') { return; } // jogador não pode jogar onde já houver uma peça colocada
+    esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
+
+    if (conteudo[X][Y] !== ' ') {
+	msgJogImp();
+	return;
+    } // jogador não pode jogar onde já houver uma peça colocada
 
     let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
    
@@ -514,7 +534,7 @@ function processarJogada(pos) {
     if (jogadorAtual == humano) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
 
     if(!contem(jogadasPossiveis,pos)) {
-	// imprimir msg de jogada invalida
+	msgJogImp();
 	return;
     }
     
@@ -522,7 +542,7 @@ function processarJogada(pos) {
     
     // obter as direções da propagação da jogada na posição pos
     for(let i=0; i<jogadasPossiveis.length; i++) {
-	if(jogadasPossiveis[i][0] == pos) {
+	if(jogadasPossiveis[i][0] === pos) {
 	    dir.push(jogadasPossiveis[i][1]);
 	}
     }
@@ -589,35 +609,39 @@ function processarJogada(pos) {
 	default:
 	    break;
 	}
+	fimJogada = false; // reset da variável global
     }
-
-    fimJogada = false; // reset da variável global
     
     if (jogadorAtual == humano) {
 
 	jogadasPossiveis = possiveisJogadas(humano, conteudo);
 	jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo);
-	
-	if (jogadasPossiveis == [] && jogadasPossiveisAdversario == []) {
-	    // imprimir msg de fim de jogo
-	} else if (jogadasPossiveisAdversario != []) {
+
+	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
+	    fimJogo();
+	} else if (jogadasPossiveisAdversario.length > 0 && jogadasPossiveis.length > 0) {
 	    // troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
 	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
 	}
+
+	passarJogada();
 	
     } else {
 
 	jogadasPossiveis = possiveisJogadas(computador, conteudo);
 	jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
 	
-	if (jogadasPossiveis == [] && jogadasPossiveisAdversario == []) {
-	    // imprimir msg de fim de jogo
-	} else if (jogadasPossiveisAdversario != []) {
+	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
+	    fimJogo();
+	} else if (jogadasPossiveisAdversario.length > 0) {
 	    // troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
 	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-	}
+	} 
 	
     }
+
+    vezJogada();
+    updatePont();
     
     if(jogadorAtual == computador) {
 
@@ -625,6 +649,35 @@ function processarJogada(pos) {
 	setTimeout(processarJogada, 2000, pos);
 	
     }
+    
+}
+
+// atualiza o quadro das pontuações à medida que são feitas as jogadas
+function updatePont() {
+
+    let pecasBrancas = document.getElementById("pbranco");
+    let pecasPretas = document.getElementById("ppreto");
+    let casasLivres = document.getElementById("clivre");
+    let pontIA, pontHuman;
+
+    if (computador == 'P') {
+	
+	pontIA = pecasJogadorP.length;
+	pontHuman = pecasJogadorB.length;
+	pecasPretas.innerHTML = 'Preto: ' + pontIA;
+	pecasBrancas.innerHTML = 'Branco: ' + pontHuman;
+	
+    } else {
+	
+	pontIA = pecasJogadorB.length;
+	pontHuman = pecasJogadorP.length;
+	pecasPretas.innerHTML = 'Preto: ' + pontHuman;
+	pecasBrancas.innerHTML = 'Branco: ' + pontIA;
+	
+    }
+
+    let livres = 8*8 - pontIA - pontHuman;
+    casasLivres.innerHTML = 'Livres: ' + livres;
     
 }
 
@@ -805,25 +858,54 @@ function contem(arr, pos) {
     return false;
 }
 
-function fimJogo(base, jogadorVencedor) {
-
-    let nrPecasJogadorVencedor = base.pecasJogadorP.length;
-    let nrPecasJogadorPerdedor = base.pecasJogadorB.length;
-
-    const msg = document.createElement('div');
-    msg.className = 'msg-vitoria';
-    base.appendChild(msg);
+function passarJogada() {
     
-    if (jogadorVencedor == 'B') {
-	
-	nrPecasJogadorVencedor = base.pecasJogadorB.length;
-	nrPecasJogadorPerdedor = base.pecasJogadorP.length;
-	msg.innerHTML = "JOGADOR BRANCO GANHOU";
-	
-    } else {
-
-	msg.innerHTML = "JOGADOR PRETO GANHOU";
-	
+    if (jogadorAtual == humano && possiveisJogadas(humano, conteudo).length == 0) {
+	const passar = document.getElementById("passar");
+	passar.style.backgroundImage = "fcd13e3144b2f34a-abstract-gif-on-gifer-by-fearlesshammer.gif";
+	jogadorAtual = (jogadorAtual == 'B'?'P':'B');
     }
 
+}
+
+function vezJogada() {
+    
+    const msg = document.getElementById("vezJogada");
+    if (jogadorAtual == 'P') {
+	msg.innerHTML = "Vez do PRETO";
+    } else {
+	msg.innerHTML = "Vez do BRANCO";
+    }
+}
+
+function fimJogo() {
+
+    let nrPecasJogadorP = pecasJogadorP.length;
+    let nrPecasJogadorB = pecasJogadorB.length;
+
+    const msg = document.getElementById("msgFimJogo");
+
+    if (nrPecasJogadorP > nrPecasJogadorB) {
+	msg.innerHTML = "JOGADOR PRETO GANHOU";	
+    } else if (nrPecasJogadorP < nrPecasJogadorB) {
+	msg.innerHTML = "JOGADOR BRANCO GANHOU";
+    } else {
+	msg.innerHTML = "EMPATE";
+    }
+
+    msg.style.display = "block"; 
+
+}
+
+function msgJogImp() {
+    const msg = document.getElementById("impossivel");
+    msg.innerHTML = "Jogada impossivel";
+    msg.style.display = "block";
+}
+
+function esconderMsg() {
+    const msg = document.getElementById("impossivel");
+    if (msg.style.display == "block") {
+	msg.style.display = "none";
+    }
 }
