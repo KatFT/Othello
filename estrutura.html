@@ -1,43 +1,152 @@
-
-
-
-
 <!DOCTYPE html>
+<html lang="en">
 <html>
   <head>
-    <link rel="stylesheet" href="styles.css" type="text/css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" rel="stylesheet">
+    <script src="Othello1.js" defer></script>
     <meta charset=UTF-8>      <!-- para caracteres acentuados -->
     <title>Othello</title>    <!-- texto na decoração da janela -->
   </head>
 
   <body>
     <!-- div geral -->
-    <div class="tabuleiro">
-      <div> <img class="imagem" src="othellopreto2.png" alt="othello"></div>
-      <!-- autenticaçao-->
-    	<div class="form" id="form">
-          <h1>Autenticação</h1>
+    <div class="base">
+      
+      <!-- autenticaçao -->
+      <div class="form" id="form">
+	<div> <img class="logotipo-form" src="othellolog.png" alt="Othello" style="margin: auto"></div>
+        <h1>Autenticação</h1>
 
         <div class="form-group">
-          <p class="pequeno">Identificador</p>
-    		  <input type="text" placeholder="Username" class="form-control" required>
+          <p class="dados_autenticacao">Identificador</p>
+    	  <input type="text" placeholder="Username" class="form-control" required>
         </div>
 
         <div class="form-group">
-          <p class="pequeno">Password</p>
-    		  <input type="password" placeholder="Password" class="form-control" required>
+          <p class="dados_autenticacao">Password</p>
+    	  <input type="password" placeholder="Password" class="form-control" required>
         </div>
-        <!-- botao q ao clicar faz desaparecer o login e aparecer o outro div-->
-    		<button onclick="mostrar()" id="button" class="btn" >LOGIN</button>
-    	</div>
-
-      <!-- div a testar se aparecia ou n com o botao-->
-      <div id="novo">
-        <h1> hello world</h1>
+	
+        <!-- botao que ao clicar faz desaparecer o login e aparecer o outro div -->
+    	<button onclick="areaAutenticacao()" id="button" class="btn" >LOGIN</button>
+      </div>
+      <!-- Fim da div de autenticaçao-->
+      
+      <div id="area-de-jogo">
+	<div><img src="othellolog.png" class="logotipo" alt="Logotipo do Othello" ></div>
       </div>
 
+      <!-- Opções de jogo-->
+
+      <div class="Op" id="op-jogo">
+
+        <div class="opcao">Opções de Jogo</div>
+        <div class="corpo">
+          <div class="cor">
+
+            <div class="op-cor">
+              <p class="titulo">Cor</p>
+
+              <input type="radio" onclick="jogador=1; computador=0" id="preto"  name="op">
+              <label for="preto"> Preto</label>
+
+              <input type="radio" onclick="jogador=0; computador=1" id="branco" name="op">
+              <label for="branco"> Branco</label>
+            </div>
+	    
+          </div>
+
+          <div class="jogador">
+            <div class="op-jogador">
+
+              <p class="titulo">Jogador</p>
+              <input type="radio" id="normal"  name="op2">
+              <label for="normal"> Normal</label>
+
+              <input type="radio" id="computador" name="op2">
+              <label for="computador"> Computador</label>
+            </div>
+          </div>
+
+          <div class="dificuldade">
+            <div class="op-dificuldade">
+
+              <p class="titulo">Dificuldade</p>
+              <input type="radio" onclick="dificuldade=1" id="facil" name="op3">
+              <label for="facil"> Fácil</label>
+
+              <input type="radio" onclick="dificuldade=2" id="medio" name="op3">
+              <label for="medio"> Médio</label>
+
+              <input type="radio" onclick="dificuldade=3" id="dificil" name="op3">
+              <label for="dificil"> Difícil</label>
+            </div>
+          </div>
+
+	  
+          <button onclick="escolhaOp()" id="continue" class="continue">Continuar</button>
+	  
+        </div>
+      </div>
+      <!-- Fim da div de opçoes de jogo-->
+
+      <!-- Menu accordion que mostra as regras e as classificações -->
+      <div class="container" id="container">
+	
+	<button class="accordion">Regras de jogo</button>
+	
+        <div class="accordion-content">
+	  
+          <p> Na sua vez, você coloca uma peça no tabuleiro com sua cor virada para cima. Você deve colocar a peça de forma que uma peça do oponente, ou uma sequência de peças do oponente, fique flanqueada por suas peças. Todas as peças adversárias que estiverem entre as suas peças mudam de cor, tornando-se suas.</p>
+          <p>Um movimento consiste na colocação de uma peça em uma casa vazia. Se você não pode fazer um movimento legal (por exemplo: você não pode capturar nenhuma das peças do adversário), você tem de passar, e é a vez do oponente. Se nenhum dos jogadores puder fazer um lance, isso significa que o jogo está terminado, e o jogador que tiver mais peças vence.</p>
+          <p>Você pode capturar sequências verticais, horizontais e diagonais de peças. Além disso, você pode capturar mais de uma sequência de uma vez só.</p>
+	  
+        </div>
+
+        <!-- classificaçoes vao estar vazias por agora-->
+
+        <button class="accordion ">Classificações</button>
+        <div class="accordion-content">
+
+        </div>
+      </div>
+      <!-- Fim da div do menu accordion -->
+
+      <!-- Pontuação -->
+
+      <div class="pontuacao" id="pontuacao">
+       
+        <p id="ppreto">Preto: 2 </p>
+        <p id="pbranco"> Branco: 2</p>
+        <p id="plivre"> Livres: 60</p>
+	
+      </div>
+      
+      <!-- Fim da div de pontuaçao-->
+      
+      <!-- BOTÃO DE PASSAR JOGADA  -->
+      <button class="passar" id="passar" onclick="passarJogada()">Passar</button>
+      <!-- Fim do botao para passar jogada-->
+
+      <!-- BOTAO NOVO JOGO-->
+      <button class="novo-jogo" id="novo-jogo" onclick="novoJogo()">Novo Jogo</button>
+      <!-- Fim do botao para começar novo jogo-->
+
+      <!-- BOTAO LOGOUT -> AINDA N FUNCIONA A 100% A CHEILA SE CONSEGUIR FAZER O NOVO JOGO
+           QUE IMPLEMENTE AQUI-->
+      <!-- o que vai fazer aqui e basicamente fecha tudo e volta para a area de autenticaçao, e o jogo reseta(ainda por implementar)-->
+      <button class="logout" id="logout" onclick="logOut()">Logout</button>
+      <!--fim do botao de logout-->
+
+      <!-- MENSAGEM VITORIA -> INDICA QUAL O JOGADOR QUE GANHOU OU EMPATE-->
+      <!-- vai ser vazia pq e a partir do codigo javascript que vai imprimir o vencedor/empate-->
+      <div id="msgFimJogo">
+        JOGADOR Preto GANHOU! <!-- ISTO TEM Q SER VAZIO DEPOIS-->
+      </div>
+      <!--Fim da div da mensagem de vitoria-->
 
     </div>
-    <script src="js.js"></script>
+    <!-- Fim da div da base-->
   </body>
 </html>
