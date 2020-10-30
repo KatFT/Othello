@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<html>
   <head>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <!--<link rel="stylesheet" type="text/css" href="accordion.css">
+    <link rel="stylesheet" type="text/css" href="opjogo.css"> -->
     <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" rel="stylesheet">
     <script src="Othello1.js" defer></script>
     <meta charset=UTF-8>      <!-- para caracteres acentuados -->
@@ -38,21 +39,18 @@
       </div>
 
       <!-- Opções de jogo-->
-
       <div class="Op" id="op-jogo">
-
         <div class="opcao">Opções de Jogo</div>
         <div class="corpo">
           <div class="cor">
 
             <div class="op-cor">
               <p class="titulo">Cor</p>
+	      <input type="radio" name="Cor" value="P" id="preto">
+	      <label for="preto"> Preto</label>
 
-              <input type="radio" onclick="jogador=1; computador=0" id="preto"  name="op">
-              <label for="preto"> Preto</label>
-
-              <input type="radio" onclick="jogador=0; computador=1" id="branco" name="op">
-              <label for="branco"> Branco</label>
+	      <input type="radio" name="Cor" value="B" id="branco">
+	      <label for="branco"> Branco</label>
             </div>
 	    
           </div>
@@ -73,20 +71,17 @@
             <div class="op-dificuldade">
 
               <p class="titulo">Dificuldade</p>
-              <input type="radio" onclick="dificuldade=1" id="facil" name="op3">
+              <input type="radio" id="facil">
               <label for="facil"> Fácil</label>
 
-              <input type="radio" onclick="dificuldade=2" id="medio" name="op3">
+              <input type="radio" id="medio">
               <label for="medio"> Médio</label>
 
-              <input type="radio" onclick="dificuldade=3" id="dificil" name="op3">
+              <input type="radio" id="dificil">
               <label for="dificil"> Difícil</label>
             </div>
           </div>
-
-	  
           <button onclick="escolhaOp()" id="continue" class="continue">Continuar</button>
-	  
         </div>
       </div>
       <!-- Fim da div de opçoes de jogo-->
@@ -117,20 +112,20 @@
 
       <div class="pontuacao" id="pontuacao">
        
-        <p id="ppreto">Preto: 2 </p>
+        <p id="ppreto">Preto: 2</p>
         <p id="pbranco"> Branco: 2</p>
-        <p id="plivre"> Livres: 60</p>
+        <p id="clivre"> Livres: 60</p>
 	
       </div>
       
       <!-- Fim da div de pontuaçao-->
       
       <!-- BOTÃO DE PASSAR JOGADA  -->
-      <button class="passar" id="passar" onclick="passarJogada()">Passar</button>
+      <button id="passar" onclick="passarJogada()">Passar</button>
       <!-- Fim do botao para passar jogada-->
 
       <!-- BOTAO NOVO JOGO-->
-      <button class="novo-jogo" id="novo-jogo" onclick="novoJogo()">Novo Jogo</button>
+      <button class="desistir" id="desistir" onclick="fimJogo()">Desistir</button>
       <!-- Fim do botao para começar novo jogo-->
 
       <!-- BOTAO LOGOUT -> AINDA N FUNCIONA A 100% A CHEILA SE CONSEGUIR FAZER O NOVO JOGO
@@ -145,7 +140,15 @@
         JOGADOR Preto GANHOU! <!-- ISTO TEM Q SER VAZIO DEPOIS-->
       </div>
       <!--Fim da div da mensagem de vitoria-->
+      <!-- VEZ DE JOGADA-->
+      <div id="vezJogada">
+        Vez do preto
+      </div>
 
+      <!-- Jogada impossivel-->
+       <div id="impossivel">
+        Jogada impossível
+      </div>
     </div>
     <!-- Fim da div da base-->
   </body>
