@@ -42,23 +42,6 @@ function escolhaOp() {
     
 }
 
-// quando é clicado o botao logout o tabuleiro é fechado assim como o accordion, os botões, o quadro da pontuação
-// e volta-se ao formulario de autenticação
-function logOut() {
-    
-    document.getElementById("area-de-jogo").style.display="none";
-    document.getElementById("container").style.display="none";
-    document.getElementById("pontuacao").style.display="none";
-    document.getElementById("passar").style.display="none";
-    document.getElementById("desistir").style.display="none";
-    document.getElementById("logout").style.display="none";
-    document.getElementById("form").style.display="block";
-    document.getElementById("button").style.display="block";
-    document.body.style.backgroundImage = "url('giphy.gif')";
-    //areaAutenticacao();
-
-}
-
 /* Para a animaçao do menu accordion */
 var accordions = document.getElementsByClassName("accordion");
 for(var i=0;i<accordions.length;i++){
@@ -103,7 +86,6 @@ window.onload = function() {
     molduraTabuleiro = document.createElement('div');
     molduraTabuleiro.setAttribute('class','molduraTabuleiro');
     tabuleiro = document.createElement('div');
-    //criar_tabuleiro();
 }
 
 function criar_tabuleiro() {
@@ -148,14 +130,10 @@ function criar_tabuleiro() {
 	}
     }
 
-    console.log("IA: " + computador);
-    console.log("humano: " + humano);
-    console.log("Dificuldade: " + dificuldade);
-
     if(jogadorAtual == computador) {
 
 	let pos = melhorJogada();
-	setTimeout(processarJogada, 2000, pos);
+	setTimeout(processarJogada, 3000, pos);
 	updatePont();
 	
     }
@@ -523,10 +501,11 @@ function processarJogada(pos) {
 
     esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
 
+    // jogador não pode jogar onde já houver uma peça colocada
     if (conteudo[X][Y] !== ' ') {
 	msgJogImp();
 	return;
-    } // jogador não pode jogar onde já houver uma peça colocada
+    } 
 
     let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
    
@@ -622,9 +601,18 @@ function processarJogada(pos) {
 	} else if (jogadasPossiveisAdversario.length > 0 && jogadasPossiveis.length > 0) {
 	    // troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
 	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
+	} else if (jogadasPossiveis.length == 0) {
+	    msgSemJogadas();
+	    const passar = document.getElementById("passar");
+	    passar.style.backgroundImage = "url(fcd13e3144b2f34a-abstract-gif-on-gifer-by-fearlesshammer.gif)";
+	    document.getElementById("passar").addEventListener("click", function() {
+		jogadorAtual = (jogadorAtual == 'B'?'P':'B');
+		passar.style.backgroundImage = "";
+		esconderMsg();
+		vezJogada();
+	    });
+	    while(jogadorAtual == humano) { return; } // enquanto o jogador não clicar no botão
 	}
-
-	passarJogada();
 	
     } else {
 
@@ -681,7 +669,7 @@ function updatePont() {
     
 }
 
-// retorna cópia do tabuleiro dado como argumento
+// retorna uma cópia do tabuleiro dado como argumento
 function copiaTab(cont) {
     
     const tmpCont = [];
@@ -858,16 +846,13 @@ function contem(arr, pos) {
     return false;
 }
 
-function passarJogada() {
-    
-    if (jogadorAtual == humano && possiveisJogadas(humano, conteudo).length == 0) {
-	const passar = document.getElementById("passar");
-	passar.style.backgroundImage = "fcd13e3144b2f34a-abstract-gif-on-gifer-by-fearlesshammer.gif";
-	jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-    }
-
+function msgSemJogadas() {
+    const msg = document.getElementById("impossivel");
+    msg.innerHTML = "Sem jogadas possiveis";
+    msg.style.display = "block";
 }
 
+// é indicada qual o jogador que terá de jogar
 function vezJogada() {
     
     const msg = document.getElementById("vezJogada");
@@ -878,6 +863,21 @@ function vezJogada() {
     }
 }
 
+// mensagem de fim de jogo por desistência
+function desistir() {
+    
+    const msg = document.getElementById("msgFimJogo");
+    if (jogadorAtual == 'B') {
+	msg.innerHTML = "JOGADOR PRETO GANHOU";
+    } else {
+	msg.innerHTML = "JOGADOR BRANCO GANHOU";
+    }
+
+    msg.style.display = "block"; 
+    
+}
+
+// mensagem que indica quem ganhou o jogo
 function fimJogo() {
 
     let nrPecasJogadorP = pecasJogadorP.length;
