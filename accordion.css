@@ -81,7 +81,7 @@ button.accordion:hover, button.accordion.is-open{
         width: 350px;
         display: none;
         position: fixed;
-        top:180px;
+        top:160px;
         left: 70px;
 
     }
