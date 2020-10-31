@@ -1,4 +1,10 @@
 /*
+Outubro de 2020
+Catarina Teixeira, up201805042
+Cheila Alves, up201805089 
+*/
+
+/*
   mostra inicialmente o bloco de autenticação e depois da inserção dos dados pedidos (identificador, password)
   e o posterior clique do botão 'LOGIN', esse mesmo bloco desaparece, é mostrado as opçoes de jogo
 */
@@ -604,10 +610,10 @@ function processarJogada(pos) {
 	} else if (jogadasPossiveis.length == 0) {
 	    msgSemJogadas();
 	    const passar = document.getElementById("passar");
-	    passar.style.backgroundImage = "url(fcd13e3144b2f34a-abstract-gif-on-gifer-by-fearlesshammer.gif)";
+	    passar.style.backgroundColor = "#6495ED";
 	    document.getElementById("passar").addEventListener("click", function() {
 		jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-		passar.style.backgroundImage = "";
+		passar.style.backgroundColor = "#DC143C";
 		esconderMsg();
 		vezJogada();
 	    });
