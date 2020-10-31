@@ -1,3 +1,9 @@
+/*
+Outubro de 2020
+Catarina Teixeira, up201805042
+Cheila Alves, up201805089 
+*/
+
 body {
     background-image: url("giphy.gif");/* vai por o gif de fundo*/
 }
@@ -50,7 +56,7 @@ body {
     width: 120px;
     height: 34px;
     outline: none; /* tira-lhe o outline padrão */
-    background-image: url("fcd13e3144b2f34a-abstract-gif-on-gifer-by-fearlesshammer.gif");
+    background-color: #6495ED;
     font-family: 'Staatliches', cursive;
     font-size: 20px;
     color: #FFF5EE;
@@ -106,7 +112,7 @@ body {
     cursor: pointer;
     outline:none;
     font-size:24px;
-    background-image: url("fcd13e3144b2f34a-abstract-gif-on-gifer-by-fearlesshammer.gif");
+    background-color: #6495ED;
     text-align: center;
     color:#F0E68C;
     padding:15px 20px;
