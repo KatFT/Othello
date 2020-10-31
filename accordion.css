@@ -58,7 +58,7 @@ button.accordion:hover, button.accordion.is-open{
 
 /* conteúdo que esta em cada secção do menu accordion */
 .accordion-content {
-    
+
     font-family: Verdana,Geneva,sans-serif;
     font-size: 16px;
     border-radius: 20px;
@@ -69,7 +69,7 @@ button.accordion:hover, button.accordion.is-open{
     max-height: 0; /* inicialmente vai-se encontrar escondido*/
     overflow: hidden; /* esconde o que está a mais na div -> esconde ainda mais o conteúdo */
     transition: max-height 0.2s ease-in-out; /* animaçao de abrir e fechar o conteúdo */
-    
+
 }
 
 /*----------------------------------*/
@@ -116,7 +116,7 @@ button.accordion:hover, button.accordion.is-open{
     button.accordion{
         font-size: 16px;
     }
-    
+
 }
 @media (max-width: 953px){
     .container {
