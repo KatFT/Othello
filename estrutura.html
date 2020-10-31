@@ -4,19 +4,14 @@ Catarina Teixeira, up201805042
 Cheila Alves, up201805089 
 -->
 
-
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <link rel="stylesheet" type="text/css" href="opjogo.css">
     <link rel="stylesheet" type="text/css" href="accordion.css">
-
-    
-    <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="opjogo.css">
     <meta name="viewport" content="width=device-width, height=device-height  initial-scale=1">
-
+    <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" rel="stylesheet">
     <script src="Othello1.js" defer></script>
     <meta charset=UTF-8>      <!-- para caracteres acentuados -->
     <title>Othello</title>    <!-- texto na decoração da janela -->
@@ -105,8 +100,8 @@ Cheila Alves, up201805089
 	
         <div class="accordion-content">
 	  
-          <p> Na sua vez, você coloca uma peça no tabuleiro com sua cor virada para cima. Você deve colocar a peça de forma que uma peça do oponente, ou uma sequência de peças do oponente, fique flanqueada por suas peças. Todas as peças adversárias que estiverem entre as suas peças mudam de cor, tornando-se suas.</p>
-          <p>Um movimento consiste na colocação de uma peça em uma casa vazia. Se você não pode fazer um movimento legal (por exemplo: você não pode capturar nenhuma das peças do adversário), você tem de passar, e é a vez do oponente. Se nenhum dos jogadores puder fazer um lance, isso significa que o jogo está terminado, e o jogador que tiver mais peças vence.</p>
+          <p> A peça deve ser colocada de forma que uma peça do oponente, ou uma sequência de peças do oponente, fique encurralada pelas suas peças. Todas as peças adversárias que estiverem entre as suas peças mudam de cor, tornando-se suas.</p>
+          <p>Um movimento consiste na colocação de uma peça em uma casa vazia. Se você não pode fazer uma jogada legal (por exemplo: você não pode capturar nenhuma das peças do adversário), você tem de passar, e é a vez do oponente. Se nenhum dos jogadores puder fazer um lance, isso significa que o jogo está terminado, e o jogador que tiver mais peças vence.</p>
           <p>Você pode capturar sequências verticais, horizontais e diagonais de peças. Além disso, você pode capturar mais de uma sequência de uma vez só.</p>
 	  
         </div>
@@ -133,17 +128,15 @@ Cheila Alves, up201805089
       <!-- Fim da div de pontuaçao-->
       
       <!-- BOTÃO DE PASSAR JOGADA  -->
-      <button id="passar" onclick="passarJogada()">Passar</button>
+      <button id="passar">Passar</button>
       <!-- Fim do botao para passar jogada-->
 
       <!-- BOTAO NOVO JOGO-->
-      <button class="desistir" id="desistir" onclick="fimJogo()">Desistir</button>
+      <button class="desistir" id="desistir" onclick="desistir()">Desistir</button>
       <!-- Fim do botao para começar novo jogo-->
-
-      <!-- BOTAO LOGOUT -> AINDA N FUNCIONA A 100% A CHEILA SE CONSEGUIR FAZER O NOVO JOGO
-           QUE IMPLEMENTE AQUI-->
+      
       <!-- o que vai fazer aqui e basicamente fecha tudo e volta para a area de autenticaçao, e o jogo reseta(ainda por implementar)-->
-      <button class="logout" id="logout" onclick="logOut()">Logout</button>
+      <button class="logout" id="logout">Logout</button>
       <!--fim do botao de logout-->
 
       <!-- MENSAGEM VITORIA -> INDICA QUAL O JOGADOR QUE GANHOU OU EMPATE-->
