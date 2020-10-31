@@ -1,0 +1,171 @@
+
+
+/*
+Outubro de 2020
+Catarina Teixeira, up201805042
+Cheila Alves, up201805089 
+*/
+
+/* OPÇOES DE JOGO */
+
+/*area total de opcões*/
+.Op {
+    
+    display: none; /* começa por não aparecer */
+    position: fixed;
+    /* o top e o left vai centrar o canto superior esquerdo */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* mover o canto superior esquerdo para centrar tudo */
+    width: 600px;
+    border:17px solid #000000;
+    
+}
+
+/* quadrado todo exceto o cabeçalho */
+.corpo {
+    background-color: #DC143C;
+    padding: 10px 15px;
+}
+
+/* botão continue */
+.corpo .continue {
+    
+    font-family:'Staatliches',cursive;
+    cursor: pointer;
+    outline:none;
+    font-size:24px;
+    background-color:#6495ED;
+    color:#F0E68C;
+    padding:15px 20px;
+    border-radius: 15px;
+    margin-left: 40%;	
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border:3px solid #F0E68C;
+    
+}
+
+/* formatação do cabeçalho global */
+.opcao {
+    
+    font-family:'Staatliches',cursive;
+    letter-spacing: 4px;
+    background-color: #FA8072;
+    padding: 15px 20px;
+    text-align: center;
+    color:#FFF5EE;
+    font-weight: bold;
+    font-size: 20px;
+    border-bottom: 2px solid #FFF5EE;
+    
+}
+
+/* cabeçalho de cada quadrado */
+.titulo{
+    font-family:'Staatliches',cursive;
+    letter-spacing: 4px;
+    border-bottom:1px solid #FFF5EE;
+    justify-content: center;
+    text-align: center;
+    padding: 5px ;
+    color:#DC143C;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #FFF5EE;
+    
+}
+
+/* espaçamento de cada quadrado relativamente ao corpo */
+.cor, .jogador, .dificuldade{
+    padding:10px 15px;
+}
+
+/* características de cada quadrado */
+.cor .op-cor, .jogador .op-jogador, .dificuldade .op-dificuldade{
+
+    background-color: #FA8072;
+    font-family:'Staatliches',cursive;
+    letter-spacing: 3px;
+    color:#FFF5EE;
+    justify-content: center;
+    text-align: center;
+    border-bottom: 2px solid #FFF5EE;
+    padding-bottom: 10px;
+
+}
+
+/* parte em que e feito um type radio personalizado */
+
+/* círculo que se clica para selecionar a opção, inicialmente escondido */
+input[type="radio"] {
+    display:none;
+}
+
+/* trata de cada label/opção*/
+label {
+    position: relative;
+    cursor:pointer;
+    padding-right: 40px;
+}
+
+
+/* último type radio que não terá padding right */
+/* porque damos padding right para haver espaçamento entre type radio */
+label:nth-last-child(1) { 
+    padding-right: 0;
+}
+
+/* antes de se clicar na label */
+/* vai criar a bolinha a volta igual ao generico do radio */
+label::before{
+
+    content: ""; /* insere um conteúdo vazio */
+    border:2px solid gray;
+    display:inline-block;
+    /* cria a bolinha de seleção */
+    width: 18px;
+    height: 18px;
+    /* movemos para a posiçao que queremos a partir das margens */
+    margin:-4px 10px;
+    margin-left: 0;
+    border-radius: 50%;
+
+}
+
+/* bolinha selecionada após se clicar no radio */
+label::after {
+
+    content:""; /* insere um conteudo vazio */
+    display: inline-block;
+    position: absolute;
+    width:12px;
+    height: 12px;
+    background-color: rgb(255,245,238,0);
+    /* dimensões da bolinha pequena */
+    left:5px;
+    top:6px;
+    /* posição aonde a queremos */
+    margin:-4px 10px;
+    margin-left:0;
+    border-radius: 50%;
+    transition: all 0.2s; /* animaçao de aparecimento da bolinha */
+
+}
+
+/* cor da bolinha de seleção */
+input[type="radio"]:checked + label::after {
+    background-color: rgb(255,245,238,1)
+}
+
+/*--------------------------------*/
+
+@media (max-width: 758px){
+    .Op {
+        
+        width: 400px;
+
+    }
+
+
+}

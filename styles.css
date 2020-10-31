@@ -4,6 +4,7 @@ Catarina Teixeira, up201805042
 Cheila Alves, up201805089 
 */
 
+
 body {
     background-image: url("giphy.gif");/* vai por o gif de fundo*/
 }
@@ -12,6 +13,7 @@ body {
 
 /* vai ser o nosso espaço todo */
 .base {
+    /*height:100vh;*//* temporario*/
     width:100%;
     margin: auto;
     position:relative;
@@ -20,11 +22,12 @@ body {
 
 /* trata da formatação do nosso formulário */
 .base .form {
-    margin-top: 3%;
+
+    margin-left:37%;
+    margin-top: 60px;
     box-sizing: border-box;
-    width: 33%;
-    padding: 4% 6%;
-    margin-left:35%;
+    width: 550px;
+    padding: 70px 55px;
     border: 20px solid #000000;
     background: #DC143C;
     border-radius: 4px;
@@ -83,161 +86,6 @@ body {
 
 /*-----------------------------------------*/
 
-/* OPÇOES DE JOGO */
-
-/*area total de opcões*/
-.Op {
-    
-    display: none; /* começa por não aparecer */
-    position: fixed;
-    /* o top e o left vai centrar o canto superior esquerdo */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* mover o canto superior esquerdo para centrar tudo */
-    width: 600px;
-    border:17px solid #000000;
-    
-}
-
-/* quadrado todo exceto o cabeçalho */
-.corpo {
-    background-color: #DC143C;
-    padding: 10px 15px;
-}
-
-/* botão continue */
-.corpo .continue {
-    
-    font-family:'Staatliches',cursive;
-    cursor: pointer;
-    outline:none;
-    font-size:24px;
-    background-color: #6495ED;
-    text-align: center;
-    color:#F0E68C;
-    padding:15px 20px;
-    border-radius: 15px;
-    margin-left: 40%;	
-    margin-top: 20px;
-    margin-bottom: 10px;
-    border:3px solid #F0E68C;
-    
-}
-
-/* formatação do cabeçalho global */
-.opcao {
-    
-    font-family:'Staatliches',cursive;
-    letter-spacing: 4px;
-    background-color: #FA8072;
-    padding: 15px 20px;
-    text-align: center;
-    color:#FFF5EE;
-    font-weight: bold;
-    font-size: 20px;
-    border-bottom: 2px solid #FFF5EE;
-    
-}
-
-/* cabeçalho de cada quadrado */
-.titulo{
-    font-family:'Staatliches',cursive;
-    letter-spacing: 4px;
-    border-bottom:1px solid #FFF5EE;
-    justify-content: center;
-    text-align: center;
-    padding: 5px ;
-    color:#DC143C;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #FFF5EE;
-    
-}
-
-/* espaçamento de cada quadrado relativamente ao corpo */
-.cor, .jogador, .dificuldade{
-    padding:10px 15px;
-}
-
-/* características de cada quadrado */
-.cor .op-cor, .jogador .op-jogador, .dificuldade .op-dificuldade{
-
-    background-color: #FA8072;
-    font-family:'Staatliches',cursive;
-    letter-spacing: 3px;
-    color:#FFF5EE;
-    justify-content: center;
-    text-align: center;
-    border-bottom: 2px solid #FFF5EE;
-    padding-bottom: 10px;
-
-}
-
-/* parte em que e feito um type radio personalizado */
-
-/* círculo que se clica para selecionar a opção, inicialmente escondido */
-input[type="radio"] {
-    display:none;
-}
-
-/* trata de cada label/opção*/
-label {
-    position: relative;
-    cursor:pointer;
-    padding-right: 40px;
-}
-
-
-/* último type radio que não terá padding right */
-/* porque damos padding right para haver espaçamento entre type radio */
-label:nth-last-child(1) { 
-    padding-right: 0;
-}
-
-/* antes de se clicar na label */
-/* vai criar a bolinha a volta igual ao generico do radio */
-label::before{
-
-    content: ""; /* insere um conteúdo vazio */
-    border:2px solid gray;
-    display:inline-block;
-    /* cria a bolinha de seleção */
-    width: 18px;
-    height: 18px;
-    /* movemos para a posiçao que queremos a partir das margens */
-    margin:-4px 10px;
-    margin-left: 0;
-    border-radius: 50%;
-
-}
-
-/* bolinha selecionada após se clicar no radio */
-label::after {
-
-    content:""; /* insere um conteudo vazio */
-    display: inline-block;
-    position: absolute;
-    width:12px;
-    height: 12px;
-    background-color: rgb(255,245,238,0);
-    /* dimensões da bolinha pequena */
-    left:5px;
-    top:6px;
-    /* posição aonde a queremos */
-    margin:-4px 10px;
-    margin-left:0;
-    border-radius: 50%;
-    transition: all 0.2s; /* animaçao de aparecimento da bolinha */
-
-}
-
-/* cor da bolinha de seleção */
-input[type="radio"]:checked + label::after {
-    background-color: rgb(255,245,238,1)
-}
-
-/*--------------------------------*/
-
 /* AREA DE JOGO */
 
 /* logótipo que vai estar na area de jogo */
@@ -245,17 +93,17 @@ input[type="radio"]:checked + label::after {
     
     text-align: center;
     display: block;
-    width: 20%;
-    padding-bottom: 10%; 
-    top: 2%;
-    left: 3%;
+    width: 400px;
+    padding-bottom: 20px; 
+    top: 15px;
+    left: 35px;
     position: fixed;
     
 }
 
 /* disposição do tabuleiro */
 #area-de-jogo {
-    margin-top:8.1%;
+    margin-top:150px;
     position: relative;
     display: none;
 }
@@ -326,73 +174,7 @@ input[type="radio"]:checked + label::after {
 
 /*---------------------------------------_*/
 
-/* MENU ACCORDION */
 
-/* Menu accordion que contém regras e classificaçoes*/
-
-/* conteudo de tds os accordions e onde se posicionam */
-.container {
-    width: 22%;
-    display: none;
-    position: fixed;
-    top: 25%;
-    left: 3%;
-
-}
-
-/* carateristica de cada botão */
-button.accordion{
-    font-family:'Staatliches',cursive;
-    letter-spacing: 5px; /* espaçamento das letras */
-    width:100%;
-    background-color: #DC143C; /* cor de fundo */
-    color:#FFF5EE; /* cor da letra */
-    border:3px solid #FFF5EE;
-    outline: none;
-    text-align: left;
-    font-weight: bold;
-    padding: 15px 20px;
-    font-size: 125%;
-    cursor:pointer;
-    transition: background-color 0.2s linear;
-    border-radius:20px;
-}
-
-/* botão quando não é clicado para abrir */
-button.accordion::after{
-    content:'+'; /* quando está fechado tem o + na parte direita do botão */
-    font-size:16px;
-    float: right; /* o + fica mais a direito */
-    font-weight: bold;
-}
-
-/* menu accordion expandido */
-button.accordion.is-open::after{
-    content:'-';
-}
-
-/* cor quando o cursor passa por cima e quando esta aberto mantém a cor do hover*/
-button.accordion:hover, button.accordion.is-open{
-    background-color: #B01030;
-}
-
-/* conteúdo que esta em cada secção do menu accordion */
-.accordion-content {
-    
-    font-family: Verdana,Geneva,sans-serif;
-    font-size: 90%;
-    border-radius: 20px;
-    padding:0 20px;
-    border-left: 3px solid #FA8072;
-    border-right: 3px solid #FA8072;
-    background-color:  #FFF5EE;
-    max-height: 0; /* inicialmente vai-se encontrar escondido*/
-    overflow: hidden; /* esconde o que está a mais na div -> esconde ainda mais o conteúdo */
-    transition: max-height 0.2s ease-in-out; /* animaçao de abrir e fechar o conteúdo */
-    
-}
-
-/*----------------------------------*/
 
 /* PONTUAÇAO */
 
@@ -400,15 +182,15 @@ button.accordion:hover, button.accordion.is-open{
 .pontuacao{
     
     font-family:'Staatliches',cursive;
-    width:17.4%;
-    height:22%;
+    width:300px;
+    height:190px;
     color:#FFF5EE;
     background-color: #DC143C;
     display:none;
     position:fixed;
-    top:56.3%;
-    right:7.2%;
-    font-size: 205%;
+    top:470px;
+    right:125px;
+    font-size: 34px;
     font-weight: bold;
     text-align: center;
     padding: 10px 15px;
@@ -431,8 +213,8 @@ button.accordion:hover, button.accordion.is-open{
 #ppreto {
     
     letter-spacing: 3px;
-    margin-top:4%;
-    margin-bottom:6%;
+    margin-top:10px;
+    margin-bottom:20px;
     color: #000000;
     
 }
@@ -441,7 +223,7 @@ button.accordion:hover, button.accordion.is-open{
 #pbranco {
     letter-spacing: 3px;
     margin:0;
-    margin-bottom: 6%;
+    margin-bottom: 20px;
 }
 
 /*-------------------------------*/
@@ -452,20 +234,20 @@ button.accordion:hover, button.accordion.is-open{
 #passar {
     
     letter-spacing: 2px;
-    width: 9.8%;
+    width: 167px;
     font-family:'Staatliches',cursive;
     color:#FFF5EE;
     background-color: #DC143C;
-    padding: 10px 15px;
-    font-size: 140%;
+    padding:10px 15px;
+    font-size: 24px;
     display: none;
-    border: 1px solid #FFF5EE;
-    outline: none;
+    border:1px solid #FFF5EE;
+    outline:none;
     cursor: pointer;
     border-radius: 7px;
     position: fixed;
-    top: 46.8%;
-    right: 19.4%;
+    top:388px;
+    right:323px;
     transition: 0.2s ease-in-out;
 
 }
@@ -478,26 +260,26 @@ button.accordion:hover, button.accordion.is-open{
 /*-----------------------*/
 
 
-/* BOTÃO DE DESISTÊNCIA */
+/* BOTÃO DE NOVO JOGO*/
 
 /* tem as carateristica de tamanho, cor, tipo de letra, posicionamento e animaçao de troca de cores */
 .desistir {
     
     letter-spacing: 2px;
-    width: 9.8%;
+    width: 167px;
     color:#FFF5EE;
     font-family:'Staatliches',cursive;
     background-color: #DC143C;
     padding:10px 15px;
-    font-size: 140%;
+    font-size: 24px;
     display: none;
     border:1px solid #FFF5EE;
     outline:none;
     cursor: pointer;
     border-radius: 7px;
     position: fixed;
-    top: 46.8%;
-    right: 7.2%;
+    top: 388px;
+    right:123px;
     transition: 0.2s ease-in-out;
 
 }
@@ -509,7 +291,7 @@ button.accordion:hover, button.accordion.is-open{
 
 /*----------------------*/
 
-/* LOGOUT */
+/*LOGOUT*/
 
 /* tem as carateristica de tamanho, cor, tipo de letra, posicionamento e animação de troca de cores */
 .logout {
@@ -525,8 +307,8 @@ button.accordion:hover, button.accordion.is-open{
     text-decoration: underline;
     background-color: #DC143C;
     padding:10px 15px;
-    top:2%;
-    right:2%;
+    top:10px;
+    right:10px;
     border-radius: 5px;
     transition: 0.2s ease-in-out;
 
@@ -549,16 +331,16 @@ button.accordion:hover, button.accordion.is-open{
     border:1px solid #FFF5EE;
     color: #FFF5EE;
     font-family:'Staatliches',cursive;
-    font-size: 215%;
+    font-size: 42px;
     font-weight: bold;
     position: fixed;
-    top: 41%;
-    left: 35.7%;
+    top:342px;
+    left: 590px;
     padding:50px 15px;
-    width: 31%;
+    width: 650px;
     text-align: center;
     border-radius:5px;
-    
+    /*z-index: 10;*/
 }
 
 /* VEZ DE JOGADA */
@@ -571,14 +353,14 @@ button.accordion:hover, button.accordion.is-open{
     border: 1px solid #FFF5EE;
     font-family: 'Staatliches',cursive;
     font-size: 24px;
-    width: 19.3%;
+    width: 333px;
     padding: 10px 15px;
     text-align: center;
     border-radius: 5px;
     letter-spacing:3px;
     position: fixed;
-    top: 37%;
-    right: 7.3%;
+    top: 295px;
+    right: 126px;
 
 }
 
@@ -591,13 +373,256 @@ button.accordion:hover, button.accordion.is-open{
     border:1px solid #FFF5EE;
     font-family:'Staatliches',cursive;
     font-size: 24px;
-    width:19.3%;
+    width:333px;
     padding:10px 15px;
     text-align: center;
     border-radius:5px;
     letter-spacing:3px;
     position:fixed;
-    top: 20%;
-    right: 7.3%;
+    top:295px;
+    right:126px;
     
-} 
+}
+
+/* ate ao 1680px do ecra*/ 
+@media (min-width: 1131px) and (max-width: 1680px){
+    .base .form {
+        margin-left:34%;
+        margin-top: 50px;
+    }
+
+    #area-de-jogo{
+        margin-top:150px;
+        margin-left:30%;
+    }
+
+    .pontuacao{
+        top:500px;
+        left:70px;
+    }
+
+    #passar {
+        top:420px;
+        left:70px;
+    }
+
+    .desistir {
+        top: 420px;
+        left:254px;
+    }
+
+    #vezJogada {
+        width: 318px;
+        top: 350px;
+        left: 70px;
+    }
+
+    #impossivel {
+        width: 318px;
+        top:350px;
+        left:70px;
+    }
+
+    #msgFimJogo {
+        top:340px;
+        left: 528px;  
+        width: 50%;
+
+    }
+}
+/*ate ao 1130px do ecra*/
+@media (min-width: 954px) and (max-width: 1130px){
+    .base .form {
+         margin-left:26%;
+        margin-top: 50px
+        /*top:50px;
+        left:30%;*/
+        /*margin-left:26%;
+        margin-top: 50px;*/
+    }
+
+     
+    .logotipo {
+        width: 250px;
+        top: 15px;
+        left: 35px;
+        z-index: 10;
+    }
+
+    #area-de-jogo{
+        margin-top:160px;
+        margin-left:20%;
+    }
+
+    .pontuacao{
+        width:158px;
+        height:170px;
+        top:400px;
+        left:50px;
+        font-size: 26px;
+    }
+
+    #passar {
+        font-size: 26px;
+        width: 210px;
+        top:220px;
+        left:50px;
+    }
+
+    .desistir {
+        font-size: 26px;
+        width: 210px;
+        top: 310px;
+        left:50px;
+    }
+
+    #vezJogada {
+        top: 750px;
+        left: 43%;
+    }
+
+    #impossivel {
+        top:750px;
+        left:43%;
+    }
+
+    #msgFimJogo {
+        top:340px;
+        left:300px;
+        width:60%;
+       /* width:650px;*/
+        /*left: 32%; */ 
+
+    }
+}
+@media (min-width: 769px) and (max-width: 953px){
+    .base .form {
+         margin-left:17%;
+        margin-top: 70px
+    }
+   
+
+    .base {
+        height:100vh;/* temporario*/
+    }   
+    .logotipo {
+        width: 180px;
+        top: 15px;
+        left: 35px;
+        z-index: 10;
+    }
+
+    #area-de-jogo{
+        margin-top:290px;
+        margin-left:6%;
+    }
+
+    .pontuacao{
+        margin-top: 20px;
+        position: sticky;
+        width:158px;
+        height:170px;
+        top:600px;
+        left:33%;
+        font-size: 26px;
+    }
+
+    #passar {
+        font-size: 20px;
+        width: 160px;
+        top:158px;
+        left:59.3%;
+    }
+
+    .desistir {
+        font-size: 20px;
+        width: 160px;
+        top:158px;
+        left:23%;
+    }
+
+    #vezJogada {
+        width: 57%;
+        top: 220px;
+        left: 23%;
+    }
+
+    #impossivel {
+        width: 57%;
+        top: 220px;
+        left: 23%;
+    }
+
+    #msgFimJogo {
+        top:440px;
+        left:90px;
+        width:80%;
+        
+
+    }
+}
+
+@media (max-width: 768px){
+    .base .form {
+         margin-left:14%;
+        margin-top: 70px
+    }
+    .base {
+        height:100vh;/* temporario*/
+    }   
+    .logotipo {
+        width: 180px;
+        top: 15px;
+        left: 35px;
+        z-index: 10;
+    }
+
+    #area-de-jogo{
+        margin-top:290px;
+        margin-left:6%;
+    }
+
+    .pontuacao{
+        margin-top: 20px;
+        position: sticky;
+        width:158px;
+        height:170px;
+        top:600px;
+        left:33%;
+        font-size: 26px;
+    }
+
+    #passar {
+        font-size: 20px;
+        width: 160px;
+        top:158px;
+        left:59.3%;
+    }
+
+    .desistir {
+        font-size: 20px;
+        width: 160px;
+        top:158px;
+        left:23%;
+    }
+
+    #vezJogada {
+        width: 57%;
+        top: 220px;
+        left: 23%;
+    }
+
+    #impossivel {
+        width: 57%;
+        top: 220px;
+        left: 23%;
+    }
+
+    #msgFimJogo {
+        top:440px;
+        left:67px;
+        width:82%;
+        
+
+    }
+}

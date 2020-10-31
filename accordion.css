@@ -1,0 +1,133 @@
+/*
+Outubro de 2020
+Catarina Teixeira, up201805042
+Cheila Alves, up201805089 
+*/
+
+
+/* MENU ACCORDION */
+
+/* Menu accordion que contém regras e classificaçoes*/
+
+/* conteudo de tds os accordions e onde se posicionam */
+.container {
+    z-index: 10;
+    width: 400px;
+    display: none;
+    position: fixed;
+    top:180px;
+    left: 40px;
+
+}
+
+/* carateristica de cada botão */
+button.accordion{
+    font-family:'Staatliches',cursive;
+    letter-spacing: 5px; /* espaçamento das letras */
+    width:100%;
+    background-color: #DC143C; /* cor de fundo */
+    color:#FFF5EE; /* cor da letra */
+    border:3px solid #FFF5EE;
+    outline: none;
+    text-align: left;
+    font-weight: bold;
+    padding: 15px 20px;
+    font-size: 18px;
+    cursor:pointer;
+    transition: background-color 0.2s linear;
+    border-radius:20px;
+}
+
+/* botão quando não é clicado para abrir */
+button.accordion::after{
+    content:'+'; /* quando está fechado tem o + na parte direita do botão */
+    font-size:16px;
+    float: right; /* o + fica mais a direito */
+    font-weight: bold;
+}
+
+/* menu accordion expandido */
+button.accordion.is-open::after{
+    content:'-';
+}
+
+/* cor quando o cursor passa por cima e quando esta aberto mantém a cor do hover*/
+button.accordion:hover, button.accordion.is-open{
+    background-color: #B01030;
+}
+
+/* conteúdo que esta em cada secção do menu accordion */
+.accordion-content {
+    
+    font-family: Verdana,Geneva,sans-serif;
+    font-size: 16px;
+    border-radius: 20px;
+    padding:0 20px;
+    border-left: 3px solid #FA8072;
+    border-right: 3px solid #FA8072;
+    background-color:  #FFF5EE;
+    max-height: 0; /* inicialmente vai-se encontrar escondido*/
+    overflow: hidden; /* esconde o que está a mais na div -> esconde ainda mais o conteúdo */
+    transition: max-height 0.2s ease-in-out; /* animaçao de abrir e fechar o conteúdo */
+    
+}
+
+/*----------------------------------*/
+
+@media (min-width: 1131px) and (max-width: 1680px){
+
+    .container {
+        z-index: 10;
+        width: 350px;
+        display: none;
+        position: fixed;
+        top:180px;
+        left: 70px;
+
+    }
+
+    /* carateristica de cada botão */
+    button.accordion{
+        font-family:'Staatliches',cursive;
+        letter-spacing: 5px; /* espaçamento das letras */
+        width:100%;
+        background-color: #DC143C; /* cor de fundo */
+        color:#FFF5EE; /* cor da letra */
+        border:3px solid #FFF5EE;
+        outline: none;
+        text-align: left;
+        font-weight: bold;
+        padding: 15px 20px;
+        font-size: 18px;
+        cursor:pointer;
+        transition: background-color 0.2s linear;
+        border-radius:20px;
+    }
+}
+/*ate ao 1130px do ecra*/
+@media (min-width: 954px) and (max-width: 1130px){
+    .container {
+        z-index: 10;
+        width: 300px;
+        top:10px;
+        left: 40%;
+
+    }
+    button.accordion{
+        font-size: 16px;
+    }
+    
+}
+@media (max-width: 953px){
+    .container {
+        z-index: 10;
+        width: 280px;
+        top:10px;
+        left: 38%;
+
+    }
+    button.accordion{
+        font-size: 14px;
+    }
+
+}
