@@ -3,9 +3,11 @@ Outubro de 2020
 Catarina Teixeira, up201805042
 Cheila Alves, up201805089 
 */
+
 body {
     background-image: url("giphy.gif");/* vai por o gif de fundo*/
 }
+
 /* AREA DE AUTENTICAÇAO */
 /* vai ser o nosso espaço todo */
 .base {
@@ -17,6 +19,7 @@ body {
     display: block;
     
 }
+
 /* trata da formatação do nosso formulário */
 .base .form {
     margin-left:37%;
@@ -29,6 +32,7 @@ body {
     border-radius: 4px;
     box-shadow: 0 8px 16px rgb(0,0,0,.7); /* sombra por baixo da box do formulário */
 }
+
 /* formata o texto "AUTENTICAÇÃO" */
 .base .form h1 {
     text-align: center;
@@ -36,6 +40,7 @@ body {
     color: #FFF5EE;
     font-family: 'Staatliches', cursive;
 }
+
 /* caixa de comentários */
 .base .form .form-control {
     width: 85%;
@@ -45,6 +50,7 @@ body {
     border: 1px solid black;
     margin: 11px 0 18px 0;
 }
+
 /* botao login */
 .base .form .btn {
     margin-left: 50%;
@@ -60,6 +66,7 @@ body {
     border: 2px solid #FFF5EE;
     cursor: pointer;
 }
+
 /* logotipo que estará no formulário de autenticação */
 .logotipo-form {
     text-align: center;
@@ -67,6 +74,7 @@ body {
     width: 100%;
     padding-bottom: 11%;
 }
+
 /* parte do formulário onde formata o "identificador" e "password" */
 .dados_autenticacao {
     font-size: 18px;
@@ -74,11 +82,14 @@ body {
     font-family: 'Staatliches', cursive;
     color: #FFF5EE;
 }
+
 /*-----------------------------------------*/
+
 /* AREA DE JOGO */
 /* logótipo que vai estar na area de jogo */
 .logotipo {
-    
+
+    background-image: url("othellolog.png");
     text-align: center;
     display: block;
     width: 400px;
@@ -88,12 +99,14 @@ body {
     position: fixed;
     
 }
+
 /* disposição do tabuleiro */
 #area-de-jogo {
     margin-top:150px;
     position: relative;
     display: none;
 }
+
 /* border personalizada do tabuleiro */
 .molduraTabuleiro {
     
@@ -105,6 +118,7 @@ body {
     border-radius: 5px;
     box-shadow: 0 0 20px 10px rgb(255,245,238,.1); /* sombra branca do tabuleiro*/
 }
+
 /* configuração do tabuleiro */
 .tabuleiro {
     
@@ -112,9 +126,10 @@ body {
     width: 536px;
     height: 528px;
     margin: auto;
-    background-image: url('http://en.doc.boardgamearena.com/images/e/ec/Board.jpg');
+    background-image: url('board.jpg');
     position: relative;
 }
+
 /* carateristicas para cada quadrado do tabuleiro */
 #casa0_0, #casa0_1, #casa0_2, #casa0_3, #casa0_4, #casa0_5, #casa0_6, #casa0_7, #casa1_0, #casa1_1, #casa1_2, #casa1_3, #casa1_4,
 #casa1_5, #casa1_6, #casa1_7, #casa2_0, #casa2_1, #casa2_2, #casa2_3, #casa2_4, #casa2_5, #casa2_6, #casa2_7, #casa3_0, #casa3_1,
@@ -131,26 +146,31 @@ body {
     cursor: pointer;
     
 }
+
 /* carateristica das peças que vao ser colocadas no tabuleiro*/
 .peca {
     width: 56px;
     height: 56px;
     position: absolute; /* garantimos que a peças são posicionadas relativamente à casa */
-    background: url('http://en.doc.boardgamearena.com/images/f/ff/Tokens.png');
+    background: url('Tokens.png');
 }
+
 /* peça branca */
 .pecaBRANCA { 
     top: 2px;
     left: 4.5px;
     background-position: 0px 0px; /* recorte da imagem de modo a ser apenas visualizada a peça branca */
 }
+
 /* peça preta */
 .pecaPRETA { 
     top: 2px;
     left: 4.5px;
     background-position: -56px 0px; /* recorte da imagem de modo a ser apenas visualizada a peça preta */
 }
+
 /*---------------------------------------_*/
+
 /* PONTUAÇAO */
 /* carateristicas relativamente ao tipo da letra, moldura, tamanhos, cores, etc... */
 .pontuacao{
@@ -172,12 +192,14 @@ body {
     border-image: url(download.jpeg) 50 round; /* e preenche com a imagem da madeira */
     box-shadow: 0 0 20px 10px rgb(255,245,238,.1); /* sombra por baixo da caixa */
 }
+
 /* carateristicas de espaçamento e margens relativamente ao texto da contagem de casas LIVRES */
 #clivre {
     letter-spacing: 3px;
     margin:0;
     color:rgb(2,48,2);
 }
+
 /* carateristicas de espaçamento e margens relativamente ao texto da contagem de peças PRETAS */
 #ppreto {
     
@@ -187,13 +209,16 @@ body {
     color: #000000;
     
 }
+
 /* carateristicas de espaçamento e margens relativamente ao texto da contagem de peças BRANCAS */
 #pbranco {
     letter-spacing: 3px;
     margin:0;
     margin-bottom: 20px;
 }
+
 /*-------------------------------*/
+
 /* PASSAR JOGADA */
 /* tem as carateristica de tamanho, cor, tipo de letra, posicionamento e animação de troca de cores */
 #passar {
@@ -215,14 +240,12 @@ body {
     right:323px;
     transition: 0.2s ease-in-out;
 }
-/* a cor muda qnd o cursor está por cima do botão */
-#passar:hover{
-    background-color: #B01030;
-}
+
 /*-----------------------*/
-/* BOTÃO DE NOVO JOGO*/
+
+/* BOTÃO DE DESISTIR */
 /* tem as carateristica de tamanho, cor, tipo de letra, posicionamento e animaçao de troca de cores */
-.desistir {
+#desistir {
     
     letter-spacing: 2px;
     width: 175px;
@@ -238,14 +261,33 @@ body {
     border-radius: 7px;
     position: fixed;
     top: 388px;
-    right:123px;
+    right: 123px;
     transition: 0.2s ease-in-out;
+
 }
-/* a cor muda quando o cursor está por cima do botão */
-.desistir:hover{
-    background-color: #B01030;
-}
+
 /*----------------------*/
+
+/* BOTÃO NOVO JOGO */
+#novoJogo {
+    
+    letter-spacing: 2px;
+    width: 175px;
+    color:#FFF5EE;
+    font-family:'Staatliches',cursive;
+    background-color: #6495ED;
+    font-size: 24px;
+    border:1px solid #FFF5EE;
+    outline:none;
+    cursor: pointer;
+    border-radius: 7px;
+    margin: auto;
+    transition: 0.2s ease-in-out;
+    
+}
+
+/*----------------------*/
+
 /*LOGOUT*/
 /* tem as carateristica de tamanho, cor, tipo de letra, posicionamento e animação de troca de cores */
 .logout {
@@ -270,7 +312,9 @@ body {
 .logout:hover{
     background-color: #B01030;
 }
+
 /*--------------------------------------*/
+
 /* MENSAGEM DE FIM DE JOGO */
 #msgFimJogo {
     
@@ -289,8 +333,9 @@ body {
     width: 650px;
     text-align: center;
     border-radius:5px;
-    /*z-index: 10;*/
+  
 }
+
 /* VEZ DE JOGADA */
 #vezJogada {
     
@@ -309,6 +354,7 @@ body {
     top: 295px;
     right: 126px;
 }
+
 /* notificação de jogada impossível */
 #impossivel {
     
@@ -328,6 +374,7 @@ body {
     right:126px;
     
 }
+
 /* ate ao 1680px do ecra */ 
 @media (min-width: 1131px) and (max-width: 1680px){
     .base .form {
@@ -348,7 +395,7 @@ body {
         top:355px;
         left:70px;
     }
-    .desistir {
+    #desistir {
         top: 355px;
         left:254px;
     }
@@ -370,17 +417,14 @@ body {
         width: 50%;
     }
 }
+
 /*ate ao 1130px do ecra*/
 @media (min-width: 954px) and (max-width: 1130px){
     .base .form {
-         margin-left:26%;
+        margin-left:26%;
         margin-top: 50px
-        /*top:50px;
-        left:30%;*/
-        /*margin-left:26%;
-        margin-top: 50px;*/
     }
-     
+    
     .logotipo {
         width: 250px;
         top: 15px;
@@ -404,7 +448,7 @@ body {
         top:220px;
         left:50px;
     }
-    .desistir {
+    #desistir {
         font-size: 26px;
         width: 210px;
         top: 310px;
@@ -422,18 +466,17 @@ body {
         top:340px;
         left:300px;
         width:60%;
-       /* width:650px;*/
-        /*left: 32%; */ 
     }
 }
+
 @media (min-width: 769px) and (max-width: 953px){
     .base .form {
         margin-left:17%;
         margin-top: 70px
     }
-   
+    
     .base {
-        height:100vh;/* temporario*/
+        height:100vh;
     }   
     .logotipo {
         width: 180px;
@@ -460,7 +503,7 @@ body {
         top:158px;
         left:59.3%;
     }
-    .desistir {
+    #desistir {
         font-size: 20px;
         width: 160px;
         top:158px;
@@ -483,13 +526,14 @@ body {
         
     }
 }
+
 @media (max-width: 768px){
     .base .form {
-         margin-left:14%;
+        margin-left:14%;
         margin-top: 70px
     }
     .base {
-        height:100vh;/* temporario*/
+        height:100vh;
     }   
     .logotipo {
         width: 180px;
@@ -516,7 +560,7 @@ body {
         top:158px;
         left:59.3%;
     }
-    .desistir {
+    #desistir {
         font-size: 20px;
         width: 160px;
         top:158px;
