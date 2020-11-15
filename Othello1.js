@@ -113,6 +113,12 @@ function init() {
     computador = 'P';
     dificuldade = 1;
 
+    document.getElementById("preto").checked = false;
+    document.getElementById("branco").checked = false;
+    document.getElementById("facil").checked = false;
+    document.getElementById("medio").checked = false;
+    document.getElementById("dificil").checked = false;
+
     document.body.style.backgroundImage = "url('giphy.gif')";
     document.getElementById("form").style.display="block";
     document.getElementById("button").style.display="block";
@@ -145,6 +151,7 @@ function criar_tabuleiro() {
     areaDeJogo.appendChild(molduraTabuleiro);
     tabuleiro.className = 'tabuleiro';
     molduraTabuleiro.appendChild(tabuleiro);
+    console.log("HUMANO: " + humano + " - IA: " + computador + " - DIFICULDADE: " + dificuldade);
     
     var hor_escala = 64.8;
     var ver_escala = 64.4;
@@ -556,7 +563,6 @@ function processarJogada(pos) {
 
     buttonPressed = false;
 
-    console.log(X + " - " + Y);
     // jogador não pode jogar onde já houver uma peça colocada
     if (conteudo[X][Y] !== ' ') {
 	msgJogImp();
@@ -836,21 +842,24 @@ function melhorJogada() {
     
     let melhorPont = -Infinity;
     let jogadas = possiveisJogadas(computador, conteudo);
-    let jogada;
+    let jogada = jogadas[0][0];
     
     for (let i=0; i<jogadas.length; i++) {
-	
+
+	console.log("ENTROU1" + i);
 	let pos = jogadas[i][0];
 	let tmpCont = processarJogadaInterna(computador, conteudo, pos);
 	let pontuacao = minimax(tmpCont, 0, false);
 	
 	if (pontuacao > melhorPont) {
+	    console.log("ENTROU2");
 	    melhorPont = pontuacao;
 	    jogada = jogadas[i][0];
 	}
 	
     }
-    
+
+    console.log(jogada);
     return jogada;
     
 }
@@ -859,14 +868,16 @@ function melhorJogada() {
 function estadoJogo(cont) {
 
     let pecasComputador = 0;
+    let pecasHumano = 0;
     
     for (let x=0; x<8; x++) {
 	for (let y=0; y<8; y++) {
-	    if (cont[x][y] == computador) { pecasComputador++; } 
+	    if (cont[x][y] == computador) { pecasComputador++; }
+	    else if (cont[x][y] == humano) { pecasHumano++; }
 	}
     }
 
-    return pecasComputador;
+    return pecasComputador - pecasHumano;
     
 }
 
@@ -962,8 +973,7 @@ function fimJogo() {
     let nrPecasJogadorP = pecasJogadorP.length;
     let nrPecasJogadorB = pecasJogadorB.length;
 
-    const msg = document.createElement('div');
-    msg.setAttribute('id', document.getElementById("msgFimJogo"));
+    const msg = document.getElementById("msgFimJogo");
 
     if (nrPecasJogadorP > nrPecasJogadorB) {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";	
