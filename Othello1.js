@@ -8,9 +8,9 @@ Cheila Alves, up201805089
   mostra inicialmente o bloco de autenticação e depois da inserção dos dados pedidos (identificador, password)
   e o posterior clique do botão 'LOGIN', esse mesmo bloco desaparece, é mostrado as opçoes de jogo
 */
-var humano = 'B';
-var computador = 'P';
-var dificuldade = 1;
+var humano;
+var computador;
+var dificuldade;
 function areaAutenticacao() {
     
     document.getElementById("form").style.display="none";
@@ -20,8 +20,10 @@ function areaAutenticacao() {
 
 }
 
-/*quando se clica no botao continuar nas op de jogo, essa pagina fecha e e nostrado o tabuleiro,
-accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai começa se a jogar*/
+/*
+quando se clica no botao continuar nas op de jogo, essa pagina fecha e é mostrado o tabuleiro,
+accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai começa se a jogar
+*/
 function escolhaOp() {
 
     document.getElementById("op-jogo").style.display="none";
@@ -70,7 +72,54 @@ for(var i=0;i<accordions.length;i++){
 }
 
 var areaDeJogo;
-var conteudo = [ [' ',' ',' ',' ',' ',' ',' ', ' '],
+var conteudo;
+var tabuleiro;
+var molduraTabuleiro;
+var pecasJogadorB;
+var pecasJogadorP;
+var jogadorAtual; // jogador que inicia o jogo
+
+var fimJogada; // variável global que indicará o fim da propagação de cada jogada
+
+window.onload = function() {
+    init();
+}
+
+function init() {
+
+    // possivel jogo anterior
+    document.getElementById("msgFimJogo").style.display = "none";
+
+    document.getElementById("area-de-jogo").style.display="none";
+    document.getElementById("container").style.display="none";
+    document.getElementById("pontuacao").style.display="none";
+    document.getElementById('ppreto').innerHTML = 'Preto: 2';
+    document.getElementById('pbranco').innerHTML = 'Branco: 2';
+    document.getElementById('clivre').innerHTML = 'Livres: 60';
+    document.getElementById("passar").style.display="none";
+    document.getElementById("desistir").style.display="none";
+    document.getElementById("logout").style.display="none";
+    document.getElementById("vezJogada").style.display="none";
+    document.getElementById("vezJogada").innerHTML="Vez do preto";
+
+    // remove toda a área de jogo do jogo anterior, se houve
+    areaDeJogo = document.getElementById('area-de-jogo');
+    while (areaDeJogo.firstChild) { areaDeJogo.removeChild(areaDeJogo.lastChild); }
+    let logo = document.createElement('div');
+    logo.setAttribute('class', 'logotipo');
+    areaDeJogo.appendChild(logo);
+    
+    humano = 'B';
+    computador = 'P';
+    dificuldade = 1;
+
+    document.body.style.backgroundImage = "url('giphy.gif')";
+    document.getElementById("form").style.display="block";
+    document.getElementById("button").style.display="block";
+    document.getElementById("op-jogo").style.display="none";
+    document.getElementById("continue").style.display="none";
+    
+    conteudo = [ [' ',' ',' ',' ',' ',' ',' ', ' '],
 		 [' ',' ',' ',' ',' ',' ',' ', ' '],
 		 [' ',' ',' ',' ',' ',' ',' ', ' '],
 		 [' ',' ',' ','B','P',' ',' ', ' '],
@@ -79,19 +128,16 @@ var conteudo = [ [' ',' ',' ',' ',' ',' ',' ', ' '],
 		 [' ',' ',' ',' ',' ',' ',' ', ' '],
 		 [' ',' ',' ',' ',' ',' ',' ', ' ']
 	       ];
-var tabuleiro;
-var molduraTabuleiro;
-var pecasJogadorB = [];
-var pecasJogadorP = [];
-var jogadorAtual = 'P'; // jogador que inicia o jogo
+    pecasJogadorB = [];
+    pecasJogadorP = [];
+    jogadorAtual = 'P'; 
+    fimJogada = false;
 
-var fimJogada = false; // variável global que indicará o fim da propagação de cada jogada
-
-window.onload = function() {
-    areaDeJogo = document.getElementById('area-de-jogo');
     molduraTabuleiro = document.createElement('div');
     molduraTabuleiro.setAttribute('class','molduraTabuleiro');
     tabuleiro = document.createElement('div');
+    document.getElementById("desistir").addEventListener("click", desistir);
+    
 }
 
 function criar_tabuleiro() {
@@ -499,6 +545,7 @@ function trocarPeca(pos) {
     
 }
 
+var buttonPressed = false;
 // partindo da peça que foi colocada na posição pos troca-se a cor das peças do adversario que se seguem a essa peça
 function processarJogada(pos) {
 
@@ -507,6 +554,9 @@ function processarJogada(pos) {
 
     esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
 
+    buttonPressed = false;
+
+    console.log(X + " - " + Y);
     // jogador não pode jogar onde já houver uma peça colocada
     if (conteudo[X][Y] !== ' ') {
 	msgJogImp();
@@ -604,20 +654,9 @@ function processarJogada(pos) {
 
 	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
 	    fimJogo();
-	} else if (jogadasPossiveisAdversario.length > 0 && jogadasPossiveis.length > 0) {
+	} else if (jogadasPossiveisAdversario.length > 0) {
 	    // troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
 	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-	} else if (jogadasPossiveis.length == 0) {
-	    msgSemJogadas();
-	    const passar = document.getElementById("passar");
-	    passar.style.backgroundColor = "#6495ED";
-	    document.getElementById("passar").addEventListener("click", function() {
-		jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-		passar.style.backgroundColor = "#DC143C";
-		esconderMsg();
-		vezJogada();
-	    });
-	    while(jogadorAtual == humano) { return; } // enquanto o jogador não clicar no botão
 	}
 	
     } else {
@@ -630,7 +669,28 @@ function processarJogada(pos) {
 	} else if (jogadasPossiveisAdversario.length > 0) {
 	    // troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
 	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-	} 
+	} else if (jogadasPossiveisAdversario.length == 0) {
+	    
+	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
+	    vezJogada();
+	    setTimeout(msgSemJogadas,1000);
+	    const passar = document.getElementById("passar");
+	    passar.style.backgroundColor = "#6495ED"; // mudança de cor do botão "Passar"
+	    
+	    var listener = function() {
+		jogadorAtual = (jogadorAtual == 'B'?'P':'B'); // troca de jogador
+		vezJogada();
+		passar.style.backgroundColor = "#DC143C"; // o botão retorna a cor que tinha inicialmente
+		esconderMsg(); // msg "sem jogadas possiveis" desaparece
+		buttonPressed = true;
+		setTimeout(processarJogada, 2000, melhorJogada());
+		passar.removeEventListener("click", listener);
+	    }
+	    
+	    passar.addEventListener("click", listener);
+	    esperar();
+	    
+	}
 	
     }
 
@@ -644,6 +704,11 @@ function processarJogada(pos) {
 	
     }
     
+}
+
+function esperar() {
+    if (!buttonPressed)
+	setTimeout(esperar, 2500);
 }
 
 // atualiza o quadro das pontuações à medida que são feitas as jogadas
@@ -873,23 +938,32 @@ function vezJogada() {
 function desistir() {
     
     const msg = document.getElementById("msgFimJogo");
+    
     if (jogadorAtual == 'B') {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";
     } else {
 	msg.innerHTML = "JOGADOR BRANCO GANHOU";
     }
 
-    msg.style.display = "block"; 
+    let novoJogo = document.createElement('div');
+    novoJogo.setAttribute('id', 'novoJogo');
+    novoJogo.innerHTML = "Novo Jogo?";
+    msg.appendChild(novoJogo);
+    msg.style.display = "block";
+    novoJogo.addEventListener("click", init);
     
 }
 
 // mensagem que indica quem ganhou o jogo
 function fimJogo() {
 
+    document.getElementById("desistir").removeEventListener("click", desistir);
+    
     let nrPecasJogadorP = pecasJogadorP.length;
     let nrPecasJogadorB = pecasJogadorB.length;
 
-    const msg = document.getElementById("msgFimJogo");
+    const msg = document.createElement('div');
+    msg.setAttribute('id', document.getElementById("msgFimJogo"));
 
     if (nrPecasJogadorP > nrPecasJogadorB) {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";	
@@ -899,7 +973,12 @@ function fimJogo() {
 	msg.innerHTML = "EMPATE";
     }
 
-    msg.style.display = "block"; 
+    let novoJogo = document.createElement('div');
+    novoJogo.setAttribute('id', 'novoJogo');
+    novoJogo.innerHTML = "Novo Jogo?";
+    msg.appendChild(novoJogo);
+    msg.style.display = "block";
+    novoJogo.addEventListener("click", init);
 
 }
 
