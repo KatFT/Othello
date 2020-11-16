@@ -8,6 +8,8 @@ Cheila Alves, up201805089
   mostra inicialmente o bloco de autenticação e depois da inserção dos dados pedidos (identificador, password)
   e o posterior clique do botão 'LOGIN', esse mesmo bloco desaparece, é mostrado as opçoes de jogo
 */
+var countH;
+var countIA;
 var humano1;
 var computador;
 var dificuldade;
@@ -118,6 +120,10 @@ function init() {
     humano1 = 'B';
     computador = 'P';
     dificuldade = 1;
+
+    countIA=0;
+    countH=0;
+
 
     // reset das escolhas feitas anteriormente
     document.getElementById("preto").checked = false;
@@ -961,8 +967,14 @@ function desistir() {
     
     if (jogadorAtual == 'B') {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";
+	if(humano1=='P') 
+    	classifica.innerHTML+= "Humano ganhou!<br />" ;
+    	else classifica.innerHTML += "IA ganhou!<br />";
     } else {
 	msg.innerHTML = "JOGADOR BRANCO GANHOU";
+	if(humano1=='B') 
+    	classifica.innerHTML+= "Humano ganhou!<br />";
+    	else classifica.innerHTML += "IA ganhou!<br />";
     }
 
     let novoJogo = document.createElement('div');
@@ -978,7 +990,7 @@ function desistir() {
 function fimJogo() {
 
     document.getElementById("desistir").removeEventListener("click", desistir);
-    
+    const classifica = document.getElementById("classifica");
     let nrPecasJogadorP = pecasJogadorP.length;
     let nrPecasJogadorB = pecasJogadorB.length;
 
@@ -986,11 +998,19 @@ function fimJogo() {
 
     if (nrPecasJogadorP > nrPecasJogadorB) {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";	
+		if(humano1=='P') 
+    	classifica.innerHTML+= "Humano ganhou!";
+    	else classifica.innerHTML += "IA ganhou!";
     } else if (nrPecasJogadorP < nrPecasJogadorB) {
 	msg.innerHTML = "JOGADOR BRANCO GANHOU";
+		if(humano1=='B') 
+    	classifica.innerHTML+= "Humano ganhou!";
+    	else classifica.innerHTML += "IA ganhou!";
     } else {
 	msg.innerHTML = "EMPATE";
     }
+
+    classifica.innerHTML+= "Humano: " + countH + " IA: " + countIA + "<br />";
 
     let novoJogo = document.createElement('div');
     novoJogo.setAttribute('id', 'novoJogo');
