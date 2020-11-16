@@ -87,17 +87,25 @@ body {
 
 /* AREA DE JOGO */
 /* logótipo que vai estar na area de jogo */
-.logotipo {
+#area-logotipo {
 
-    background-image: url("othellolog.png");
-    text-align: center;
-    display: block;
+    padding-bottom: 20px;
     width: 400px;
-    padding-bottom: 20px; 
+    height: 130px;
     top: 15px;
     left: 35px;
+    display: none;
     position: fixed;
     
+}
+
+#logotipo {
+    width: 400px;
+    height: 120px;
+    background-image: url("othellolog.png");
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 
 /* disposição do tabuleiro */
@@ -425,7 +433,7 @@ body {
         margin-top: 50px
     }
     
-    .logotipo {
+    #area-logotipo {
         width: 250px;
         top: 15px;
         left: 35px;
@@ -478,7 +486,7 @@ body {
     .base {
         height:100vh;
     }   
-    .logotipo {
+    #area-logotipo {
         width: 180px;
         top: 15px;
         left: 35px;
@@ -535,7 +543,7 @@ body {
     .base {
         height:100vh;
     }   
-    .logotipo {
+    #area-logotipo {
         width: 180px;
         top: 15px;
         left: 35px;
