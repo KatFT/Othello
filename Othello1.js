@@ -8,7 +8,7 @@ Cheila Alves, up201805089
   mostra inicialmente o bloco de autenticação e depois da inserção dos dados pedidos (identificador, password)
   e o posterior clique do botão 'LOGIN', esse mesmo bloco desaparece, é mostrado as opçoes de jogo
 */
-var humano;
+var humano1;
 var computador;
 var dificuldade;
 function areaAutenticacao() {
@@ -29,16 +29,20 @@ function escolhaOp() {
     document.getElementById("op-jogo").style.display="none";
     document.getElementById("continue").style.display="none";
     document.body.style.backgroundImage = "url('Cu1aLQb.gif')";
+    document.getElementById("area-logotipo").style.display="block";
     document.getElementById("area-de-jogo").style.display="block";
     document.getElementById("container").style.display="block";
     document.getElementById("pontuacao").style.display="block";
     document.getElementById("passar").style.display="block";
     document.getElementById("desistir").style.display="block";
     document.getElementById("logout").style.display="block";
-    if (document.getElementById("preto").checked) {
-	humano = 'P';
-	computador = 'B';
-    }
+
+    if (document.getElementById("computador").checked) {
+	if (document.getElementById("preto").checked) {
+	    humano1 = 'P';
+	    computador = 'B';
+	} 
+    } else { computador = undefined; }
 
     if (document.getElementById("medio").checked) {
 	dificuldade = 2;
@@ -72,6 +76,8 @@ for(var i=0;i<accordions.length;i++){
 }
 
 var areaDeJogo;
+var areaLogotipo;
+var logo;
 var conteudo;
 var tabuleiro;
 var molduraTabuleiro;
@@ -89,7 +95,7 @@ function init() {
 
     // possivel jogo anterior
     document.getElementById("msgFimJogo").style.display = "none";
-
+    document.getElementById("area-logotipo").style.display="none";
     document.getElementById("area-de-jogo").style.display="none";
     document.getElementById("container").style.display="none";
     document.getElementById("pontuacao").style.display="none";
@@ -105,20 +111,23 @@ function init() {
     // remove toda a área de jogo do jogo anterior, se houve
     areaDeJogo = document.getElementById('area-de-jogo');
     while (areaDeJogo.firstChild) { areaDeJogo.removeChild(areaDeJogo.lastChild); }
-    let logo = document.createElement('div');
-    logo.setAttribute('class', 'logotipo');
-    areaDeJogo.appendChild(logo);
-    
-    humano = 'B';
+    areaLogotipo = document.getElementById('area-logotipo');
+    while (areaLogotipo.firstChild) { areaLogotipo.removeChild(areaLogotipo.lastChild); }
+
+    // inicialização de variáveis
+    humano1 = 'B';
     computador = 'P';
     dificuldade = 1;
 
+    // reset das escolhas feitas anteriormente
     document.getElementById("preto").checked = false;
     document.getElementById("branco").checked = false;
     document.getElementById("facil").checked = false;
     document.getElementById("medio").checked = false;
     document.getElementById("dificil").checked = false;
+    document.getElementById("computador").checked = false;
 
+    // retorno do formulário
     document.body.style.backgroundImage = "url('giphy.gif')";
     document.getElementById("form").style.display="block";
     document.getElementById("button").style.display="block";
@@ -139,19 +148,21 @@ function init() {
     jogadorAtual = 'P'; 
     fimJogada = false;
 
+    logo = document.createElement('div');
+    logo.setAttribute('id','logotipo');
     molduraTabuleiro = document.createElement('div');
     molduraTabuleiro.setAttribute('class','molduraTabuleiro');
     tabuleiro = document.createElement('div');
+    tabuleiro.className = 'tabuleiro';
     document.getElementById("desistir").addEventListener("click", desistir);
     
 }
 
 function criar_tabuleiro() {
 
+    areaLogotipo.appendChild(logo);
     areaDeJogo.appendChild(molduraTabuleiro);
-    tabuleiro.className = 'tabuleiro';
     molduraTabuleiro.appendChild(tabuleiro);
-    console.log("HUMANO: " + humano + " - IA: " + computador + " - DIFICULDADE: " + dificuldade);
     
     var hor_escala = 64.8;
     var ver_escala = 64.4;
@@ -571,8 +582,8 @@ function processarJogada(pos) {
 
     let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
    
-    let jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
-    if (jogadorAtual == humano) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
+    let jogadasPossiveisAdversario = possiveisJogadas(humano1, conteudo);
+    if (jogadorAtual == humano1) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
 
     if(!contem(jogadasPossiveis,pos)) {
 	msgJogImp();
@@ -653,9 +664,9 @@ function processarJogada(pos) {
 	fimJogada = false; // reset da variável global
     }
     
-    if (jogadorAtual == humano) {
+    if (jogadorAtual == humano1) {
 
-	jogadasPossiveis = possiveisJogadas(humano, conteudo);
+	jogadasPossiveis = possiveisJogadas(humano1, conteudo);
 	jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo);
 
 	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
@@ -668,7 +679,7 @@ function processarJogada(pos) {
     } else {
 
 	jogadasPossiveis = possiveisJogadas(computador, conteudo);
-	jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
+	jogadasPossiveisAdversario = possiveisJogadas(humano1, conteudo);
 	
 	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
 	    fimJogo();
@@ -846,13 +857,11 @@ function melhorJogada() {
     
     for (let i=0; i<jogadas.length; i++) {
 
-	console.log("ENTROU1" + i);
 	let pos = jogadas[i][0];
 	let tmpCont = processarJogadaInterna(computador, conteudo, pos);
 	let pontuacao = minimax(tmpCont, 0, false);
 	
 	if (pontuacao > melhorPont) {
-	    console.log("ENTROU2");
 	    melhorPont = pontuacao;
 	    jogada = jogadas[i][0];
 	}
@@ -868,16 +877,16 @@ function melhorJogada() {
 function estadoJogo(cont) {
 
     let pecasComputador = 0;
-    let pecasHumano = 0;
+    let pecasHumano1 = 0;
     
     for (let x=0; x<8; x++) {
 	for (let y=0; y<8; y++) {
 	    if (cont[x][y] == computador) { pecasComputador++; }
-	    else if (cont[x][y] == humano) { pecasHumano++; }
+	    else if (cont[x][y] == humano1) { pecasHumano1++; }
 	}
     }
 
-    return pecasComputador - pecasHumano;
+    return pecasComputador - pecasHumano1;
     
 }
 
@@ -904,10 +913,10 @@ function minimax(cont, profundidade, jogadorMaximizador) {
     } else {
 	
 	let melhorPont = Infinity;
-	let jogadas = possiveisJogadas(humano, cont);
+	let jogadas = possiveisJogadas(humano1, cont);
 	
 	for (let i=0; i<jogadas.length; i++) {
-	    let tmpCont = processarJogadaInterna(humano, cont, jogadas[i][0]);
+	    let tmpCont = processarJogadaInterna(humano1, cont, jogadas[i][0]);
 	    let pont = minimax(tmpCont, profundidade + 1, true);
 	    melhorPont = Math.min(pont, melhorPont);
 	}
