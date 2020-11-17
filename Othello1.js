@@ -11,23 +11,17 @@ Cheila Alves, up201805089
 var humano;
 var computador;
 var dificuldade;
-var username;
-var password;
-var ok; // verifica se os dados de autenticação batem certo
+var ok;
 
 function areaAutenticacao() {
 
-    username = document.getElementById("username"); // recolhe o username introduzido
-    password = document.getElementById("password"); // recolhe a password introduzida
+    // regista o registo/login no servidor
+    ok = register(document.getElementById("username"), document.getElementById("password"));
 
-    // regista novos dados de autenticação
-    // OU se os dados de autenticação já haviam sido utilizados, verifica se os dados estão corretos
-    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register')
-	.then(response => ok = checkCredentials(response.json()))
-	.then(if(!ok) waitCorrectPass())
-	.catch(console.log);
+    // se foi efetuado um registo inválido, o registo só prossegue quando tal deixa de acontecer
+    waitCorrectPass();
 
-    // quando estiver tudo OK formulário de autenticação desaparece
+    // quando estiver tudo OK, formulário de autenticação desaparece
     // e aparece, de seguida, o formulário para as escolhas de jogo
     document.getElementById("form").style.display="none";
     document.getElementById("button").style.display="none";
@@ -38,42 +32,6 @@ function areaAutenticacao() {
 
 function waitCorrectPass() {
     if (!ok) setTimeout(waitCorrectPass, 2500);
-}
-
-function checkCredentials(obj) {
-    
-    const msg = document.getElementById("msgPassIncorreta");
-    
-    if (obj == {}) {
-
-	msg.style.display = "none";
-	
-	fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
-	    method: 'POST',
-	    body: 'nick='+username+'&pass='+password
-	})
-	    .then(response => console.log(response))
-	    .catch(console.log());
-	
-	return true; // tudo OK
-	
-    } else if (obj.pass != password) {
-	
-	// imprimir msg de password incorreta
-	msg.innerHTML = "Password incorreta";
-	msg.style.display = "block";
-	
-	// reset do campo "PASSWORD"
-	document.getElementById('password').value = '';
-	
-	// nova inserção da password
-	
-	return false; // password incorreta
-	
-    }
-
-    return true; // tudo OK
-    
 }
 
 /*
@@ -99,6 +57,7 @@ function escolhaOp() {
 	    computador = 'B';
 	} 
     } else if (document.getElementById("humano").checked) {
+	computador = undefined;
 	//twoPlayers();
     }
 
@@ -1071,4 +1030,52 @@ function esconderMsg() {
     if (msg.style.display == "block") {
 	msg.style.display = "none";
     }
+}
+
+function twoPlayers() {}
+
+function register(nick, pass) {
+
+    const msg = document.getElementById("msgPassIncorreta");
+
+    // retira msg caso tenha sido mostrada anteriormente
+    msg.style.display = "none";
+    
+    var info;
+    
+    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
+	method: 'POST',
+	body: 'nick='+nick+'&pass='+pass
+    })
+	.then(response => info = response)
+	.then(info => console.log(info))
+	.catch(console.log);
+
+    // se o servidor devolver um erro
+    if (info != {}) {
+	
+	// imprimir msg de password incorreta
+	msg.innerHTML = "Password incorreta";
+	msg.style.display = "block";
+	
+	// reset do campo "PASSWORD"
+	document.getElementById('password').value = '';
+
+	// função retorna erro
+	return false; 
+	
+    }
+
+    return true;
+}
+
+function join(group, nick, pass) {
+    
+    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/join', {
+	method: 'POST',
+	body: 'group='+group+'&nick='+nick+'&pass='+pass
+    })
+	.then(response => console.log(response))
+	.catch(console.log);
+    
 }
