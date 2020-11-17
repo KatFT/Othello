@@ -8,18 +8,72 @@ Cheila Alves, up201805089
   mostra inicialmente o bloco de autenticação e depois da inserção dos dados pedidos (identificador, password)
   e o posterior clique do botão 'LOGIN', esse mesmo bloco desaparece, é mostrado as opçoes de jogo
 */
-var countH;
-var countIA;
-var humano1;
+var humano;
 var computador;
 var dificuldade;
+var username;
+var password;
+var ok; // verifica se os dados de autenticação batem certo
+
 function areaAutenticacao() {
-    
+
+    username = document.getElementById("username"); // recolhe o username introduzido
+    password = document.getElementById("password"); // recolhe a password introduzida
+
+    // regista novos dados de autenticação
+    // OU se os dados de autenticação já haviam sido utilizados, verifica se os dados estão corretos
+    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register')
+	.then(response => ok = checkCredentials(response.json()))
+	.then(if(!ok) waitCorrectPass())
+	.catch(console.log);
+
+    // quando estiver tudo OK formulário de autenticação desaparece
+    // e aparece, de seguida, o formulário para as escolhas de jogo
     document.getElementById("form").style.display="none";
     document.getElementById("button").style.display="none";
     document.getElementById("op-jogo").style.display="block";
     document.getElementById("continue").style.display="block"; 
 
+}
+
+function waitCorrectPass() {
+    if (!ok) setTimeout(waitCorrectPass, 2500);
+}
+
+function checkCredentials(obj) {
+    
+    const msg = document.getElementById("msgPassIncorreta");
+    
+    if (obj == {}) {
+
+	msg.style.display = "none";
+	
+	fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
+	    method: 'POST',
+	    body: 'nick='+username+'&pass='+password
+	})
+	    .then(response => console.log(response))
+	    .catch(console.log());
+	
+	return true; // tudo OK
+	
+    } else if (obj.pass != password) {
+	
+	// imprimir msg de password incorreta
+	msg.innerHTML = "Password incorreta";
+	msg.style.display = "block";
+	
+	// reset do campo "PASSWORD"
+	document.getElementById('password').value = '';
+	
+	// nova inserção da password
+	
+	return false; // password incorreta
+	
+    }
+
+    return true; // tudo OK
+    
 }
 
 /*
@@ -41,10 +95,12 @@ function escolhaOp() {
 
     if (document.getElementById("computador").checked) {
 	if (document.getElementById("preto").checked) {
-	    humano1 = 'P';
+	    humano = 'P';
 	    computador = 'B';
 	} 
-    } else { computador = undefined; }
+    } else if (document.getElementById("humano").checked) {
+	//twoPlayers();
+    }
 
     if (document.getElementById("medio").checked) {
 	dificuldade = 2;
@@ -117,13 +173,9 @@ function init() {
     while (areaLogotipo.firstChild) { areaLogotipo.removeChild(areaLogotipo.lastChild); }
 
     // inicialização de variáveis
-    humano1 = 'B';
+    humano = 'B';
     computador = 'P';
     dificuldade = 1;
-
-    countIA=0;
-    countH=0;
-
 
     // reset das escolhas feitas anteriormente
     document.getElementById("preto").checked = false;
@@ -132,6 +184,7 @@ function init() {
     document.getElementById("medio").checked = false;
     document.getElementById("dificil").checked = false;
     document.getElementById("computador").checked = false;
+    document.getElementById("humano").checked = false;
 
     // retorno do formulário
     document.body.style.backgroundImage = "url('giphy.gif')";
@@ -588,8 +641,8 @@ function processarJogada(pos) {
 
     let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
    
-    let jogadasPossiveisAdversario = possiveisJogadas(humano1, conteudo);
-    if (jogadorAtual == humano1) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
+    let jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
+    if (jogadorAtual == humano) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
 
     if(!contem(jogadasPossiveis,pos)) {
 	msgJogImp();
@@ -670,9 +723,9 @@ function processarJogada(pos) {
 	fimJogada = false; // reset da variável global
     }
     
-    if (jogadorAtual == humano1) {
+    if (jogadorAtual == humano) {
 
-	jogadasPossiveis = possiveisJogadas(humano1, conteudo);
+	jogadasPossiveis = possiveisJogadas(humano, conteudo);
 	jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo);
 
 	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
@@ -685,7 +738,7 @@ function processarJogada(pos) {
     } else {
 
 	jogadasPossiveis = possiveisJogadas(computador, conteudo);
-	jogadasPossiveisAdversario = possiveisJogadas(humano1, conteudo);
+	jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
 	
 	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
 	    fimJogo();
@@ -883,16 +936,16 @@ function melhorJogada() {
 function estadoJogo(cont) {
 
     let pecasComputador = 0;
-    let pecasHumano1 = 0;
+    let pecasHumano = 0;
     
     for (let x=0; x<8; x++) {
 	for (let y=0; y<8; y++) {
 	    if (cont[x][y] == computador) { pecasComputador++; }
-	    else if (cont[x][y] == humano1) { pecasHumano1++; }
+	    else if (cont[x][y] == humano) { pecasHumano++; }
 	}
     }
 
-    return pecasComputador - pecasHumano1;
+    return pecasComputador - pecasHumano;
     
 }
 
@@ -919,10 +972,10 @@ function minimax(cont, profundidade, jogadorMaximizador) {
     } else {
 	
 	let melhorPont = Infinity;
-	let jogadas = possiveisJogadas(humano1, cont);
+	let jogadas = possiveisJogadas(humano, cont);
 	
 	for (let i=0; i<jogadas.length; i++) {
-	    let tmpCont = processarJogadaInterna(humano1, cont, jogadas[i][0]);
+	    let tmpCont = processarJogadaInterna(humano, cont, jogadas[i][0]);
 	    let pont = minimax(tmpCont, profundidade + 1, true);
 	    melhorPont = Math.min(pont, melhorPont);
 	}
@@ -967,14 +1020,8 @@ function desistir() {
     
     if (jogadorAtual == 'B') {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";
-	if(humano1=='P') 
-    	classifica.innerHTML+= "Humano ganhou!<br />" ;
-    	else classifica.innerHTML += "IA ganhou!<br />";
     } else {
 	msg.innerHTML = "JOGADOR BRANCO GANHOU";
-	if(humano1=='B') 
-    	classifica.innerHTML+= "Humano ganhou!<br />";
-    	else classifica.innerHTML += "IA ganhou!<br />";
     }
 
     let novoJogo = document.createElement('div');
@@ -990,7 +1037,7 @@ function desistir() {
 function fimJogo() {
 
     document.getElementById("desistir").removeEventListener("click", desistir);
-    const classifica = document.getElementById("classifica");
+    
     let nrPecasJogadorP = pecasJogadorP.length;
     let nrPecasJogadorB = pecasJogadorB.length;
 
@@ -998,19 +1045,11 @@ function fimJogo() {
 
     if (nrPecasJogadorP > nrPecasJogadorB) {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";	
-		if(humano1=='P') 
-    	classifica.innerHTML+= "Humano ganhou!";
-    	else classifica.innerHTML += "IA ganhou!";
     } else if (nrPecasJogadorP < nrPecasJogadorB) {
 	msg.innerHTML = "JOGADOR BRANCO GANHOU";
-		if(humano1=='B') 
-    	classifica.innerHTML+= "Humano ganhou!";
-    	else classifica.innerHTML += "IA ganhou!";
     } else {
 	msg.innerHTML = "EMPATE";
     }
-
-    classifica.innerHTML+= "Humano: " + countH + " IA: " + countIA + "<br />";
 
     let novoJogo = document.createElement('div');
     novoJogo.setAttribute('id', 'novoJogo');
