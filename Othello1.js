@@ -11,7 +11,6 @@ Cheila Alves, up201805089
 var humano;
 var computador;
 var dificuldade;
-<<<<<<< HEAD
 var ok;
 
 function areaAutenticacao() {
@@ -23,25 +22,6 @@ function areaAutenticacao() {
     waitCorrectPass();
 
     // quando estiver tudo OK, formulário de autenticação desaparece
-=======
-var username;
-var password;
-var ok; // verifica se os dados de autenticação batem certo
-
-function areaAutenticacao() {
-
-    username = document.getElementById("username"); // recolhe o username introduzido
-    password = document.getElementById("password"); // recolhe a password introduzida
-
-    // regista novos dados de autenticação
-    // OU se os dados de autenticação já haviam sido utilizados, verifica se os dados estão corretos
-    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register')
-	.then(response => ok = checkCredentials(response.json()))
-	.then(if(!ok) waitCorrectPass())
-	.catch(console.log);
-
-    // quando estiver tudo OK formulário de autenticação desaparece
->>>>>>> 984f8284e89c672e7ea09a4c7f226365b02c302f
     // e aparece, de seguida, o formulário para as escolhas de jogo
     document.getElementById("form").style.display="none";
     document.getElementById("button").style.display="none";
@@ -54,45 +34,6 @@ function waitCorrectPass() {
     if (!ok) setTimeout(waitCorrectPass, 2500);
 }
 
-<<<<<<< HEAD
-=======
-function checkCredentials(obj) {
-    
-    const msg = document.getElementById("msgPassIncorreta");
-    
-    if (obj == {}) {
-
-	msg.style.display = "none";
-	
-	fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
-	    method: 'POST',
-	    body: 'nick='+username+'&pass='+password
-	})
-	    .then(response => console.log(response))
-	    .catch(console.log());
-	
-	return true; // tudo OK
-	
-    } else if (obj.pass != password) {
-	
-	// imprimir msg de password incorreta
-	msg.innerHTML = "Password incorreta";
-	msg.style.display = "block";
-	
-	// reset do campo "PASSWORD"
-	document.getElementById('password').value = '';
-	
-	// nova inserção da password
-	
-	return false; // password incorreta
-	
-    }
-
-    return true; // tudo OK
-    
-}
-
->>>>>>> 984f8284e89c672e7ea09a4c7f226365b02c302f
 /*
 quando se clica no botao continuar nas op de jogo, essa pagina fecha e é mostrado o tabuleiro,
 accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai começa se a jogar
@@ -116,10 +57,7 @@ function escolhaOp() {
 	    computador = 'B';
 	} 
     } else if (document.getElementById("humano").checked) {
-<<<<<<< HEAD
 	computador = undefined;
-=======
->>>>>>> 984f8284e89c672e7ea09a4c7f226365b02c302f
 	//twoPlayers();
     }
 
@@ -1131,6 +1069,7 @@ function register(nick, pass) {
     return true;
 }
 
+// emparelha 2 jogadores que pretendem jogar um jogo
 function join(group, nick, pass) {
     
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/join', {
