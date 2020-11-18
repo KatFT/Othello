@@ -11,8 +11,8 @@ Cheila Alves, up201805089
 var humano;
 var computador;
 var dificuldade;
-var ok;
 
+var successfulLog;
 function areaAutenticacao() {
 
     computador = undefined;
@@ -22,23 +22,21 @@ function areaAutenticacao() {
 
     // verifica se ambos os campos USERNAME e PASSWORD estão preenchidos para prosseguir com o registo/login
     if (user.value.length != 0 && pass.value.length != 0) {
+	
+	// regista o registo/login no servidor
+	register(document.getElementById("username").value, document.getElementById("password").value);
+
+	// se foi efetuado um registo inválido, o registo só prossegue quando tal deixa de acontecer
+	if (successfulLog == true) {
 	    
-	    // regista o registo/login no servidor
-	    ok = register(document.getElementById("username").value, document.getElementById("password").value);
-
-	    // se foi efetuado um registo inválido, o registo só prossegue quando tal deixa de acontecer
-	    waitCorrectPass();
-
 	    document.getElementById("form").style.display="none";
 	    document.getElementById("login").style.display="none";
 	    area_de_jogo();
-	 
+	    
+	}
+	
     }
     
-}
-
-function waitCorrectPass() {
-    if (!ok) setTimeout(waitCorrectPass, 2500);
 }
 
 function area_de_jogo() {
@@ -1068,7 +1066,7 @@ function register(nickname, password) {
     // retira msg caso tenha sido mostrada anteriormente
     msg.style.display = "none";
     
-    var info;
+    var info;  
     
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
 	method: 'POST',
@@ -1088,11 +1086,11 @@ function register(nickname, password) {
 
 		// função retorna erro
 		return false;
-	    }
+	    } else { return true; }
 	})
+	.then(valid => successfulLog = valid)
 	.catch(console.log);
-
-    return true;
+    
 }
 
 // emparelha 2 jogadores que pretendem jogar um jogo
