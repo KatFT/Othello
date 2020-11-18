@@ -362,6 +362,20 @@ body {
 
 /*--------------------------------------*/
 
+    #ranking{
+        top:350px;
+        left:40px;
+        display:none;
+        position:fixed;
+        width:360px;
+        height:380px;
+        background-color: #FFF5EE;
+        padding:10px;
+        border: 12px solid #FA8072;
+        font-family: Verdana,Geneva,sans-serif;
+
+    }
+
 /* MENSAGEM DE FIM DE JOGO */
 #msgFimJogo {
     
@@ -629,4 +643,6 @@ body {
         width:82%;
         
     }
+
+
 }

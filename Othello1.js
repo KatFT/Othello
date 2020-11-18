@@ -31,6 +31,8 @@ function areaAutenticacao() {
 	    
 	    document.getElementById("form").style.display="none";
 	    document.getElementById("login").style.display="none";
+	    document.getElementById("ranking").style.display="block";
+    	ranking();
 	    area_de_jogo();
 	    
 	}
@@ -1106,4 +1108,27 @@ function join(grp, nickname, password) {
 	.then(response => console.log(response))
 	.catch(console.log);
     
+}
+
+//ranking
+//da 400 BAD REQUEST
+function ranking(){
+	fetch('http://twserver.alunos.dcc.fc.up.pt:8008/ranking', {
+		method: 'POST',
+		body: {}
+		
+	})
+	.then(function(response) {
+		const rank=document.getElementById("ranking");
+		//console.log(response); //ele aqui recebe a resposnta direito
+		rank.innerHTML="!!!RANKING!!! <br>";
+		for(let i=0;i<response.ranking.length;i++){
+		
+			rank.innerHTML+="User: "+response.ranking[i].nick + "Vitórias: " + response.ranking[i].victories
+			+ "<br>";
+		}
+
+	})
+	.catch(console.log);
+
 }
