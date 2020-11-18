@@ -24,15 +24,15 @@ function areaAutenticacao() {
     if (user.value.length != 0 && pass.value.length != 0) {
 	
 	// regista o registo/login no servidor
-	register(document.getElementById("username").value, document.getElementById("password").value);
+	register(user.value, pass.value);
 
 	// se foi efetuado um registo inválido, o registo só prossegue quando tal deixa de acontecer
 	if (successfulLog == true) {
 	    
 	    document.getElementById("form").style.display="none";
 	    document.getElementById("login").style.display="none";
+	    ranking();
 	    document.getElementById("ranking").style.display="block";
-    	ranking();
 	    area_de_jogo();
 	    
 	}
@@ -139,6 +139,7 @@ function init() {
 
     // possivel jogo anterior
     document.getElementById("msgFimJogo").style.display = "none";
+    document.getElementById("ranking").style.display="none";
     document.getElementById("area-logotipo").style.display="none";
     document.getElementById("area-de-jogo").style.display="none";
     document.getElementById("container").style.display="none";
@@ -1110,23 +1111,24 @@ function join(grp, nickname, password) {
     
 }
 
-//ranking
-//da 400 BAD REQUEST
 function ranking(){
-	fetch('http://twserver.alunos.dcc.fc.up.pt:8008/ranking', {
-		method: 'POST',
-		body: {}
-		
-	})
+    
+    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/ranking', {
+	method: 'POST',
+	body: '{}'
+    })
 	.then(function(response) {
-		const rank=document.getElementById("ranking");
-		//console.log(response); //ele aqui recebe a resposnta direito
-		rank.innerHTML="!!!RANKING!!! <br>";
-		for(let i=0;i<response.ranking.length;i++){
-		
-			rank.innerHTML+="User: "+response.ranking[i].nick + "Vitórias: " + response.ranking[i].victories
-			+ "<br>";
-		}
+	    
+	    const rank = document.getElementById("ranking");
+	    const header = document.getElementById("header");
+	    const content = document.getElementById("content");
+
+	    header.innerText = "RANKING";
+	
+	    for(let i=0; i<response.ranking.length; i++)
+		content.innerText+= "User: "+ response.ranking[i].nick + " Vitórias: "
+		+ response.ranking[i].victories + String.fromCharCode(13);
+	    // '\r' === String.fromCharCode(13)
 
 	})
 	.catch(console.log);
