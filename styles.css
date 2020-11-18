@@ -362,20 +362,6 @@ body {
 
 /*--------------------------------------*/
 
-    #ranking{
-        top:350px;
-        left:40px;
-        display:none;
-        position:fixed;
-        width:360px;
-        height:380px;
-        background-color: #FFF5EE;
-        padding:10px;
-        border: 12px solid #FA8072;
-        font-family: Verdana,Geneva,sans-serif;
-
-    }
-
 /* MENSAGEM DE FIM DE JOGO */
 #msgFimJogo {
     
@@ -433,6 +419,44 @@ body {
     position:fixed;
     top:295px;
     right:126px;
+    
+}
+
+#ranking {
+    
+    top:350px;
+    left:50px;
+    display:none;
+    position:fixed;
+    width:320px;
+    height:380px;
+    background-color: #800000;
+    padding:10px;
+    border: 20px solid #DC143C;
+
+}
+
+#header {
+
+    font-family:'Staatliches',cursive;
+    letter-spacing: 2px;
+    font-style: italic;
+    font-size: 30px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px;
+    color:#FFF5EE;
+    
+}
+
+#content {
+
+    font-family:'Staatliches',cursive;
+    letter-spacing: 2px;
+    font-size: 20px;
+    text-align: center;
+    margin-top: 5px;
+    color:#FFF5EE;
     
 }
 
@@ -643,6 +667,4 @@ body {
         width:82%;
         
     }
-
-
 }
