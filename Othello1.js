@@ -1043,24 +1043,20 @@ function register(nickname, password) {
 	},
 	body: JSON.stringify({nick: nickname, pass: password})
     })
-	.then(response => info = response)
-	.then(info => console.log(info))
+	.then(function(response) {
+	    if (!response.ok) { // se o servidor devolver um erro
+		// imprimir msg de password incorreta
+		msg.innerHTML = "Password incorreta";
+		msg.style.display = "block";
+		
+		// reset do campo "PASSWORD"
+		document.getElementById('password').value = '';
+
+		// função retorna erro
+		return false;
+	    }
+	})
 	.catch(console.log);
-
-    // se o servidor devolver um erro
-    if (info != "{}") {
-	
-	// imprimir msg de password incorreta
-	msg.innerHTML = "Password incorreta";
-	msg.style.display = "block";
-	
-	// reset do campo "PASSWORD"
-	document.getElementById('password').value = '';
-
-	// função retorna erro
-	return false; 
-	
-    }
 
     return true;
 }
