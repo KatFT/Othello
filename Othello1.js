@@ -14,19 +14,25 @@ var dificuldade;
 var ok;
 
 function areaAutenticacao() {
+    
+    let user = document.getElementById("username");
+    let pass = document.getElementById("password");
 
-    // regista o registo/login no servidor
-    ok = register(document.getElementById("username").value, document.getElementById("password").value);
+    // verifica se ambos os campos USERNAME e PASSWORD estão preenchidos para prosseguir com o registo/login
+    if (user.value.length != 0 && pass.value.length != 0) {
+	    
+	    // regista o registo/login no servidor
+	    ok = register(document.getElementById("username").value, document.getElementById("password").value);
 
-    // se foi efetuado um registo inválido, o registo só prossegue quando tal deixa de acontecer
-    waitCorrectPass();
+	    // se foi efetuado um registo inválido, o registo só prossegue quando tal deixa de acontecer
+	    waitCorrectPass();
 
-    // quando estiver tudo OK, formulário de autenticação desaparece
-    // e aparece, de seguida, o formulário para as escolhas de jogo
-    document.getElementById("form").style.display="none";
-    document.getElementById("button").style.display="none";
-    area_de_jogo(); 
-
+	    document.getElementById("form").style.display="none";
+	    document.getElementById("login").style.display="none";
+	    area_de_jogo();
+	 
+    }
+    
 }
 
 function waitCorrectPass() {
@@ -34,7 +40,7 @@ function waitCorrectPass() {
 }
 
 function area_de_jogo() {
-    
+
     document.body.style.backgroundImage = "url('Cu1aLQb.gif')";
     document.getElementById("area-logotipo").style.display="block";
     document.getElementById("area-de-jogo").style.display="block";
@@ -43,7 +49,18 @@ function area_de_jogo() {
     document.getElementById("passar").style.display="block";
     document.getElementById("desistir").style.display="block";
     document.getElementById("logout").style.display="block";
+    
     criar_tabuleiro(); // depois das escolhas o jogo começa
+    
+}
+
+// função que expõe as opções de jogo (cor e nivel de dificuldade) para o jogador escolher
+function mostrarOps() {
+
+    document.getElementById("form").style.display="none";
+    document.getElementById("login").style.display="none";
+    document.getElementById("op-jogo").style.display="block";
+    document.getElementById("continue").style.display="block";
     
 }
 
@@ -147,7 +164,7 @@ function init() {
     // retorno do formulário
     document.body.style.backgroundImage = "url('giphy.gif')";
     document.getElementById("form").style.display="block";
-    document.getElementById("button").style.display="block";
+    document.getElementById("login").style.display="block";
     document.getElementById("op-jogo").style.display="none";
     document.getElementById("continue").style.display="none";
     
@@ -742,7 +759,7 @@ function processarJogada(pos) {
 
 function esperar() {
     if (!buttonPressed)
-	setTimeout(esperar, 2500);
+	setTimeout(esperar, 2500, flag);
 }
 
 // atualiza o quadro das pontuações à medida que são feitas as jogadas

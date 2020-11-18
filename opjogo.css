@@ -8,7 +8,7 @@ Cheila Alves, up201805089
 
 /* OPÇOES DE JOGO */
 
-/*area total de opcões*/
+/* area total de opcões */
 .Op {
     
     display: none; /* começa por não aparecer */
@@ -17,13 +17,16 @@ Cheila Alves, up201805089
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); /* mover o canto superior esquerdo para centrar tudo */
-    width: 600px;
+    width: 800px;
+    height: 600px;
     border:17px solid #000000;
     
 }
 
 /* quadrado todo exceto o cabeçalho */
 .corpo {
+    height: 494px;
+    width: 772px;
     background-color: #DC143C;
     padding: 10px 15px;
 }
@@ -34,7 +37,7 @@ Cheila Alves, up201805089
     font-family:'Staatliches',cursive;
     cursor: pointer;
     outline:none;
-    font-size:24px;
+    font-size:34px;
     background-color:#6495ED;
     color:#F0E68C;
     padding:15px 20px;
@@ -48,7 +51,9 @@ Cheila Alves, up201805089
 
 /* formatação do cabeçalho global */
 .opcao {
-    
+
+    width: 762px;
+    height: 55px;
     font-family:'Staatliches',cursive;
     letter-spacing: 4px;
     background-color: #FA8072;
@@ -56,42 +61,50 @@ Cheila Alves, up201805089
     text-align: center;
     color:#FFF5EE;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 50px;
     border-bottom: 2px solid #FFF5EE;
     
 }
 
 /* cabeçalho de cada quadrado */
 .titulo{
+    
     font-family:'Staatliches',cursive;
     letter-spacing: 4px;
     border-bottom:1px solid #FFF5EE;
     justify-content: center;
     text-align: center;
-    padding: 5px ;
+    padding: 5px;
     color:#DC143C;
-    font-size: 16px;
+    font-size: 25px;
     font-weight: bold;
     background-color: #FFF5EE;
+    
     
 }
 
 /* espaçamento de cada quadrado relativamente ao corpo */
-.cor, .jogador, .dificuldade{
-    padding:10px 15px;
+.cor, .dificuldade{
+    margin-top: 20px;
+    padding: 10px 15px;
+}
+
+.dificuldade {
+    margin-top: 5px;
 }
 
 /* características de cada quadrado */
-.cor .op-cor, .jogador .op-jogador, .dificuldade .op-dificuldade{
+.cor .op-cor, .dificuldade .op-dificuldade{
 
     background-color: #FA8072;
     font-family:'Staatliches',cursive;
+    font-size: 22px;
     letter-spacing: 3px;
     color:#FFF5EE;
     justify-content: center;
     text-align: center;
     border-bottom: 2px solid #FFF5EE;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
 
 }
 
