@@ -25,13 +25,26 @@ function areaAutenticacao() {
     // e aparece, de seguida, o formulário para as escolhas de jogo
     document.getElementById("form").style.display="none";
     document.getElementById("button").style.display="none";
-    document.getElementById("op-jogo").style.display="block";
-    document.getElementById("continue").style.display="block"; 
+    area_de_jogo(); 
 
 }
 
 function waitCorrectPass() {
     if (!ok) setTimeout(waitCorrectPass, 2500);
+}
+
+function area_de_jogo() {
+    
+    document.body.style.backgroundImage = "url('Cu1aLQb.gif')";
+    document.getElementById("area-logotipo").style.display="block";
+    document.getElementById("area-de-jogo").style.display="block";
+    document.getElementById("container").style.display="block";
+    document.getElementById("pontuacao").style.display="block";
+    document.getElementById("passar").style.display="block";
+    document.getElementById("desistir").style.display="block";
+    document.getElementById("logout").style.display="block";
+    criar_tabuleiro(); // depois das escolhas o jogo começa
+    
 }
 
 /*
@@ -42,14 +55,6 @@ function escolhaOp() {
 
     document.getElementById("op-jogo").style.display="none";
     document.getElementById("continue").style.display="none";
-    document.body.style.backgroundImage = "url('Cu1aLQb.gif')";
-    document.getElementById("area-logotipo").style.display="block";
-    document.getElementById("area-de-jogo").style.display="block";
-    document.getElementById("container").style.display="block";
-    document.getElementById("pontuacao").style.display="block";
-    document.getElementById("passar").style.display="block";
-    document.getElementById("desistir").style.display="block";
-    document.getElementById("logout").style.display="block";
 
     if (document.getElementById("preto").checked) {
 	humano = 'P';
@@ -61,8 +66,9 @@ function escolhaOp() {
     } else if (document.getElementById("dificil").checked) {
 	dificuldade = 3;
     }
+
     document.getElementById("vezJogada").style.display="block";
-    criar_tabuleiro(); // depois das escolhas o jogo começa
+    area_de_jogo();
     
 }
 
