@@ -16,7 +16,7 @@ var ok;
 function areaAutenticacao() {
 
     // regista o registo/login no servidor
-    ok = register(document.getElementById("username"), document.getElementById("password"));
+    ok = register(document.getElementById("username").value, document.getElementById("password").value);
 
     // se foi efetuado um registo inválido, o registo só prossegue quando tal deixa de acontecer
     waitCorrectPass();
@@ -51,14 +51,9 @@ function escolhaOp() {
     document.getElementById("desistir").style.display="block";
     document.getElementById("logout").style.display="block";
 
-    if (document.getElementById("computador").checked) {
-	if (document.getElementById("preto").checked) {
-	    humano = 'P';
-	    computador = 'B';
-	} 
-    } else if (document.getElementById("humano").checked) {
-	computador = undefined;
-	//twoPlayers();
+    if (document.getElementById("preto").checked) {
+	humano = 'P';
+	computador = 'B';
     }
 
     if (document.getElementById("medio").checked) {
@@ -142,8 +137,6 @@ function init() {
     document.getElementById("facil").checked = false;
     document.getElementById("medio").checked = false;
     document.getElementById("dificil").checked = false;
-    document.getElementById("computador").checked = false;
-    document.getElementById("humano").checked = false;
 
     // retorno do formulário
     document.body.style.backgroundImage = "url('giphy.gif')";
@@ -1052,7 +1045,7 @@ function register(nick, pass) {
 	.catch(console.log);
 
     // se o servidor devolver um erro
-    if (info != {}) {
+    if (info != "{}") {
 	
 	// imprimir msg de password incorreta
 	msg.innerHTML = "Password incorreta";
