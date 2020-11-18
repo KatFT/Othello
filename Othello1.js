@@ -14,6 +14,8 @@ var dificuldade;
 var ok;
 
 function areaAutenticacao() {
+
+    computador = undefined;
     
     let user = document.getElementById("username");
     let pass = document.getElementById("password");
@@ -70,22 +72,29 @@ accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai c
 */
 function escolhaOp() {
 
-    document.getElementById("op-jogo").style.display="none";
-    document.getElementById("continue").style.display="none";
+    // só prossegue se forem selecionadas as escolhas
+    if ((document.getElementById("preto").checked || document.getElementById("branco").checked)
+	&& (document.getElementById("facil").checked || document.getElementById("medio").checked
+	    || document.getElementById("dificil").checked)) {
+	
+	document.getElementById("op-jogo").style.display="none";
+	document.getElementById("continue").style.display="none";
 
-    if (document.getElementById("preto").checked) {
-	humano = 'P';
-	computador = 'B';
+	if (document.getElementById("preto").checked) {
+	    humano = 'P';
+	    computador = 'B';
+	}
+
+	if (document.getElementById("medio").checked) {
+	    dificuldade = 2;
+	} else if (document.getElementById("dificil").checked) {
+	    dificuldade = 3;
+	}
+
+	document.getElementById("vezJogada").style.display="block";
+	area_de_jogo();
+	
     }
-
-    if (document.getElementById("medio").checked) {
-	dificuldade = 2;
-    } else if (document.getElementById("dificil").checked) {
-	dificuldade = 3;
-    }
-
-    document.getElementById("vezJogada").style.display="block";
-    area_de_jogo();
     
 }
 
@@ -1004,7 +1013,9 @@ function desistir() {
     novoJogo.innerHTML = "Novo Jogo?";
     msg.appendChild(novoJogo);
     msg.style.display = "block";
-    novoJogo.addEventListener("click", init);
+    novoJogo.addEventListener("click", function() {
+	if (computador = undefined) { logout(); } else { init(); }
+    });
     
 }
 
