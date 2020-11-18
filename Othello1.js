@@ -1027,7 +1027,7 @@ function esconderMsg() {
 
 function twoPlayers() {}
 
-function register(nick, pass) {
+function register(nickname, password) {
 
     const msg = document.getElementById("msgPassIncorreta");
 
@@ -1038,7 +1038,10 @@ function register(nick, pass) {
     
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
 	method: 'POST',
-	body: 'nick='+nick+'&pass='+pass
+	headers: {
+	    'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+	},
+	body: JSON.stringify({nick: nickname, pass: password})
     })
 	.then(response => info = response)
 	.then(info => console.log(info))
@@ -1063,11 +1066,14 @@ function register(nick, pass) {
 }
 
 // emparelha 2 jogadores que pretendem jogar um jogo
-function join(group, nick, pass) {
+function join(grp, nickname, password) {
     
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/join', {
 	method: 'POST',
-	body: 'group='+group+'&nick='+nick+'&pass='+pass
+	headers: {
+	    'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+	},
+	body: JSON.stringify({group: grp, nick: nickname, pass: password})
     })
 	.then(response => console.log(response))
 	.catch(console.log);
