@@ -31,6 +31,7 @@ function areaAutenticacao() {
 	    
 	    document.getElementById("form").style.display="none";
 	    document.getElementById("login").style.display="none";
+	    twoPlayers(user.value, pass.value);
 	    ranking();
 	    document.getElementById("ranking").style.display="block";
 	    area_de_jogo();
@@ -1060,7 +1061,10 @@ function esconderMsg() {
     }
 }
 
-function twoPlayers() {}
+var gameReference, colorPlayer;
+function twoPlayers(nick, pass) {
+    join(2, nick, pass);
+}
 
 function register(nickname, password) {
 
@@ -1098,12 +1102,11 @@ function register(nickname, password) {
 
 // emparelha 2 jogadores que pretendem jogar um jogo
 function join(grp, nickname, password) {
+
+    console.log(JSON.stringify({group: grp, nick: nickname, pass: password}));
     
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/join', {
 	method: 'POST',
-	headers: {
-	    'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
-	},
 	body: JSON.stringify({group: grp, nick: nickname, pass: password})
     })
 	.then(response => {
@@ -1112,6 +1115,7 @@ function join(grp, nickname, password) {
 	.then(info => {
 	    gameReference = info.game;
 	    colorPlayer = info.color;
+	    console.log(gameReference + " - " + colorPlayer);
 	})
 	.catch(console.log);
     
@@ -1124,7 +1128,6 @@ function ranking(){
 	body: '{}'
     })
 	.then(response => {
-	    console.log(response.json());
 	    return Promise.resolve(response.json())
 	})
 	.then(info => {
