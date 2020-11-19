@@ -1106,7 +1106,13 @@ function join(grp, nickname, password) {
 	},
 	body: JSON.stringify({group: grp, nick: nickname, pass: password})
     })
-	.then(response => console.log(response))
+	.then(response => {
+	    return Promise.resolve(response.json())
+	})
+	.then(info => {
+	    gameReference = info.game;
+	    colorPlayer = info.color;
+	})
 	.catch(console.log);
     
 }
@@ -1117,19 +1123,23 @@ function ranking(){
 	method: 'POST',
 	body: '{}'
     })
-	.then(function(response) {
+	.then(response => {
+	    console.log(response.json());
+	    return Promise.resolve(response.json())
+	})
+	.then(info => {
 	    
 	    const rank = document.getElementById("ranking");
 	    const header = document.getElementById("header");
 	    const content = document.getElementById("content");
-
+	    
 	    header.innerText = "RANKING";
-	
-	    for(let i=0; i<response.ranking.length; i++)
-		content.innerText+= "User: "+ response.ranking[i].nick + " Vitórias: "
-		+ response.ranking[i].victories + String.fromCharCode(13);
-	    // '\r' === String.fromCharCode(13)
 
+	    for(let i=0; i<info.ranking.length; i++)
+		content.innerText+= "User: "+ info.ranking[i].nick + " Vitórias: "
+		+ info.ranking[i].victories + String.fromCharCode(13);
+	    // '\r' === String.fromCharCode(13))
+	    
 	})
 	.catch(console.log);
 
