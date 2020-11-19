@@ -99,6 +99,7 @@ body {
 .dados_autenticacao {
     font-size: 25px;
     font-weight: bold;
+    margin-top: 5px;
     margin-bottom: 0;
     font-family: 'Staatliches', cursive;
     color: #FFF5EE;
@@ -109,14 +110,16 @@ body {
     display: none;
     font-family:'Staatliches',cursive;
     font-weight: bold;
-    background-color: #6495ED;
-    font-size: 18px;
-    width: 85%;
+    text-align: center;
+    background-color: #000000;
+    font-size: 20px;
+    width: 95%;
     height: 25px;
-    background: white;
     border-radius: 4px;
     border: 1px solid black;
-    margin: 11px 0 18px 0;
+    margin: 2px 0 2px 0;
+    bottom: -10px;
+    color: #7FFF00;
     
 }
 

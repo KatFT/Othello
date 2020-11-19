@@ -23,23 +23,24 @@ Cheila Alves, up201805089
       
       <!-- autenticaçao -->
       <div class="form" id="form">
-  <div> <img class="logotipo-form" src="othellolog.png" alt="Othello" style="margin: auto"></div>
+	<div> <img class="logotipo-form" src="othellolog.png" alt="Othello" style="margin: auto"></div>
         <button class="jogIA" id="jogIA" onclick="mostrarOps()">JOGAR COM COMPUTADOR</button>
 
         <h1>Autenticação</h1>
 
         <div class="form-group">
           <p class="dados_autenticacao">Identificador</p>
-        <input type="text" id="username" placeholder="Username" class="form-control" required>
+          <input type="text" id="username" placeholder="Username" class="form-control" required>
         </div>
 
         <div class="form-group">
           <p class="dados_autenticacao">Password</p>
-        <input type="password" id="password" placeholder="Password" class="form-control" required>
+	  <div id="msgPassIncorreta"></div>
+          <input type="password" id="password" placeholder="Password" class="form-control" required>
         </div>
-  
+	
         <!-- botao que ao clicar faz desaparecer o login e aparecer o outro div -->
-      <button id="login" class="btn" onclick="areaAutenticacao()">REGISTAR / LOGIN</button>
+	<button id="login" class="btn" onclick="areaAutenticacao()">REGISTAR / LOGIN</button>
       </div>
       <!-- Fim da div de autenticaçao-->
       
@@ -143,7 +144,6 @@ Cheila Alves, up201805089
         Vez do preto
       </div>
 
-      <div id="msgPassIncorreta"></div>
       <!-- Jogada impossivel-->
        <div id="impossivel">
         Jogada impossível
