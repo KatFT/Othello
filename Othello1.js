@@ -1102,8 +1102,6 @@ function register(nickname, password) {
 
 // emparelha 2 jogadores que pretendem jogar um jogo
 function join(grp, nickname, password) {
-
-    console.log(JSON.stringify({group: grp, nick: nickname, pass: password}));
     
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/join', {
 	method: 'POST',
