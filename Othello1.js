@@ -1016,8 +1016,13 @@ function desistir() {
     msg.appendChild(novoJogo);
     msg.style.display = "block";
     novoJogo.addEventListener("click", function() {
-	if (computador = undefined) { logout(); } else { init(); }
+	if (computador == undefined) { 
+		var nick= document.getElementById("username");
+    	var pass= document.getElementById("password");
+		sair(nick.value,pass.value); } else { init(); }
     });
+
+
     
 }
 
@@ -1062,6 +1067,21 @@ function esconderMsg() {
 }
 
 var gameReference, colorPlayer;
+
+function clear(){
+	document. getElementById("username").value='';
+	document. getElementById("password").value='';
+
+
+}
+
+function sair(nick, pass){
+	console.log(nick);
+	console.log(pass);
+	leave(gameReference, nick, pass);
+
+}
+
 function twoPlayers(nick, pass) {
     join(2, nick, pass);
 }
@@ -1144,4 +1164,16 @@ function ranking(){
 	})
 	.catch(console.log);
 
+}
+
+
+function leave(gameReference,nickname,password){
+	fetch('http://twserver.alunos.dcc.fc.up.pt:8008/leave', {
+		method: 'POST',
+		body: JSON.stringify({nick: nickname, pass: password, game: gameReference})
+	})
+	.then(response => console.log(response))
+	.catch(console.log);
+	clear();
+	init();
 }
