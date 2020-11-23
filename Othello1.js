@@ -615,6 +615,13 @@ function processarJogada(pos) {
     let X = Math.floor(pos % 8);
     let Y = Math.floor(pos / 8);
 
+    if (computador == undefined) {
+	let move = '{\"row\": ' + X + ', \"col\": ' + Y + '}';
+	let user = document.getElementById("username").value;
+	let pass = document.getElementById("password").value;
+	notify(user,pass,gameReference,move);
+    }
+
     esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
 
     buttonPressed = false;
@@ -1189,6 +1196,19 @@ function leave(gameReference, nickname, password){
     clear();
     
     init();
+    
+}
+
+async function notify(nickname, password, game, moveGame) {
+
+    console.log(nickname + " " + password + " " + game);
+    console.log(JSON.parse(moveGame));
+    await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/notify', {
+	method: 'POST',
+	body: JSON.stringify({nick: nickname, pass: password, game: gameReference, move: JSON.parse(moveGame)})
+    })
+	.then(response => console.log(response))
+	.catch(console.log);
     
 }
 
