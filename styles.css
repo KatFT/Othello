@@ -424,18 +424,18 @@ body {
     right:126px;
     
 }
-
 #ranking {
     
     top:350px;
     left:50px;
     display:none;
     position:fixed;
-    width:320px;
-    height:380px;
+    width:385px;
+    height:370px;
     background-color: #800000;
     padding:10px;
     border: 20px solid #DC143C;
+    vertical-align: center;
 
 }
 
@@ -449,14 +449,16 @@ body {
     font-weight: bold;
     margin-top: 10px;
     color:#FFF5EE;
+    padding-left: 30px;
+    colspan: 3;
     
 }
 
-#content {
+.content {
 
     font-family:'Staatliches',cursive;
     letter-spacing: 2px;
-    font-size: 20px;
+    font-size: 17px;
     text-align: center;
     margin-top: 5px;
     color:#FFF5EE;
