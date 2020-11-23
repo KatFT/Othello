@@ -1,7 +1,7 @@
 /*
-Outubro de 2020
-Catarina Teixeira, up201805042
-Cheila Alves, up201805089 
+  Outubro de 2020
+  Catarina Teixeira, up201805042
+  Cheila Alves, up201805089 
 */
 
 /*
@@ -13,7 +13,7 @@ var computador;
 var dificuldade;
 
 var successfulLog;
-function areaAutenticacao() {
+async function areaAutenticacao() {
 
     computador = undefined;
     
@@ -24,7 +24,7 @@ function areaAutenticacao() {
     if (user.value.length != 0 && pass.value.length != 0) {
 	
 	// regista o registo/login no servidor
-	register(user.value, pass.value);
+	await register(user.value, pass.value);
 
 	// se foi efetuado um registo inválido, o registo só prossegue quando tal deixa de acontecer
 	if (successfulLog == true) {
@@ -32,7 +32,7 @@ function areaAutenticacao() {
 	    document.getElementById("form").style.display="none";
 	    document.getElementById("login").style.display="none";
 	    twoPlayers(user.value, pass.value);
-	    ranking();
+	    await ranking();
 	    document.getElementById("ranking").style.display="block";
 	    area_de_jogo();
 	    
@@ -68,8 +68,8 @@ function mostrarOps() {
 }
 
 /*
-quando se clica no botao continuar nas op de jogo, essa pagina fecha e é mostrado o tabuleiro,
-accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai começa se a jogar
+  quando se clica no botao continuar nas op de jogo, essa pagina fecha e é mostrado o tabuleiro,
+  accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai começa se a jogar
 */
 function escolhaOp() {
 
@@ -546,7 +546,7 @@ function verificarJogadasDiag(player, cont) {
 /*
   -- verificará que posições o jogador pode optar por jogar tendo em conta a sua cor;
   -- retornará um array que contém elementos do tipo [ posição, direção ] em que "direção" refere-se à direção 
-     em que são propagadas as viragens das peças do adversário
+  em que são propagadas as viragens das peças do adversário
 */
 function possiveisJogadas(player, cont) {
 
@@ -626,7 +626,7 @@ function processarJogada(pos) {
     } 
 
     let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
-   
+    
     let jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
     if (jogadorAtual == humano) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
 
@@ -1016,8 +1016,13 @@ function desistir() {
     msg.appendChild(novoJogo);
     msg.style.display = "block";
     novoJogo.addEventListener("click", function() {
-	if (computador = undefined) { logout(); } else { init(); }
+	if (computador == undefined) { 
+	    var nick= document.getElementById("username");
+    	    var pass= document.getElementById("password");
+	    sair(nick.value,pass.value); } else { init(); }
     });
+
+
     
 }
 
@@ -1062,11 +1067,27 @@ function esconderMsg() {
 }
 
 var gameReference, colorPlayer;
-function twoPlayers(nick, pass) {
-    join(2, nick, pass);
+
+function clear(){
+    document. getElementById("username").value='';
+    document. getElementById("password").value='';
+
+
 }
 
-function register(nickname, password) {
+function sair(nick, pass){
+    
+    console.log(nick);
+    console.log(pass);
+    leave(gameReference, nick, pass);
+
+}
+
+async function twoPlayers(nick, pass) {
+    await join(2, nick, pass);
+}
+
+async function register(nickname, password) {
 
     const msg = document.getElementById("msgPassIncorreta");
 
@@ -1075,7 +1096,7 @@ function register(nickname, password) {
     
     var info;  
     
-    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
+    await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
 	method: 'POST',
 	headers: {
 	    'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -1101,9 +1122,9 @@ function register(nickname, password) {
 }
 
 // emparelha 2 jogadores que pretendem jogar um jogo
-function join(grp, nickname, password) {
+async function join(grp, nickname, password) {
     
-    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/join', {
+    await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/join', {
 	method: 'POST',
 	body: JSON.stringify({group: grp, nick: nickname, pass: password})
     })
@@ -1119,9 +1140,9 @@ function join(grp, nickname, password) {
     
 }
 
-function ranking(){
+async function ranking(){
     
-    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/ranking', {
+    await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/ranking', {
 	method: 'POST',
 	body: '{}'
     })
@@ -1131,17 +1152,43 @@ function ranking(){
 	.then(info => {
 	    
 	    const rank = document.getElementById("ranking");
-	    const header = document.getElementById("header");
-	    const content = document.getElementById("content");
 	    
-	    header.innerText = "RANKING";
+	    let header = rank.insertRow(0);
+	    header.innerHTML = "RANKING";
+	    header.setAttribute('id','header');
+	    
 
-	    for(let i=0; i<info.ranking.length; i++)
-		content.innerText+= "User: "+ info.ranking[i].nick + " Vitórias: "
-		+ info.ranking[i].victories + String.fromCharCode(13);
-	    // '\r' === String.fromCharCode(13))
+	    for(let i=0; i<info.ranking.length; i++) {
+		
+		let linha = rank.insertRow(i+1);
+		linha.setAttribute('class', 'content');
+		let user = linha.insertCell(0);
+		let victories = linha.insertCell(1);
+		let games = linha.insertCell(2);
+		user.innerHTML = "User: " + info.ranking[i].nick;
+		victories.innerHTML = "Vitórias: " + info.ranking[i].victories;
+		games.innerHTML = "Jogos: " + info.ranking[i].games;
+		
+	    }
 	    
 	})
 	.catch(console.log);
 
 }
+
+
+function leave(gameReference, nickname, password){
+    
+    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/leave', {
+	method: 'POST',
+	body: JSON.stringify({nick: nickname, pass: password, game: gameReference})
+    })
+	.then(response => console.log(response))
+	.catch(console.log);
+    
+    clear();
+    
+    init();
+    
+}
+

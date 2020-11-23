@@ -23,7 +23,7 @@ Cheila Alves, up201805089
       
       <!-- autenticaçao -->
       <div class="form" id="form">
-	<div> <img class="logotipo-form" src="othellolog.png" alt="Othello" style="margin: auto"></div>
+  <div> <img class="logotipo-form" src="othellolog.png" alt="Othello" style="margin: auto"></div>
         <button class="jogIA" id="jogIA" onclick="mostrarOps()">JOGAR COM COMPUTADOR</button>
 
         <h1>Autenticação</h1>
@@ -35,21 +35,18 @@ Cheila Alves, up201805089
 
         <div class="form-group">
           <p class="dados_autenticacao">Password</p>
-	  <div id="msgPassIncorreta"></div>
+    <div id="msgPassIncorreta"></div>
           <input type="password" id="password" placeholder="Password" class="form-control" required>
         </div>
-	
+  
         <!-- botao que ao clicar faz desaparecer o login e aparecer o outro div -->
-	<button id="login" class="btn" onclick="areaAutenticacao()">REGISTAR / LOGIN</button>
+  <button id="login" class="btn" onclick="areaAutenticacao()">REGISTAR / LOGIN</button>
       </div>
       <!-- Fim da div de autenticaçao-->
       
       <div id="area-de-jogo"></div>
       <div id="area-logotipo"></div>
-      <div id="ranking">
-	<p id="header"></p>
-	<p id="content"></p>
-      </div>
+      <table id="ranking"></table>
       
       <!-- Opções de jogo-->
       <div class="Op" id="op-jogo">
@@ -130,7 +127,7 @@ Cheila Alves, up201805089
       <!-- Fim do botao para começar novo jogo-->
       
       <!-- o que vai fazer aqui e basicamente fecha tudo e volta para a area de autenticaçao, e o jogo reseta(ainda por implementar)-->
-      <button class="logout" id="logout">Logout</button>
+      <button class="logout" id="logout"  onclick="sair(username.value,password.value)">Logout</button>
       <!--fim do botao de logout-->
 
       <!-- MENSAGEM VITORIA -> INDICA QUAL O JOGADOR QUE GANHOU OU EMPATE-->
