@@ -798,7 +798,7 @@ function passar() {
 
 function esperar() {
     if (!buttonPressed)
-	setTimeout(esperar, 2500, flag);
+	setTimeout(esperar, 2500);
 }
 
 // atualiza o quadro das pontuações à medida que são feitas as jogadas
@@ -956,7 +956,7 @@ function melhorJogada() {
 
     console.log(jogada);
     return jogada;
-    
+   
 }
 
 // heurística para o minimax
@@ -978,7 +978,7 @@ function estadoJogo(cont) {
 
 // algoritmo aplicado para a jogada do jogador IA (computador)
 function minimax(cont, profundidade, jogadorMaximizador) {
-    
+   
     if (profundidade === dificuldade) {
 	return estadoJogo(cont);
     }
@@ -1051,20 +1051,20 @@ function desistir() {
 	msg.innerHTML = "JOGADOR BRANCO GANHOU";
     }
 
+    if (computador == undefined) {
+	    
+	var nick = document.getElementById("username").value;
+    	var pass = document.getElementById("password").value;
+	leave(gameReference, nick, pass);
+	    
+    }
+
     let novoJogo = document.createElement('div');
     novoJogo.setAttribute('id', 'novoJogo');
     novoJogo.innerHTML = "Novo Jogo?";
     msg.appendChild(novoJogo);
     msg.style.display = "block";
-    novoJogo.addEventListener("click", function() {
-	if (computador == undefined) { 
-	    var nick= document.getElementById("username");
-    	    var pass= document.getElementById("password");
-	    sair(nick.value,pass.value);
-	} else { init(); }
-    });
-
-
+    novoJogo.addEventListener("click", init);
     
 }
 
@@ -1113,14 +1113,6 @@ var gameReference, colorPlayer;
 function clear(){
     document. getElementById("username").value='';
     document. getElementById("password").value='';
-
-
-}
-
-function sair(nick, pass){
-    
-    leave(gameReference, nick, pass);
-
 }
 
 async function twoPlayers(nick, pass) {
@@ -1229,8 +1221,6 @@ function leave(gameReference, nickname, password){
     
     clear();
     
-    init();
-    
 }
 
 async function notify(nickname, password, game, moveGame) {
@@ -1307,6 +1297,7 @@ async function update(game, nickname) {
 	    esperar();
 	    
 	} else if (data.hasOwnProperty("winner")) {
+	    clear();
 	    fimJogo();
 	    eventSource.close();
 	}
