@@ -143,6 +143,7 @@ function init() {
     // possivel jogo anterior
     document.getElementById("msgFimJogo").style.display = "none";
     document.getElementById("ranking").style.display="none";
+    document.getElementById("ranking").innerHTML='';
     document.getElementById("area-logotipo").style.display="none";
     document.getElementById("area-de-jogo").style.display="none";
     document.getElementById("container").style.display="none";
@@ -622,15 +623,28 @@ async function processarJogada(pos) {
 
     buttonPressed = false;
 
+    esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
+
     // se não for a vez do jogador, não faz nada
     if (computador == undefined && jogadorAtual != colorPlayer)
 	return;
 
     // jogador não pode jogar onde já houver uma peça colocada
     if (conteudo[X][Y] !== 'empty') {
+	console.log("OLA1");
 	msgJogImp();
 	return;
-    } 
+    }
+
+    let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
+    console.log(jogadasPossiveis);
+
+    if(!contem(jogadasPossiveis,pos)) {
+	console.log("OLA3");
+	console.log("POS: " + pos);
+	msgJogImp();
+	return;
+    }
 
     if (computador == undefined) {
 	let move = '{\"row\": ' + X + ', \"column\": ' + Y + '}';
@@ -638,22 +652,14 @@ async function processarJogada(pos) {
 	let pass = document.getElementById("password").value;
 	await notify(user,pass,gameReference,move); // notifica o jogador da jogada
 	if (!canProceed) { // se a jogada não for possivel
+	    console.log("OLA2");
 	    msgJogImp();
 	    return;
 	}
     }
-
-    esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
-
-    let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
     
     let jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
     if (jogadorAtual == humano) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
-
-    if(!contem(jogadasPossiveis,pos)) {
-	msgJogImp();
-	return;
-    }
     
     let dir = [];
     
