@@ -52,6 +52,7 @@ function area_de_jogo() {
     document.getElementById("passar").style.display="block";
     document.getElementById("desistir").style.display="block";
     document.getElementById("logout").style.display="block";
+    document.getElementById("vezJogada").style.display="block";
     jogadorAtual = 'dark';
     vezJogada();
     
@@ -92,9 +93,8 @@ function escolhaOp() {
 	    dificuldade = 2;
 	} else if (document.getElementById("dificil").checked) {
 	    dificuldade = 3;
-	} 
-
-	document.getElementById("vezJogada").style.display="block";
+	}
+	
 	area_de_jogo();
 	
     }
@@ -637,7 +637,6 @@ async function processarJogada(pos) {
 	let user = document.getElementById("username").value;
 	let pass = document.getElementById("password").value;
 	await notify(user,pass,gameReference,move); // notifica o jogador da jogada
-	//await update(gameReference, user); // atualiza o estado do jogo
 	if (!canProceed) { // se a jogada não for possivel
 	    msgJogImp();
 	    return;
