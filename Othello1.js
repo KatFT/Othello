@@ -792,7 +792,7 @@ async function processarJogada(pos) {
 	    console.log("OLA2");
 	    msgJogImp();
 	    return;
-	}
+	} 
 	
     }
     
@@ -1231,9 +1231,8 @@ async function ranking(){
 
 }
 
+function leave(gameReference, nickname, password) {
 
-function leave(gameReference, nickname, password){
-    
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/leave', {
 	method: 'POST',
 	body: JSON.stringify({nick: nickname, pass: password, game: gameReference})
@@ -1287,18 +1286,28 @@ async function update(game, nickname) {
 	
 	// troca a vez do jogador
 	if (data.turn == nickname) {
-	    if (colorPlayer == 'dark')
-		jogadorAtual = 'dark';
-	    else
-		jogadorAtual = 'light';
-	} else {
-	    if (colorPlayer == 'dark')
-		jogadorAtual = 'light';
-	    else
-		jogadorAtual = 'dark';
-	}
 
-	vezJogada();
+	    // se ao fim de 2min não for feita uma jogada é feito um leave automático
+	    setTimeout(leave, 15000, gameReference, nickname, document.getElementById("password").value);
+	    
+	    if (colorPlayer == 'dark')
+		jogadorAtual = 'dark';
+	    else
+		jogadorAtual = 'light';
+
+	    vezJogada();
+
+	    
+	} else if (data.turn != nickname) {
+	    
+	    if (colorPlayer == 'dark')
+		jogadorAtual = 'light';
+	    else
+		jogadorAtual = 'dark';
+
+	    vezJogada();
+	    
+	}
 	
 	// se o jogador atual não tiver jogadas possiveis e for a vez dele
 	if (data.hasOwnProperty("skip") && data.turn == nickname) {
@@ -1319,9 +1328,11 @@ async function update(game, nickname) {
 	    esperar();
 	    
 	} else if (data.hasOwnProperty("winner")) {
+	    
 	    clear();
 	    fimJogo();
 	    eventSource.close();
+	    
 	}
     }
 }
