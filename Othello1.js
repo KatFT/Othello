@@ -52,6 +52,8 @@ function area_de_jogo() {
     document.getElementById("passar").style.display="block";
     document.getElementById("desistir").style.display="block";
     document.getElementById("logout").style.display="block";
+    jogadorAtual = 'dark';
+    vezJogada();
     
     criar_tabuleiro(); // depois das escolhas o jogo começa
     
@@ -82,15 +84,15 @@ function escolhaOp() {
 	document.getElementById("continue").style.display="none";
 
 	if (document.getElementById("preto").checked) {
-	    humano = 'P';
-	    computador = 'B';
-	}
+	    humano = 'dark';
+	    computador = 'light';
+	} 
 
 	if (document.getElementById("medio").checked) {
 	    dificuldade = 2;
 	} else if (document.getElementById("dificil").checked) {
 	    dificuldade = 3;
-	}
+	} 
 
 	document.getElementById("vezJogada").style.display="block";
 	area_de_jogo();
@@ -161,8 +163,8 @@ function init() {
     while (areaLogotipo.firstChild) { areaLogotipo.removeChild(areaLogotipo.lastChild); }
 
     // inicialização de variáveis
-    humano = 'B';
-    computador = 'P';
+    humano = 'light';
+    computador = 'dark';
     dificuldade = 1;
 
     // reset das escolhas feitas anteriormente
@@ -179,18 +181,18 @@ function init() {
     document.getElementById("op-jogo").style.display="none";
     document.getElementById("continue").style.display="none";
     
-    conteudo = [ [' ',' ',' ',' ',' ',' ',' ', ' '],
-		 [' ',' ',' ',' ',' ',' ',' ', ' '],
-		 [' ',' ',' ',' ',' ',' ',' ', ' '],
-		 [' ',' ',' ','B','P',' ',' ', ' '],
-		 [' ',' ',' ','P','B',' ',' ', ' '],
-		 [' ',' ',' ',' ',' ',' ',' ', ' '],
-		 [' ',' ',' ',' ',' ',' ',' ', ' '],
-		 [' ',' ',' ',' ',' ',' ',' ', ' ']
+    conteudo = [ ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','light','dark','empty','empty', 'empty'],
+		 ['empty','empty','empty','dark','light','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty']
 	       ];
     pecasJogadorB = [];
     pecasJogadorP = [];
-    jogadorAtual = 'P'; 
+    jogadorAtual = 'dark'; 
     fimJogada = false;
 
     logo = document.createElement('div');
@@ -245,7 +247,7 @@ function criar_tabuleiro() {
 	}
     }
 
-    if(jogadorAtual == computador) {
+    if(computador != undefined && jogadorAtual == computador) {
 
 	let pos = melhorJogada();
 	setTimeout(processarJogada, 3000, pos);
@@ -259,10 +261,10 @@ function verificarJogadasHor(player, cont) {
     
     let jogadas = [];
     let pecasJogador = pecasJogadorB;
-    let pecaAdversario = 'P';
-    if(player == 'P') {
+    let pecaAdversario = 'dark';
+    if(player == 'dark') {
 	pecasJogador = pecasJogadorP;
-	pecaAdversario = 'B';
+	pecaAdversario = 'light';
     }
 
     for(let i=0; i<pecasJogador.length; i++) {
@@ -336,10 +338,10 @@ function verificarJogadasVer(player, cont) {
     
     let jogadas = [];
     let pecasJogador = pecasJogadorB;
-    let pecaAdversario = 'P';
-    if(player == 'P') {
+    let pecaAdversario = 'dark';
+    if(player == 'dark') {
 	pecasJogador = pecasJogadorP;
-	pecaAdversario = 'B';
+	pecaAdversario = 'light';
     }
     
     for(let i=0; i<pecasJogador.length; i++) {
@@ -415,10 +417,10 @@ function verificarJogadasDiag(player, cont) {
     let jogadas = [];
 
     let pecasJogador = pecasJogadorB;
-    let pecaAdversario = 'P';
-    if(player == 'P') {
+    let pecaAdversario = 'dark';
+    if(player == 'dark') {
 	pecasJogador = pecasJogadorP;
-	pecaAdversario = 'B';
+	pecaAdversario = 'light';
     }
 
     for(let i=0; i<pecasJogador.length; i++) {
@@ -563,20 +565,22 @@ function possiveisJogadas(player, cont) {
   -- regista a jogada do jogador;
   -- mostra a jogada no tabuleiro
 */
-function trocarPeca(pos) {
+function trocarPeca(pos, cor) {
 
     let x = Math.floor(pos % 8);
     let y = Math.floor(pos / 8);
 
-    // quando se encontrar o outro extremo da peça jogada então cessa a troca de peças do adversário para o jogador
-    if (conteudo[x][y] == jogadorAtual) { fimJogada = true; return; }
+    if (computador != undefined) {
+	// quando se encontrar o outro extremo da peça jogada então cessa a troca de peças do adversário para o jogador
+	if (conteudo[x][y] == cor) { fimJogada = true; return; }
 
-    // regista a jogada do jogador no array da disposição das peças
-    conteudo[x][y] = jogadorAtual;
+	// regista a jogada do jogador no array da disposição das peças
+	conteudo[x][y] = cor;
+    }
 
     // visualização da jogada do jogador
     let peca = document.createElement("div");
-    if (jogadorAtual == 'B') {
+    if (cor == 'light') {
 	
 	peca.setAttribute('class', 'peca pecaBRANCA');
 	pecasJogadorB.push(pos);
@@ -609,28 +613,38 @@ function trocarPeca(pos) {
 }
 
 var buttonPressed = false;
+var canProceed = false;
 // partindo da peça que foi colocada na posição pos troca-se a cor das peças do adversario que se seguem a essa peça
-function processarJogada(pos) {
+async function processarJogada(pos) {
 
     let X = Math.floor(pos % 8);
     let Y = Math.floor(pos / 8);
 
-    if (computador == undefined) {
-	let move = '{\"row\": ' + X + ', \"col\": ' + Y + '}';
-	let user = document.getElementById("username").value;
-	let pass = document.getElementById("password").value;
-	notify(user,pass,gameReference,move);
-    }
-
-    esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
-
     buttonPressed = false;
 
+    // se não for a vez do jogador, não faz nada
+    if (computador == undefined && jogadorAtual != colorPlayer)
+	return;
+
     // jogador não pode jogar onde já houver uma peça colocada
-    if (conteudo[X][Y] !== ' ') {
+    if (conteudo[X][Y] !== 'empty') {
 	msgJogImp();
 	return;
     } 
+
+    if (computador == undefined) {
+	let move = '{\"row\": ' + X + ', \"column\": ' + Y + '}';
+	let user = document.getElementById("username").value;
+	let pass = document.getElementById("password").value;
+	await notify(user,pass,gameReference,move); // notifica o jogador da jogada
+	await update(gameReference, user); // atualiza o estado do jogo
+	if (!canProceed) { // se a jogada não for possivel
+	    msgJogImp();
+	    return;
+	}
+    }
+
+    esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
 
     let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
     
@@ -651,62 +665,62 @@ function processarJogada(pos) {
 	}
     }
 
-    trocarPeca(pos); // coloca a peça na casa selecionada pelo jogador na jogada
+    trocarPeca(pos, jogadorAtual); // coloca a peça na casa selecionada pelo jogador na jogada
     for(let i=0; i<dir.length; i++) {
 	switch(dir[i]) {
 	case 'HE': // propagação na HORIZONTAL ANTES da peça colocada
 	    for(let j=Y-1; j>=0; j--) {
 		let ind = X + j * 8;
-		trocarPeca(ind);
+		trocarPeca(ind, jogadorAtual);
 		if (fimJogada) { break; }
 	    }
 	    break;
 	case 'HD': // propagação na HORIZONTAL DEPOIS da peça colocada
 	    for(let j=Y+1; j<8; j++) {
 		let ind = X + j * 8;
-		trocarPeca(ind);
+		trocarPeca(ind, jogadorAtual);
 		if (fimJogada) { break; }
 	    }
 	    break;
 	case 'VC': // propagação na VERTICAL para CIMA da peça colocada
 	    for(let j=X-1; j>=0; j--) {
 		let ind = j + Y * 8;
-		trocarPeca(ind);
+		trocarPeca(ind, jogadorAtual);
 		if (fimJogada) { break; }
 	    }
 	    break;
 	case 'VB': // propagação na VERTICAL para BAIXO da peça colocada
 	    for(let j=X+1; j<8; j++) {
 		let ind = j + Y * 8;
-		trocarPeca(ind);
+		trocarPeca(ind, jogadorAtual);
 		if (fimJogada) { break; }
 	    }
 	    break;
 	case 'IE': // propagação na DIAGONAL INFERIOR ESQUERDA da peça colocada
 	    for(let j=X+1, k=Y-1; j<8 && k>=0; j++, k--) {
 		let ind = j + k * 8;
-		trocarPeca(ind);
+		trocarPeca(ind, jogadorAtual);
 		if (fimJogada) { break; }
 	    }
 	    break;
 	case 'ID': // propagação na DIAGONAL INFERIOR DIREITA da peça colocada
 	    for(let j=X+1, k=Y+1; j<8 && k<8; j++, k++) {
 		let ind = j + k * 8;
-		trocarPeca(ind);
+		trocarPeca(ind, jogadorAtual);
 		if (fimJogada) { break; }
 	    }
 	    break;
 	case 'SE': // propagação na DIAGONAL SUPERIOR ESQUERDA da peça
 	    for(let j=X-1, k=Y-1; j>=0 && k>=0; j--, k--) {
 		let ind = j + k * 8;
-		trocarPeca(ind);
+		trocarPeca(ind, jogadorAtual);
 		if (fimJogada) { break; }
 	    }
 	    break;
 	case 'SD': // propagação na DIAGONAL SUPERIOR DIREITA da peça
 	    for(let j=X-1, k=Y+1; j>=0 && k<8; j--, k++) {
 		let ind = j + k * 8;
-		trocarPeca(ind);
+		trocarPeca(ind, jogadorAtual);
 		if (fimJogada) { break; }
 	    }
 	    break;
@@ -715,52 +729,40 @@ function processarJogada(pos) {
 	}
 	fimJogada = false; // reset da variável global
     }
-    
-    if (jogadorAtual == humano) {
 
-	jogadasPossiveis = possiveisJogadas(humano, conteudo);
-	jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo);
+    if (computador != undefined) {
+	if (jogadorAtual == humano) {
 
-	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
-	    fimJogo();
-	} else if (jogadasPossiveisAdversario.length > 0) {
-	    // troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
-	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-	}
-	
-    } else {
+	    jogadasPossiveis = possiveisJogadas(humano, conteudo);
+	    jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo);
 
-	jogadasPossiveis = possiveisJogadas(computador, conteudo);
-	jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
-	
-	if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
-	    fimJogo();
-	} else if (jogadasPossiveisAdversario.length > 0) {
-	    // troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
-	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-	} else if (jogadasPossiveisAdversario.length == 0) {
-	    
-	    jogadorAtual = (jogadorAtual == 'B'?'P':'B');
-	    vezJogada();
-	    setTimeout(msgSemJogadas,1000);
-	    const passar = document.getElementById("passar");
-	    passar.style.backgroundColor = "#6495ED"; // mudança de cor do botão "Passar"
-	    
-	    var listener = function() {
-		jogadorAtual = (jogadorAtual == 'B'?'P':'B'); // troca de jogador
-		vezJogada();
-		passar.style.backgroundColor = "#DC143C"; // o botão retorna a cor que tinha inicialmente
-		esconderMsg(); // msg "sem jogadas possiveis" desaparece
-		buttonPressed = true;
-		setTimeout(processarJogada, 2000, melhorJogada());
-		passar.removeEventListener("click", listener);
+	    if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
+		fimJogo();
+	    } else if (jogadasPossiveisAdversario.length > 0) {
+		// troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
+		jogadorAtual = (jogadorAtual == 'light'?'dark':'light');
 	    }
 	    
-	    passar.addEventListener("click", listener);
-	    esperar();
+	} else {
+
+	    jogadasPossiveis = possiveisJogadas(computador, conteudo);
+	    jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
+	    
+	    if (jogadasPossiveis.length == 0 && jogadasPossiveisAdversario.length == 0) {
+		fimJogo();
+	    } else if (jogadasPossiveisAdversario.length > 0) {
+		// troca de jogador se o adversário tiver jogadas possíveis depois da jogada do jogador
+		jogadorAtual = (jogadorAtual == 'light'?'dark':'light');
+	    } else if (jogadasPossiveisAdversario.length == 0) {
+		
+		jogadorAtual = (jogadorAtual == 'light'?'dark':'light');
+		vezJogada();
+		setTimeout(msgSemJogadas,1000);
+		passar();
+		
+	    }
 	    
 	}
-	
     }
 
     vezJogada();
@@ -775,6 +777,26 @@ function processarJogada(pos) {
     
 }
 
+function passar() {
+    
+    const passar = document.getElementById("passar");
+    passar.style.backgroundColor = "#6495ED"; // mudança de cor do botão "Passar"
+    
+    var listener = function() {
+	jogadorAtual = (jogadorAtual == 'light'?'dark':'light'); // troca de jogador
+	vezJogada();
+	passar.style.backgroundColor = "#DC143C"; // o botão retorna a cor que tinha inicialmente
+	esconderMsg(); // msg "sem jogadas possiveis" desaparece
+	buttonPressed = true;
+	setTimeout(processarJogada, 2000, melhorJogada());
+	passar.removeEventListener("click", listener);
+    }
+    
+    passar.addEventListener("click", listener);
+    esperar();
+    
+}
+
 function esperar() {
     if (!buttonPressed)
 	setTimeout(esperar, 2500, flag);
@@ -786,25 +808,38 @@ function updatePont() {
     let pecasBrancas = document.getElementById("pbranco");
     let pecasPretas = document.getElementById("ppreto");
     let casasLivres = document.getElementById("clivre");
-    let pontIA, pontHuman;
+    let pontIA, pontHuman, livres;
 
-    if (computador == 'P') {
+    if (computador != undefined) {
 	
-	pontIA = pecasJogadorP.length;
-	pontHuman = pecasJogadorB.length;
-	pecasPretas.innerHTML = 'Preto: ' + pontIA;
-	pecasBrancas.innerHTML = 'Branco: ' + pontHuman;
+	if (computador == 'dark') {
+	    
+	    pontIA = pecasJogadorP.length;
+	    pontHuman = pecasJogadorB.length;
+	    pecasPretas.innerHTML = 'Preto: ' + pontIA;
+	    pecasBrancas.innerHTML = 'Branco: ' + pontHuman;
+	    
+	} else {
+	    
+	    pontIA = pecasJogadorB.length;
+	    pontHuman = pecasJogadorP.length;
+	    pecasPretas.innerHTML = 'Preto: ' + pontHuman;
+	    pecasBrancas.innerHTML = 'Branco: ' + pontIA;
+	    
+	}
+	
+	livres = 8*8 - pontIA - pontHuman;
 	
     } else {
-	
-	pontIA = pecasJogadorB.length;
-	pontHuman = pecasJogadorP.length;
-	pecasPretas.innerHTML = 'Preto: ' + pontHuman;
-	pecasBrancas.innerHTML = 'Branco: ' + pontIA;
+
+	let dark = data.count.dark;
+	let light = data.count.light;
+	pecasPretas.innerHTML = 'Preto: ' + dark;
+	pecasBrancas.innerHTML = 'Branco: ' + light;
+	livres = 8*8 - dark - light;
 	
     }
-
-    let livres = 8*8 - pontIA - pontHuman;
+    
     casasLivres.innerHTML = 'Livres: ' + livres;
     
 }
@@ -999,7 +1034,7 @@ function msgSemJogadas() {
 function vezJogada() {
     
     const msg = document.getElementById("vezJogada");
-    if (jogadorAtual == 'P') {
+    if (jogadorAtual == 'dark') {
 	msg.innerHTML = "Vez do PRETO";
     } else {
 	msg.innerHTML = "Vez do BRANCO";
@@ -1011,7 +1046,7 @@ function desistir() {
     
     const msg = document.getElementById("msgFimJogo");
     
-    if (jogadorAtual == 'B') {
+    if (jogadorAtual == 'light') {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";
     } else {
 	msg.innerHTML = "JOGADOR BRANCO GANHOU";
@@ -1026,7 +1061,8 @@ function desistir() {
 	if (computador == undefined) { 
 	    var nick= document.getElementById("username");
     	    var pass= document.getElementById("password");
-	    sair(nick.value,pass.value); } else { init(); }
+	    sair(nick.value,pass.value);
+	} else { init(); }
     });
 
 
@@ -1084,14 +1120,13 @@ function clear(){
 
 function sair(nick, pass){
     
-    console.log(nick);
-    console.log(pass);
     leave(gameReference, nick, pass);
 
 }
 
 async function twoPlayers(nick, pass) {
     await join(2, nick, pass);
+    await update(gameReference, nick);
 }
 
 async function register(nickname, password) {
@@ -1200,12 +1235,81 @@ function leave(gameReference, nickname, password){
 }
 
 async function notify(nickname, password, game, moveGame) {
-	
+    
     await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/notify', {
 	method: 'POST',
 	body: JSON.stringify({nick: nickname, pass: password, game: gameReference, move: JSON.parse(moveGame)})
     })
-	.then(response => console.log(response))
+	.then(function(response) {
+	    if (!response.ok) // se o servidor devolver um erro
+		return false;
+	    else
+		return true;
+	})
+	.then(valid => { canProceed = valid; })
 	.catch(console.log);
     
+}
+
+var data;
+async function update(game, nickname) {
+    
+    const eventSource = new EventSource('http://twserver.alunos.dcc.fc.up.pt:8008/update?nick=' + nickname + '&game=' + game);
+    eventSource.onmessage = function(event) {
+	// recebe os dados do estado do jogo
+	data = JSON.parse(event.data);
+	console.log(data);
+	
+	// copia o tabuleiro que o jogador recebeu para o tabuleiro que o jogador tem
+	if (data.hasOwnProperty("board")) {
+	    conteudo = copiaTab(data.board);
+	    for (let i=0; i<conteudo.length; i++) {
+		for (let j=0; j<conteudo[i].length; j++)
+		    if (conteudo[i][j] != 'empty') {
+			let pos = i + j * 8; 
+			trocarPeca(pos, conteudo[i][j]);
+		    }
+	    }
+
+	    updatePont();
+	}
+	
+	// troca a vez do jogador
+	if (data.turn == nickname) {
+	    if (colorPlayer == 'dark')
+		jogadorAtual = 'dark';
+	    else
+		jogadorAtual = 'light';
+	} else {
+	    if (colorPlayer == 'dark')
+		jogadorAtual = 'light';
+	    else
+		jogadorAtual = 'dark';
+	}
+
+	vezJogada();
+	
+	// se o jogador atual não tiver jogadas possiveis e for a vez dele
+	if (data.hasOwnProperty("skip") && data.turn == nickname) {
+	    
+	    const passar = document.getElementById("passar");
+	    passar.style.backgroundColor = "#6495ED"; // mudança de cor do botão "Passar"
+	    
+	    var listener = function() {
+		passar.style.backgroundColor = "#DC143C"; // o botão retorna a cor que tinha inicialmente
+		esconderMsg(); // msg "sem jogadas possiveis" desaparece
+		buttonPressed = true;
+		passar.removeEventListener("click", listener);
+		let pass = document.getElementById("password").value;
+		notify(nickname, value, gameReference, null);
+	    }
+	    
+	    passar.addEventListener("click", listener);
+	    esperar();
+	    
+	} else if (data.hasOwnProperty("winner")) {
+	    fimJogo();
+	    eventSource.close();
+	}
+    }
 }
