@@ -637,7 +637,7 @@ async function processarJogada(pos) {
 	let user = document.getElementById("username").value;
 	let pass = document.getElementById("password").value;
 	await notify(user,pass,gameReference,move); // notifica o jogador da jogada
-	await update(gameReference, user); // atualiza o estado do jogo
+	//await update(gameReference, user); // atualiza o estado do jogo
 	if (!canProceed) { // se a jogada não for possivel
 	    msgJogImp();
 	    return;
