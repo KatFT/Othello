@@ -295,7 +295,9 @@ function verificarJogadasHor(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (y >= y_pos + 2 && cont[x_pos][y-1] == pecaAdversario) {
 		    // HE -> a jogada é propagada na HORIZONTAL para a ESQUERDA até ir de encontro a outra peça do jogador
-		    jogadas.push([j, "HE"]); 
+		    let posi = [j, "HE"];
+		    if (jogadas.includes(posi))
+			jogadas.push(posi); 
 		}
 		break;
 	    }
@@ -322,7 +324,9 @@ function verificarJogadasHor(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (y <= y_pos - 2 && cont[x_pos][y+1] == pecaAdversario) {
 		    // HD -> a jogada é propagada na HORIZONTAL para a DIREITA até ir de encontro a outra peça do jogador
-		    jogadas.push([j, "HD"]);	
+		    let posi = [j, "HD"];
+		    if (jogadas.includes(posi))
+			jogadas.push(posi);	
 		}
 		break;
 	    }
@@ -373,7 +377,9 @@ function verificarJogadasVer(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (x >= x_pos + 2 && cont[x-1][y_pos] == pecaAdversario) {
 		    // VC -> a jogada é propagada na VERTICAL para CIMA até ir de encontro a outra peça do jogador
-		    jogadas.push([j, "VC"]);
+		    let posi = [j, "VC"];
+		    if (jogadas.includes(posi))
+			jogadas.push(posi);
 		}
 		break;
 	    }
@@ -400,7 +406,9 @@ function verificarJogadasVer(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (x <= x_pos - 2 && cont[x+1][y_pos] == pecaAdversario) {
 		    // VB -> a jogada é propagada na VERTICAL para BAIXO até ir de encontro a outra peça do jogador
-		    jogadas.push([j, "VB"]);
+		    let posi = [j, "VB"];
+		    if (jogadas.includes(posi))
+			jogadas.push(posi);
 		}
 		break;		
 	    }
@@ -451,7 +459,9 @@ function verificarJogadasDiag(player, cont) {
 		if (x >= x_pos + 2 && y >= y_pos + 2 && cont[x-1][y-1] == pecaAdversario) {
 		    // SE -> a jogada é propagada na diagonal SUPERIOR ESQUERDA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
-		    jogadas.push([j, "SE"]); 	
+		    let posi = [j, "SE"];
+		    if (jogadas.includes(posi))
+			jogadas.push(posi);	
 		} 
 
 		break;
@@ -480,7 +490,9 @@ function verificarJogadasDiag(player, cont) {
 		if (x >= x_pos + 2 && y <= y_pos - 2 && cont[x-1][y+1] == pecaAdversario) {
 		    // SD -> a jogada é propagada na diagonal SUPERIOR DIREITA da peça colocada
 		    // até ao outro extremo que contenha outra peça do jogador
-		    jogadas.push([j, "SD"]); 
+		    let posi = [j, "SD"];
+		    if (jogadas.includes(posi))
+			jogadas.push(posi);
 		} 
 		break;
 	    }
@@ -507,7 +519,9 @@ function verificarJogadasDiag(player, cont) {
 		if (x <= x_pos - 2 && y <= y_pos - 2 && cont[x+1][y+1] == pecaAdversario) {
 		    // ID -> a jogada é propagada na diagonal INFERIOR DIREITA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
-		    jogadas.push([j, "ID"]);
+		    let posi = [j, "ID"];
+		    if (jogadas.includes(posi))
+			jogadas.push(posi);
 		}
 		break;
 	    }
@@ -534,7 +548,9 @@ function verificarJogadasDiag(player, cont) {
 		if (x <= x_pos - 2 && y >= y_pos + 2 && cont[x+1][y-1] == pecaAdversario) {
 		    // IE -> a jogada é propagada na diagonal INFERIOR ESQUERDA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
-		    jogadas.push([j, "IE"]);
+		    let posi = [j, "IE"];
+		    if (jogadas.includes(posi))
+			jogadas.push(posi);
 
 		} 
 		break;
@@ -625,117 +641,101 @@ async function processarJogada(pos) {
 
     esconderMsg(); // retira a mensagem "JOGADA IMPOSSIVEL"
 
-    // se não for a vez do jogador, não faz nada
-    if (computador == undefined && jogadorAtual != colorPlayer)
-	return;
-
     // jogador não pode jogar onde já houver uma peça colocada
     if (conteudo[X][Y] !== 'empty') {
 	console.log("OLA1");
 	msgJogImp();
 	return;
     }
+    
+    if (computador != undefined) {
+	
+	let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
+	console.log(jogadasPossiveis);
 
-    let jogadasPossiveis = possiveisJogadas(jogadorAtual, conteudo);
-    console.log(jogadasPossiveis);
-
-    if(!contem(jogadasPossiveis,pos)) {
-	console.log("OLA3");
-	console.log("POS: " + pos);
-	msgJogImp();
-	return;
-    }
-
-    if (computador == undefined) {
-	let move = '{\"row\": ' + X + ', \"column\": ' + Y + '}';
-	let user = document.getElementById("username").value;
-	let pass = document.getElementById("password").value;
-	await notify(user,pass,gameReference,move); // notifica o jogador da jogada
-	if (!canProceed) { // se a jogada não for possivel
-	    console.log("OLA2");
+	if(!contem(jogadasPossiveis,pos)) {
 	    msgJogImp();
 	    return;
 	}
-    }
-    
-    let jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
-    if (jogadorAtual == humano) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
-    
-    let dir = [];
-    
-    // obter as direções da propagação da jogada na posição pos
-    for(let i=0; i<jogadasPossiveis.length; i++) {
-	if(jogadasPossiveis[i][0] === pos) {
-	    dir.push(jogadasPossiveis[i][1]);
+	
+	let jogadasPossiveisAdversario = possiveisJogadas(humano, conteudo);
+	if (jogadorAtual == humano) { jogadasPossiveisAdversario = possiveisJogadas(computador, conteudo); }
+	
+	let dir = [];
+	
+	// obter as direções da propagação da jogada na posição pos
+	for(let i=0; i<jogadasPossiveis.length; i++) {
+	    if(jogadasPossiveis[i][0] === pos) {
+		dir.push(jogadasPossiveis[i][1]);
+	    }
 	}
-    }
 
-    trocarPeca(pos, jogadorAtual); // coloca a peça na casa selecionada pelo jogador na jogada
-    for(let i=0; i<dir.length; i++) {
-	switch(dir[i]) {
-	case 'HE': // propagação na HORIZONTAL ANTES da peça colocada
-	    for(let j=Y-1; j>=0; j--) {
-		let ind = X + j * 8;
-		trocarPeca(ind, jogadorAtual);
-		if (fimJogada) { break; }
+	trocarPeca(pos, jogadorAtual); // coloca a peça na casa selecionada pelo jogador na jogada
+	for(let i=0; i<dir.length; i++) {
+	    switch(dir[i]) {
+	    case 'HE': // propagação na HORIZONTAL ANTES da peça colocada
+		for(let j=Y-1; j>=0; j--) {
+		    let ind = X + j * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }
+		}
+		break;
+	    case 'HD': // propagação na HORIZONTAL DEPOIS da peça colocada
+		for(let j=Y+1; j<8; j++) {
+		    let ind = X + j * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }
+		}
+		break;
+	    case 'VC': // propagação na VERTICAL para CIMA da peça colocada
+		for(let j=X-1; j>=0; j--) {
+		    let ind = j + Y * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }
+		}
+		break;
+	    case 'VB': // propagação na VERTICAL para BAIXO da peça colocada
+		for(let j=X+1; j<8; j++) {
+		    let ind = j + Y * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }
+		}
+		break;
+	    case 'IE': // propagação na DIAGONAL INFERIOR ESQUERDA da peça colocada
+		for(let j=X+1, k=Y-1; j<8 && k>=0; j++, k--) {
+		    let ind = j + k * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }
+		}
+		break;
+	    case 'ID': // propagação na DIAGONAL INFERIOR DIREITA da peça colocada
+		for(let j=X+1, k=Y+1; j<8 && k<8; j++, k++) {
+		    let ind = j + k * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }
+		}
+		break;
+	    case 'SE': // propagação na DIAGONAL SUPERIOR ESQUERDA da peça
+		for(let j=X-1, k=Y-1; j>=0 && k>=0; j--, k--) {
+		    let ind = j + k * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }
+		}
+		break;
+	    case 'SD': // propagação na DIAGONAL SUPERIOR DIREITA da peça
+		for(let j=X-1, k=Y+1; j>=0 && k<8; j--, k++) {
+		    let ind = j + k * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }
+		}
+		break;
+	    default:
+		break;
 	    }
-	    break;
-	case 'HD': // propagação na HORIZONTAL DEPOIS da peça colocada
-	    for(let j=Y+1; j<8; j++) {
-		let ind = X + j * 8;
-		trocarPeca(ind, jogadorAtual);
-		if (fimJogada) { break; }
-	    }
-	    break;
-	case 'VC': // propagação na VERTICAL para CIMA da peça colocada
-	    for(let j=X-1; j>=0; j--) {
-		let ind = j + Y * 8;
-		trocarPeca(ind, jogadorAtual);
-		if (fimJogada) { break; }
-	    }
-	    break;
-	case 'VB': // propagação na VERTICAL para BAIXO da peça colocada
-	    for(let j=X+1; j<8; j++) {
-		let ind = j + Y * 8;
-		trocarPeca(ind, jogadorAtual);
-		if (fimJogada) { break; }
-	    }
-	    break;
-	case 'IE': // propagação na DIAGONAL INFERIOR ESQUERDA da peça colocada
-	    for(let j=X+1, k=Y-1; j<8 && k>=0; j++, k--) {
-		let ind = j + k * 8;
-		trocarPeca(ind, jogadorAtual);
-		if (fimJogada) { break; }
-	    }
-	    break;
-	case 'ID': // propagação na DIAGONAL INFERIOR DIREITA da peça colocada
-	    for(let j=X+1, k=Y+1; j<8 && k<8; j++, k++) {
-		let ind = j + k * 8;
-		trocarPeca(ind, jogadorAtual);
-		if (fimJogada) { break; }
-	    }
-	    break;
-	case 'SE': // propagação na DIAGONAL SUPERIOR ESQUERDA da peça
-	    for(let j=X-1, k=Y-1; j>=0 && k>=0; j--, k--) {
-		let ind = j + k * 8;
-		trocarPeca(ind, jogadorAtual);
-		if (fimJogada) { break; }
-	    }
-	    break;
-	case 'SD': // propagação na DIAGONAL SUPERIOR DIREITA da peça
-	    for(let j=X-1, k=Y+1; j>=0 && k<8; j--, k++) {
-		let ind = j + k * 8;
-		trocarPeca(ind, jogadorAtual);
-		if (fimJogada) { break; }
-	    }
-	    break;
-	default:
-	    break;
+	    fimJogada = false; // reset da variável global
 	}
-	fimJogada = false; // reset da variável global
-    }
 
-    if (computador != undefined) {
+	
 	if (jogadorAtual == humano) {
 
 	    jogadasPossiveis = possiveisJogadas(humano, conteudo);
@@ -768,15 +768,31 @@ async function processarJogada(pos) {
 	    }
 	    
 	}
-    }
 
-    vezJogada();
-    updatePont();
-    
-    if(jogadorAtual == computador) {
+	vezJogada();
+	updatePont();
+	
+	if(jogadorAtual == computador) {
 
-	let pos = melhorJogada();
-	setTimeout(processarJogada, 2000, pos);
+	    let pos = melhorJogada();
+	    setTimeout(processarJogada, 2000, pos);
+	    
+	}
+	
+    } else {
+
+	// se não for a vez do jogador, não faz nada
+	if (jogadorAtual != colorPlayer) return;
+	
+	let move = '{\"row\": ' + X + ', \"column\": ' + Y + '}';
+	let user = document.getElementById("username").value;
+	let pass = document.getElementById("password").value;
+	await notify(user,pass,gameReference,move); // notifica o jogador da jogada
+	if (!canProceed) { // se a jogada não for possivel
+	    console.log("OLA2");
+	    msgJogImp();
+	    return;
+	}
 	
     }
     
