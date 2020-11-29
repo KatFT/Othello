@@ -29,4 +29,6 @@ function animate() {
     ctx.lineWidth = 11.0;
     ctx.stroke();
 
+    cancelAnimationFrame(animate);
+
 }
