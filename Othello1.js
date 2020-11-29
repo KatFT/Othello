@@ -627,7 +627,6 @@ async function processarJogada(pos) {
 
     // jogador não pode jogar onde já houver uma peça colocada
     if (conteudo[X][Y] !== 'empty') {
-	console.log("OLA1");
 	msgJogImp();
 	return;
     }
@@ -773,12 +772,10 @@ async function processarJogada(pos) {
 	let pass = document.getElementById("password").value;
 	await notify(user,pass,gameReference,move); // notifica o jogador da jogada
 	if (!canProceed) { // se a jogada não for possivel
-	    console.log("OLA2");
 	    msgJogImp();
 	    return;
 	} 
-	let canvas = document.getElementById("canvas");
-	canvas = null;
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
     
 }
@@ -1049,6 +1046,8 @@ function vezJogada() {
 
 // mensagem de fim de jogo por desistência
 function desistir() {
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const msg = document.getElementById("msgFimJogo");
 
@@ -1080,6 +1079,8 @@ function desistir() {
 
 // mensagem que indica quem ganhou o jogo
 function fimJogo() {
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     document.getElementById("desistir").removeEventListener("click", desistir);
 
@@ -1224,8 +1225,7 @@ async function ranking(){
 
 function leave(gameReference, nickname, password) {
 
-    let canvas = document.getElementById("canvas");
-    canvas = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/leave', {
 	method: 'POST',
@@ -1256,6 +1256,8 @@ async function notify(nickname, password, game, moveGame) {
 }
 
 var data;
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
 async function update(game, nickname) {
     
     const eventSource = new EventSource('http://twserver.alunos.dcc.fc.up.pt:8008/update?nick=' + nickname + '&game=' + game);
