@@ -778,7 +778,6 @@ async function processarJogada(pos) {
 	    msgJogImp();
 	    return;
 	}
-	window.cancelAnimationFrame(animate);
     }
     
 }
@@ -1051,8 +1050,6 @@ function vezJogada() {
 function desistir() {
     
     const msg = document.getElementById("msgFimJogo");
-
-    window.cancelAnimationFrame(animate);
     
     if (jogadorAtual == 'light') {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";
@@ -1081,8 +1078,6 @@ function desistir() {
 function fimJogo() {
 
     document.getElementById("desistir").removeEventListener("click", desistir);
-
-    window.cancelAnimationFrame(animate);
     
     let nrPecasJogadorP = pecasJogadorP.length;
     let nrPecasJogadorB = pecasJogadorB.length;
@@ -1252,7 +1247,7 @@ async function notify(nickname, password, game, moveGame) {
     
 }
 
-var data, time;
+var data, time, doAnim=false;
 async function update(game, nickname) {
     
     const eventSource = new EventSource('http://twserver.alunos.dcc.fc.up.pt:8008/update?nick=' + nickname + '&game=' + game);
@@ -1279,7 +1274,8 @@ async function update(game, nickname) {
 	if (data.turn == nickname) {
 
 	    // se ao fim de 2min não for feita uma jogada é feito um leave automático
-	    animate();
+	    doAnim = true;
+	    canAnimate(doAnim);
 	    time = setTimeout(leave, 15000, gameReference, nickname, document.getElementById("password").value);
 	    
 	    if (colorPlayer == 'dark')
@@ -1293,6 +1289,8 @@ async function update(game, nickname) {
 	} else if (data.turn != nickname) {
 
 	    clearTimeout(time);
+	    doAnim = false;
+	    canAnimate(doAnim);
 	    
 	    if (colorPlayer == 'dark')
 		jogadorAtual = 'light';
@@ -1322,11 +1320,14 @@ async function update(game, nickname) {
 	    esperar();
 	    
 	} else if (data.hasOwnProperty("winner")) {
-	    
+
+	    doAnim = false;
+	    canAnimate(doAnim);
 	    clear();
 	    fimJogo();
 	    eventSource.close();
 	    
 	}
+
     }
 }
