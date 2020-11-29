@@ -7,6 +7,7 @@ var doAnim;
 
 function canAnimate(val) {
     doAnim = val;
+    startTime = Date.now();
     animate();
 }
 

@@ -1217,8 +1217,6 @@ async function ranking(){
 
 function leave(gameReference, nickname, password) {
 
-    canvas.style.display = "none";
-
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/leave', {
 	method: 'POST',
 	body: JSON.stringify({nick: nickname, pass: password, game: gameReference})
@@ -1247,7 +1245,7 @@ async function notify(nickname, password, game, moveGame) {
     
 }
 
-var data, time, doAnim=false;
+var data, time, doAnim=false, timeOut = false;
 async function update(game, nickname) {
     
     const eventSource = new EventSource('http://twserver.alunos.dcc.fc.up.pt:8008/update?nick=' + nickname + '&game=' + game);
@@ -1276,7 +1274,11 @@ async function update(game, nickname) {
 	    // se ao fim de 2min não for feita uma jogada é feito um leave automático
 	    doAnim = true;
 	    canAnimate(doAnim);
-	    time = setTimeout(leave, 15000, gameReference, nickname, document.getElementById("password").value);
+	    time = setTimeout(function() {
+		desistir();
+		leave(gameReference, nickname, document.getElementById("password").value);
+		timeOut = true;
+	    }, 15000);
 	    
 	    if (colorPlayer == 'dark')
 		jogadorAtual = 'dark';
@@ -1324,7 +1326,32 @@ async function update(game, nickname) {
 	    doAnim = false;
 	    canAnimate(doAnim);
 	    clear();
-	    fimJogo();
+	    if (timeOut == true) {
+		// se neste momento estivermos no jogo do jogador que ganhou por
+		// timeOut da jogada do oponente então imprime a respetiva msg de vitória
+		if (data.winner == document.getElementById("username").value) {
+		    
+		    document.getElementById("desistir").removeEventListener("click", desistir);
+
+		    const msg = document.getElementById("msgFimJogo");
+
+		    if (colorPlayer == 'dark')
+			msg.innerHTML = "JOGADOR PRETO GANHOU";	
+		    else
+			msg.innerHTML = "JOGADOR BRANCO GANHOU";	
+
+		    let novoJogo = document.createElement('div');
+		    novoJogo.setAttribute('id', 'novoJogo');
+		    novoJogo.innerHTML = "Novo Jogo?";
+		    msg.appendChild(novoJogo);
+		    msg.style.display = "block";
+		    novoJogo.addEventListener("click", init);
+		    
+		}
+		
+	    } else
+		fimJogo();
+	    
 	    eventSource.close();
 	    
 	}
