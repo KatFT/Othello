@@ -777,7 +777,8 @@ async function processarJogada(pos) {
 	    msgJogImp();
 	    return;
 	} 
-	
+	let canvas = document.getElementById("canvas");
+	canvas = null;
     }
     
 }
@@ -1050,6 +1051,9 @@ function vezJogada() {
 function desistir() {
     
     const msg = document.getElementById("msgFimJogo");
+
+    let canvas = document.getElementById("canvas");
+    canvas = null;
     
     if (jogadorAtual == 'light') {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";
@@ -1078,6 +1082,9 @@ function desistir() {
 function fimJogo() {
 
     document.getElementById("desistir").removeEventListener("click", desistir);
+
+    let canvas = document.getElementById("canvas");
+    canvas = null;
     
     let nrPecasJogadorP = pecasJogadorP.length;
     let nrPecasJogadorB = pecasJogadorB.length;
