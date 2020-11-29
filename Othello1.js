@@ -778,6 +778,7 @@ async function processarJogada(pos) {
 	    msgJogImp();
 	    return;
 	}
+	window.cancelAnimationFrame(animate);
     }
     
 }
@@ -1251,7 +1252,7 @@ async function notify(nickname, password, game, moveGame) {
     
 }
 
-var data;
+var data, time;
 async function update(game, nickname) {
     
     const eventSource = new EventSource('http://twserver.alunos.dcc.fc.up.pt:8008/update?nick=' + nickname + '&game=' + game);
@@ -1279,7 +1280,7 @@ async function update(game, nickname) {
 
 	    // se ao fim de 2min não for feita uma jogada é feito um leave automático
 	    animate();
-	    setTimeout(leave, 15000, gameReference, nickname, document.getElementById("password").value);
+	    time = setTimeout(leave, 15000, gameReference, nickname, document.getElementById("password").value);
 	    
 	    if (colorPlayer == 'dark')
 		jogadorAtual = 'dark';
@@ -1291,7 +1292,7 @@ async function update(game, nickname) {
 	    
 	} else if (data.turn != nickname) {
 
-	    clearTimeout();
+	    clearTimeout(time);
 	    
 	    if (colorPlayer == 'dark')
 		jogadorAtual = 'light';
