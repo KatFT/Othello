@@ -1228,6 +1228,13 @@ function leave(gameReference, nickname, password) {
     
 }
 
+var logout = false;
+function sair(nickname, password) {
+    logout = true;
+    leave(gameReference, nickname, password);
+    init();
+}
+
 async function notify(nickname, password, game, moveGame) {
     
     await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/notify', {
@@ -1276,8 +1283,9 @@ async function update(game, nickname) {
 	    canAnimate(doAnim);
 	    time = setTimeout(function() {
 		leave(gameReference, nickname, document.getElementById("password").value);
+		timeOut = true;
 	    }, 15000);
-	    
+
 	    if (colorPlayer == 'dark')
 		jogadorAtual = 'dark';
 	    else
@@ -1291,13 +1299,17 @@ async function update(game, nickname) {
 	    clearTimeout(time);
 	    doAnim = false;
 	    canAnimate(doAnim);
-	    
-	    if (colorPlayer == 'dark')
-		jogadorAtual = 'light';
-	    else
-		jogadorAtual = 'dark';
 
-	    vezJogada();
+	    if (timeOut == false) {
+		
+		if (colorPlayer == 'dark')
+		    jogadorAtual = 'light';
+		else
+		    jogadorAtual = 'dark';
+
+		vezJogada();
+		
+	    }
 	    
 	}
 	
@@ -1340,20 +1352,31 @@ async function update(game, nickname) {
 		
 	    } else if (data.winner != document.getElementById("username").value) {
 
-		if (colorPlayer == 'dark')
-		    msg.innerHTML = "JOGADOR BRANCO GANHOU";	
-		else
-		    msg.innerHTML = "JOGADOR PRETO GANHOU";
+		    if (colorPlayer == 'dark')
+			msg.innerHTML = "JOGADOR BRANCO GANHOU";	
+		    else
+			msg.innerHTML = "JOGADOR PRETO GANHOU";
 		
 	    }
+
+	    /*
+	      Se o jogador tiver perdido por:
+	      -> timeout
+	      -> o jogo acabou e ele obteve a pontuação mais baixa
+	      então imprime mensagem do vencedor.
+	      Se tiver feito logout a mensagem não aparece.
+	    */
+	    if (logout == false) {
 		
-	    let novoJogo = document.createElement('div');
-	    novoJogo.setAttribute('id', 'novoJogo');
-	    novoJogo.innerHTML = "Novo Jogo?";
-	    msg.appendChild(novoJogo);
-	    msg.style.display = "block";
-	    novoJogo.addEventListener("click", init);
-	    clear();
+		let novoJogo = document.createElement('div');
+		novoJogo.setAttribute('id', 'novoJogo');
+		novoJogo.innerHTML = "Novo Jogo?";
+		msg.appendChild(novoJogo);
+		msg.style.display = "block";
+		novoJogo.addEventListener("click", init);
+		clear();
+		
+	    }
 	    
 	    eventSource.close();
 	    
