@@ -778,6 +778,7 @@ async function processarJogada(pos) {
 	    msgJogImp();
 	    return;
 	}
+	window.cancelAnimationFrame(animate);
     }
     
 }
