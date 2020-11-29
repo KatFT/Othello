@@ -1275,9 +1275,7 @@ async function update(game, nickname) {
 	    doAnim = true;
 	    canAnimate(doAnim);
 	    time = setTimeout(function() {
-		desistir();
 		leave(gameReference, nickname, document.getElementById("password").value);
-		timeOut = true;
 	    }, 15000);
 	    
 	    if (colorPlayer == 'dark')
@@ -1325,32 +1323,37 @@ async function update(game, nickname) {
 
 	    doAnim = false;
 	    canAnimate(doAnim);
-	    clear();
-	    if (timeOut == true) {
-		// se neste momento estivermos no jogo do jogador que ganhou por
-		// timeOut da jogada do oponente então imprime a respetiva msg de vitória
-		if (data.winner == document.getElementById("username").value) {
-		    
-		    document.getElementById("desistir").removeEventListener("click", desistir);
 
-		    const msg = document.getElementById("msgFimJogo");
+	    document.getElementById("desistir").removeEventListener("click", desistir);
 
-		    if (colorPlayer == 'dark')
-			msg.innerHTML = "JOGADOR PRETO GANHOU";	
-		    else
-			msg.innerHTML = "JOGADOR BRANCO GANHOU";	
+	    const msg = document.getElementById("msgFimJogo");
+	    console.log(document.getElementById("username").value);
+	    
+	    if (data.winner == document.getElementById("username").value) {
 
-		    let novoJogo = document.createElement('div');
-		    novoJogo.setAttribute('id', 'novoJogo');
-		    novoJogo.innerHTML = "Novo Jogo?";
-		    msg.appendChild(novoJogo);
-		    msg.style.display = "block";
-		    novoJogo.addEventListener("click", init);
-		    
-		}
+		if (colorPlayer == 'dark')
+		    msg.innerHTML = "JOGADOR PRETO GANHOU";	
+		else
+		    msg.innerHTML = "JOGADOR BRANCO GANHOU";	
+
 		
-	    } else
-		fimJogo();
+		
+	    } else if (data.winner != document.getElementById("username").value) {
+
+		if (colorPlayer == 'dark')
+		    msg.innerHTML = "JOGADOR BRANCO GANHOU";	
+		else
+		    msg.innerHTML = "JOGADOR PRETO GANHOU";
+		
+	    }
+		
+	    let novoJogo = document.createElement('div');
+	    novoJogo.setAttribute('id', 'novoJogo');
+	    novoJogo.innerHTML = "Novo Jogo?";
+	    msg.appendChild(novoJogo);
+	    msg.style.display = "block";
+	    novoJogo.addEventListener("click", init);
+	    clear();
 	    
 	    eventSource.close();
 	    
