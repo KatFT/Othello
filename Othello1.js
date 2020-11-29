@@ -12,6 +12,9 @@ var humano;
 var computador;
 var dificuldade;
 
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
 var successfulLog;
 async function areaAutenticacao() {
 
@@ -774,8 +777,7 @@ async function processarJogada(pos) {
 	if (!canProceed) { // se a jogada não for possivel
 	    msgJogImp();
 	    return;
-	} 
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	}
     }
     
 }
@@ -1046,13 +1048,10 @@ function vezJogada() {
 
 // mensagem de fim de jogo por desistência
 function desistir() {
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const msg = document.getElementById("msgFimJogo");
 
-    let canvas = document.getElementById("canvas");
-    canvas = null;
+    window.cancelAnimationFrame(animate);
     
     if (jogadorAtual == 'light') {
 	msg.innerHTML = "JOGADOR PRETO GANHOU";
@@ -1080,12 +1079,9 @@ function desistir() {
 // mensagem que indica quem ganhou o jogo
 function fimJogo() {
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     document.getElementById("desistir").removeEventListener("click", desistir);
 
-    let canvas = document.getElementById("canvas");
-    canvas = null;
+    window.cancelAnimationFrame(animate);
     
     let nrPecasJogadorP = pecasJogadorP.length;
     let nrPecasJogadorB = pecasJogadorB.length;
@@ -1225,7 +1221,7 @@ async function ranking(){
 
 function leave(gameReference, nickname, password) {
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.display = "none";
 
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/leave', {
 	method: 'POST',
@@ -1256,8 +1252,6 @@ async function notify(nickname, password, game, moveGame) {
 }
 
 var data;
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
 async function update(game, nickname) {
     
     const eventSource = new EventSource('http://twserver.alunos.dcc.fc.up.pt:8008/update?nick=' + nickname + '&game=' + game);
