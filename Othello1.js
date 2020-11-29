@@ -295,9 +295,7 @@ function verificarJogadasHor(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (y >= y_pos + 2 && cont[x_pos][y-1] == pecaAdversario) {
 		    // HE -> a jogada é propagada na HORIZONTAL para a ESQUERDA até ir de encontro a outra peça do jogador
-		    let posi = [j, "HE"];
-		    if (jogadas.includes(posi))
-			jogadas.push(posi); 
+		   jogadas.push([j, "HE"]); 
 		}
 		break;
 	    }
@@ -324,9 +322,7 @@ function verificarJogadasHor(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (y <= y_pos - 2 && cont[x_pos][y+1] == pecaAdversario) {
 		    // HD -> a jogada é propagada na HORIZONTAL para a DIREITA até ir de encontro a outra peça do jogador
-		    let posi = [j, "HD"];
-		    if (jogadas.includes(posi))
-			jogadas.push(posi);	
+		    jogadas.push([j, "HD"]);	
 		}
 		break;
 	    }
@@ -377,9 +373,7 @@ function verificarJogadasVer(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (x >= x_pos + 2 && cont[x-1][y_pos] == pecaAdversario) {
 		    // VC -> a jogada é propagada na VERTICAL para CIMA até ir de encontro a outra peça do jogador
-		    let posi = [j, "VC"];
-		    if (jogadas.includes(posi))
-			jogadas.push(posi);
+		     jogadas.push([j, "VC"]);
 		}
 		break;
 	    }
@@ -406,9 +400,7 @@ function verificarJogadasVer(player, cont) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (x <= x_pos - 2 && cont[x+1][y_pos] == pecaAdversario) {
 		    // VB -> a jogada é propagada na VERTICAL para BAIXO até ir de encontro a outra peça do jogador
-		    let posi = [j, "VB"];
-		    if (jogadas.includes(posi))
-			jogadas.push(posi);
+		    jogadas.push([j, "VB"]);
 		}
 		break;		
 	    }
@@ -459,9 +451,7 @@ function verificarJogadasDiag(player, cont) {
 		if (x >= x_pos + 2 && y >= y_pos + 2 && cont[x-1][y-1] == pecaAdversario) {
 		    // SE -> a jogada é propagada na diagonal SUPERIOR ESQUERDA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
-		    let posi = [j, "SE"];
-		    if (jogadas.includes(posi))
-			jogadas.push(posi);	
+		    jogadas.push([j, "SE"]);
 		} 
 
 		break;
@@ -490,9 +480,7 @@ function verificarJogadasDiag(player, cont) {
 		if (x >= x_pos + 2 && y <= y_pos - 2 && cont[x-1][y+1] == pecaAdversario) {
 		    // SD -> a jogada é propagada na diagonal SUPERIOR DIREITA da peça colocada
 		    // até ao outro extremo que contenha outra peça do jogador
-		    let posi = [j, "SD"];
-		    if (jogadas.includes(posi))
-			jogadas.push(posi);
+		    jogadas.push([j, "SD"]); 
 		} 
 		break;
 	    }
@@ -519,9 +507,7 @@ function verificarJogadasDiag(player, cont) {
 		if (x <= x_pos - 2 && y <= y_pos - 2 && cont[x+1][y+1] == pecaAdversario) {
 		    // ID -> a jogada é propagada na diagonal INFERIOR DIREITA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
-		    let posi = [j, "ID"];
-		    if (jogadas.includes(posi))
-			jogadas.push(posi);
+		    jogadas.push([j, "ID"]);
 		}
 		break;
 	    }
@@ -548,9 +534,7 @@ function verificarJogadasDiag(player, cont) {
 		if (x <= x_pos - 2 && y >= y_pos + 2 && cont[x+1][y-1] == pecaAdversario) {
 		    // IE -> a jogada é propagada na diagonal INFERIOR ESQUERDA da peça colocada
 		    // até a outro extremo que contenha outra peça do jogador
-		    let posi = [j, "IE"];
-		    if (jogadas.includes(posi))
-			jogadas.push(posi);
+		    jogadas.push([j, "IE"]);
 
 		} 
 		break;
