@@ -1217,6 +1217,9 @@ async function ranking(){
 
 function leave(gameReference, nickname, password) {
 
+    let canvas = document.getElementById("canvas");
+    canvas = null;
+
     fetch('http://twserver.alunos.dcc.fc.up.pt:8008/leave', {
 	method: 'POST',
 	body: JSON.stringify({nick: nickname, pass: password, game: gameReference})
@@ -1272,6 +1275,7 @@ async function update(game, nickname) {
 	if (data.turn == nickname) {
 
 	    // se ao fim de 2min não for feita uma jogada é feito um leave automático
+	    animate();
 	    setTimeout(leave, 15000, gameReference, nickname, document.getElementById("password").value);
 	    
 	    if (colorPlayer == 'dark')
@@ -1283,6 +1287,8 @@ async function update(game, nickname) {
 
 	    
 	} else if (data.turn != nickname) {
+
+	    clearTimeout();
 	    
 	    if (colorPlayer == 'dark')
 		jogadorAtual = 'light';

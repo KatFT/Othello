@@ -269,6 +269,12 @@ body {
 
 /*-------------------------------*/
 
+#canvas {
+    top: 180px;
+    right: 12px;
+    position: fixed;
+}
+
 /* PASSAR JOGADA */
 /* tem as carateristica de tamanho, cor, tipo de letra, posicionamento e animação de troca de cores */
 #passar {
