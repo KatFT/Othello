@@ -627,7 +627,6 @@ async function processarJogada(pos) {
 
     // jogador não pode jogar onde já houver uma peça colocada
     if (conteudo[X][Y] !== 'empty') {
-	console.log("OLA1");
 	msgJogImp();
 	return;
     }
@@ -773,7 +772,6 @@ async function processarJogada(pos) {
 	let pass = document.getElementById("password").value;
 	await notify(user,pass,gameReference,move); // notifica o jogador da jogada
 	if (!canProceed) { // se a jogada não for possivel
-	    console.log("OLA2");
 	    msgJogImp();
 	    return;
 	} 
