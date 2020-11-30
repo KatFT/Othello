@@ -2,7 +2,7 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
 var startTime = Date.now();
-var cycleTime = 15000;
+var cycleTime = 120000;
 var doAnim;
 
 function canAnimate(val) {

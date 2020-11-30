@@ -77,6 +77,12 @@ function mostrarOps() {
   quando se clica no botao continuar nas op de jogo, essa pagina fecha e é mostrado o tabuleiro,
   accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai começa se a jogar
 */
+
+//inicializa as vitorias e as derrotas a 0
+//localStorage.vitoria=0;
+//localStorage.derrota=0;
+	
+
 function escolhaOp() {
 
     // só prossegue se forem selecionadas as escolhas
@@ -87,10 +93,21 @@ function escolhaOp() {
 	document.getElementById("op-jogo").style.display="none";
 	document.getElementById("continue").style.display="none";
 
+	//se n tiverem definidos a derrota e a vitora vamos cria-los e po los a 0
+	if(!(localStorage.vitoria) && !(localStorage.derrota)){
+		localStorage.vitoria=0;
+		localStorage.derrota=0;
+	}
+
 	if (document.getElementById("preto").checked) {
+		localStorage.user='dark'; //define o user como dark
+		//localStorage.vitoria= Number(localStorage.vitoria)+1; //debug
 	    humano = 'dark';
 	    computador = 'light';
-	} 
+	} else localStorage.user='light'; //se for light guarda o user como light
+
+	//se a vitoria e derrota ainda n estiver guardada, guardamos a 0
+	
 
 	if (document.getElementById("medio").checked) {
 	    dificuldade = 2;
@@ -1045,17 +1062,25 @@ function vezJogada() {
 	msg.innerHTML = "Vez do BRANCO";
     }
 }
-
+const p_jogador= document.getElementById("cont-classifica");
 // mensagem de fim de jogo por desistência
 function desistir() {
     
     const msg = document.getElementById("msgFimJogo");
     
     if (jogadorAtual == 'light') {
-	msg.innerHTML = "JOGADOR PRETO GANHOU";
+		msg.innerHTML = "JOGADOR PRETO GANHOU";
     } else {
-	msg.innerHTML = "JOGADOR BRANCO GANHOU";
+		msg.innerHTML = "JOGADOR BRANCO GANHOU";
     }
+
+    if(localStorage.user=='light')
+    	localStorage.derrota=Number(localStorage.derrota)+1;
+    else if(localStorage.user=='dark')
+    	localStorage.derrota=Number(localStorage.derrota)+1;
+    else localStorage.vitoria= Number(localStorage.vitoria)+1; //nunca vai chegar a este ponto
+
+    p_jogador.innerHTML= "Vitórias: "+localStorage.vitoria + " | Derrotas: "+localStorage.derrota;
 
     if (computador == undefined) {
 	    
@@ -1085,12 +1110,23 @@ function fimJogo() {
     const msg = document.getElementById("msgFimJogo");
 
     if (nrPecasJogadorP > nrPecasJogadorB) {
-	msg.innerHTML = "JOGADOR PRETO GANHOU";	
+    	if(localStorage.user=='dark')
+    		localStorage.vitoria=Number(localStorage.vitoria)+1;
+    	else if(localStorage.user=='light')
+    		localStorage.derrota=Number(localStorage.derrota)+1;
+
+		msg.innerHTML = "JOGADOR PRETO GANHOU";	
     } else if (nrPecasJogadorP < nrPecasJogadorB) {
-	msg.innerHTML = "JOGADOR BRANCO GANHOU";
+    	if(localStorage.user=='light')
+    		localStorage.vitoria=Number(localStorage.vitoria)+1;
+    	else if(localStorage.user=='dark')
+    		localStorage.derrota=Number(localStorage.derrota)+1;
+		msg.innerHTML = "JOGADOR BRANCO GANHOU";
     } else {
-	msg.innerHTML = "EMPATE";
+		msg.innerHTML = "EMPATE";
     }
+
+    p_jogador.innerHTML= "Vitórias: "+localStorage.vitoria + " | Derrotas: "+localStorage.derrota;
 
     let novoJogo = document.createElement('div');
     novoJogo.setAttribute('id', 'novoJogo');
@@ -1284,7 +1320,7 @@ async function update(game, nickname) {
 	    time = setTimeout(function() {
 		leave(gameReference, nickname, document.getElementById("password").value);
 		timeOut = true;
-	    }, 15000);
+	    }, 120000);
 
 	    if (colorPlayer == 'dark')
 		jogadorAtual = 'dark';
@@ -1315,8 +1351,10 @@ async function update(game, nickname) {
 	
 	// se o jogador atual não tiver jogadas possiveis e for a vez dele
 	if (data.hasOwnProperty("skip") && data.turn == nickname) {
-	    
-	    const passar = document.getElementById("passar");
+		//verificar isto melhor amanha
+	    document.getElementById("impossivel").style.display="block";
+
+    	const passar = document.getElementById("passar");
 	    passar.style.backgroundColor = "#6495ED"; // mudança de cor do botão "Passar"
 	    
 	    var listener = function() {
@@ -1325,7 +1363,7 @@ async function update(game, nickname) {
 		buttonPressed = true;
 		passar.removeEventListener("click", listener);
 		let pass = document.getElementById("password").value;
-		notify(nickname, value, gameReference, null);
+		notify(nickname, pass, gameReference, null);
 	    }
 	    
 	    passar.addEventListener("click", listener);
