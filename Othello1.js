@@ -1,5 +1,5 @@
 /*
-  Outubro de 2020
+  Dezembro de 2020
   Catarina Teixeira, up201805042
   Cheila Alves, up201805089 
 */
@@ -1371,7 +1371,6 @@ async function update(game, nickname) {
 	    document.getElementById("desistir").removeEventListener("click", desistir);
 
 	    const msg = document.getElementById("msgFimJogo");
-	    console.log(document.getElementById("username").value);
 	    
 	    if (data.winner == document.getElementById("username").value) {
 
