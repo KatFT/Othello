@@ -58,6 +58,7 @@ function area_de_jogo() {
     document.getElementById("vezJogada").style.display="block";
     jogadorAtual = 'dark';
     vezJogada();
+    p_jogador.innerHTML= "Vitórias: "+localStorage.vitoria + " | Derrotas: "+localStorage.derrota;
     
     criar_tabuleiro(); // depois das escolhas o jogo começa
     
@@ -78,10 +79,6 @@ function mostrarOps() {
   accordion, botoes de passar, novo jogo, logout, pontuaçao e o nosso logo e ai começa se a jogar
 */
 
-//inicializa as vitorias e as derrotas a 0
-//localStorage.vitoria=0;
-//localStorage.derrota=0;
-	
 
 function escolhaOp() {
 
@@ -101,12 +98,10 @@ function escolhaOp() {
 
 	if (document.getElementById("preto").checked) {
 		localStorage.user='dark'; //define o user como dark
-		//localStorage.vitoria= Number(localStorage.vitoria)+1; //debug
 	    humano = 'dark';
 	    computador = 'light';
 	} else localStorage.user='light'; //se for light guarda o user como light
 
-	//se a vitoria e derrota ainda n estiver guardada, guardamos a 0
 	
 
 	if (document.getElementById("medio").checked) {
@@ -1078,7 +1073,6 @@ function desistir() {
     	localStorage.derrota=Number(localStorage.derrota)+1;
     else if(localStorage.user=='dark')
     	localStorage.derrota=Number(localStorage.derrota)+1;
-    else localStorage.vitoria= Number(localStorage.vitoria)+1; //nunca vai chegar a este ponto
 
     p_jogador.innerHTML= "Vitórias: "+localStorage.vitoria + " | Derrotas: "+localStorage.derrota;
 
