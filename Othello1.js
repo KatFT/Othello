@@ -12,9 +12,6 @@ var humano;
 var computador;
 var dificuldade;
 
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
-
 var successfulLog;
 async function areaAutenticacao() {
 
@@ -1165,7 +1162,7 @@ async function register(nickname, password) {
     
     var info;  
     
-    await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/register', {
+    await fetch('http://twserver.alunos.dcc.fc.up.pt:8102/register', {
 	method: 'POST',
 	headers: {
 	    'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -1193,7 +1190,7 @@ async function register(nickname, password) {
 // emparelha 2 jogadores que pretendem jogar um jogo
 async function join(grp, nickname, password) {
     
-    await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/join', {
+    await fetch('http://twserver.alunos.dcc.fc.up.pt:8102/join', {
 	method: 'POST',
 	body: JSON.stringify({group: grp, nick: nickname, pass: password})
     })
@@ -1211,7 +1208,7 @@ async function join(grp, nickname, password) {
 
 async function ranking(){
     
-    await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/ranking', {
+    await fetch('http://twserver.alunos.dcc.fc.up.pt:8102/ranking', {
 	method: 'POST',
 	body: '{}'
     })
@@ -1247,7 +1244,7 @@ async function ranking(){
 
 function leave(gameReference, nickname, password) {
 
-    fetch('http://twserver.alunos.dcc.fc.up.pt:8008/leave', {
+    fetch('http://twserver.alunos.dcc.fc.up.pt:8102/leave', {
 	method: 'POST',
 	body: JSON.stringify({nick: nickname, pass: password, game: gameReference})
     })
@@ -1267,7 +1264,7 @@ function sair(nickname, password) {
 
 async function notify(nickname, password, game, moveGame) {
     
-    await fetch('http://twserver.alunos.dcc.fc.up.pt:8008/notify', {
+    await fetch('http://twserver.alunos.dcc.fc.up.pt:8102/notify', {
 	method: 'POST',
 	body: JSON.stringify({nick: nickname, pass: password, game: gameReference, move: JSON.parse(moveGame)})
     })
@@ -1285,7 +1282,7 @@ async function notify(nickname, password, game, moveGame) {
 var data, time, doAnim=false, timeOut = false;
 async function update(game, nickname) {
     
-    const eventSource = new EventSource('http://twserver.alunos.dcc.fc.up.pt:8008/update?nick=' + nickname + '&game=' + game);
+    const eventSource = new EventSource('http://twserver.alunos.dcc.fc.up.pt:8102/update?nick=' + nickname + '&game=' + game);
     eventSource.onmessage = function(event) {
 	// recebe os dados do estado do jogo
 	data = JSON.parse(event.data);
