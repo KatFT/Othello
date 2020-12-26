@@ -10,8 +10,9 @@ module.exports.forget = function(response) {
 	responses.splice(pos, 1);
 }
 
+// sends update to all users
 module.exports.update = function(message) {
     for(let response of responses) {
-	response.write('data: ' + message + '\n\n');
+	response.write(message + '\n\n');
     }
 }
