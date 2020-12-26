@@ -1,3 +1,5 @@
+// a implementação ficará hospedada em twserver.alunos.dcc.fc.up.pt
+// portanto, será q documentRoot tem de ter esse valor ???
 module.exports.documentRoot = '/home/cheila/Faculdade/3_ano/TW/Trabalho1Parte';
 module.exports.defaultIndex = 'index.html';
 module.exports.port = 8102;
