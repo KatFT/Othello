@@ -25,7 +25,6 @@ const headers = {
     }
 };
 
-var clear = false;
 http.createServer((request, response) => {
     let answer = {};
     const preq = url.parse(request.url,true);
@@ -40,15 +39,19 @@ http.createServer((request, response) => {
 	
 	var body = '';
 	
-	request.on('data', async function(data) {
+	request.on('data', function(data) {
 	    body += data;
 	    console.log('Data: ' + body);
-	    answer = await doPost(body, response, pathname);
-	    clear = true;
-	    console.log(answer);
+	    //console.log(answer);
+	}) .on('end', async function() {
+	    // espera a promessa de uma resposta, ou seja, o tratamento do 'body'
+	    await doPost(body, response, pathname)
+		.then(res => { answer = res; })
+		.catch(console.log);
+	    handleRequest(answer, response);
+	    //console.log("HANDLE: " + answer.status);
 	})
 
-	esperar();
 	break;
 	
     default:
@@ -56,22 +59,23 @@ http.createServer((request, response) => {
 	break;
     }
 
-    if(answer.status === undefined)
-	answer.status = 200;
-    if(answer.style === undefined)
-	answer.style = 'plain';
-
-    response.writeHead(answer.status, headers[answer.style]);
-    console.log(response);
-    // método POST sem corpo de resposta
-    if(answer.style === 'plain')
-	response.end();
-
 }).listen(conf.port);
 
-function esperar() {
-    if (!clear)
-	setTimeout(esperar, 2500);
+// escrita da resposta para o cliente
+function handleRequest(request, response) {
+    
+    // se tudo correu bem
+    if(request.status === undefined)
+	request.status = 200;
+    // se não for um pedido do tipo GET (SSE)
+    if(request.style === undefined)
+	request.style = 'plain';
+
+    response.writeHead(request.status, headers[request.style]);
+    // método POST sem corpo de resposta
+    if(request.style === 'plain')
+	response.end();
+    
 }
 
 // converter nomes caminhos relativos em caminhos absolutos
@@ -87,6 +91,8 @@ function getPathname(request) {
     return pathname;
 }
 
+
+// tratamento do pedido com método POST
 async function doPost(request, response, pathname) {    
     let data = JSON.parse(request);
     let answer = {};
@@ -97,12 +103,11 @@ async function doPost(request, response, pathname) {
 	if (!(data.hasOwnProperty("nick") && data.hasOwnProperty("pass")
 	      && Object.keys(data).length == 2)) {
 	    answer.status = 400;
-	    break;
+	    return answer;
 	}
 	
 	let nickname = data.nick;
 	let password = data.pass;
-	let found = false;	
 
 	// a password deve ser cifrada antes de ser guardada
 	// e também antes de ser comparada uma vez que as passwords
@@ -112,81 +117,13 @@ async function doPost(request, response, pathname) {
 	      .update(password)
 	      .digest('hex');
 
-	// se, anteriormente, já foi inserido um nickname 'nickname'
-	// verificar se a pass corresponde à password associada a 'nickname'
-	try {
-	    await fs.readFile('credentials.json', function(err, creds) {
-		if (!err) { // ficheiro existe
-		    //console.log(creds.toString());
-		    let users = JSON.parse(creds.toString());
-		    if (!Array.isArray(users))
-			users = [users];
-		    
-		    console.log(users);
-		    // procura se o user com o nickname 'nickname' já foi utilizado
-		    for (let i=0; i<users.length; i++) {
-
-			let user = users[i];
-			
-			console.log(user);
-			
-			if (user.nick == nickname) {
-			    
-			    if (user.pass == password) {
-				answer.body = '{}';
-				console.log('Successful login.');
-			    } else {
-				answer.body = JSON.stringify({error: "User registered with a different password"});
-				answer.status = 401;
-				console.log('Bad login.');
-				console.log(answer);
-				return answer;
-			    }
-
-			    found = true;
-			    break;
-			}
-			
-		    }
-
-		    // novo user
-		    if (found == false) {
-			
-			users.push({nick: nickname, pass: password});
-			
-			fs.writeFile('credentials.json',
-				     JSON.stringify(users),
-				     function(err) {
-					 if (err) throw err;
-					 console.log('New user added.');
-				     });
-			
-			answer.body = '{}';
-			console.log('Successful login.');
-			
-		    }
-		    
-		} else { // se o ficheiro ainda não foi criado
-
-		    var users = [{nick: nickname, pass: password}];
-		    console.log(users);
-		    fs.writeFile('credentials.json',
-				 JSON.stringify(users),
-				 function(err) {
-				     if (err) throw err;
-				     console.log('Credentials file created.');
-				 });
-		    answer.body = '{}';
-		    console.log('Successful login.');
-		}
-
-		updater.update(answer);
-		
-	    });
-	}
-	catch(error) {
-	    console.error(error.message);
-	}
+	// espera pela promessa que vem da verificação do login
+	// e o resultado dessa promessa ficará no 'answer'
+	await login(answer, nickname, hash)
+	    .then(res => { answer = res; })
+	    .catch(console.log);
+	
+	console.log("ANSWER: " + answer);
 	break;
 	
     case '/ranking':
@@ -223,4 +160,92 @@ async function doPost(request, response, pathname) {
     default:
     }
     return answer;    
+}
+
+// retorna a promessa da verificação do login
+async function login(answer, nickname, hash) {
+    return new Promise((resolve, reject) => {
+	// leitura do ficheiro que contém os dados de autenticação dos vários utilizadores
+	fs.readFile('credentials.json', async function(err, creds) {
+	    
+	    if (!err) { // ficheiro existe
+		// flag utilizada para indicar se o user já alguma vez efetuou o login
+		var found = false;
+		// lista de users que já fizeram login alguma vez
+		let users = JSON.parse(creds.toString());
+		// se os dados contidos no ficheiro não estiverem em formato de array
+		// então o ficheiro só contém os dados de um só user e portanto
+		// convertemos esses dados para um array para que possamos de seguida
+		// acrescentar o user atual
+		if (!Array.isArray(users))
+		    users = [users];
+		
+		// procura se o user com o nickname 'nickname' já foi utilizado
+		for (let i=0; i<users.length; i++) {
+
+		    let user = users[i];
+		    
+		    if (user.nick == nickname) { // se user existe no ficheiro
+			
+			if (user.pass == hash) { // dados introduzidos corretos
+			    
+			    answer.body = '{}';
+			    console.log('Successful login.');
+			    
+			} else { // dados introduzidos incorretos
+			    
+			    answer.body = JSON.stringify({error: "User registered with a different password"});
+			    answer.status = 401;
+			    console.log('Bad login.');
+			    // rejeita a promessa (é devolvido erro)
+			    reject(answer);
+			    
+			}
+
+			found = true; // o user foi encontrado
+			break;
+		    }
+		    
+		}
+
+		// novo user
+		if (found == false) {
+
+		    // inserção do user na lista dos users existentes
+		    users.push({nick: nickname, pass: hash});
+		    // espera da promessa que efetuará a inserção do novo user no ficheiro das credenciais
+		    await newLogin(users);
+		    answer.body = '{}';
+		    console.log('Successful login.');
+		    
+		}
+		
+	    } else { // se o ficheiro ainda não foi criado
+
+		var users = [{nick: nickname, pass: hash}];
+		// espera da promessa que efetuará a inserção do novo user no ficheiro das credenciais
+		await newLogin(users);
+		answer.body = '{}';
+		console.log('Successful login.');
+	    }
+
+	    // é devolvida, com sucesso, a promessa
+	    resolve(answer);
+	    
+	})
+    });
+}
+
+// função que retorna a promessa da inserção dum novo usuário
+// no ficheiro das credenciais
+function newLogin(users) {
+    return new Promise(resolve => {
+	fs.writeFile('credentials.json',
+		     JSON.stringify(users),
+		     function(err) {
+			 if (err) throw err;
+			 console.log('Written in file.');
+		     });
+	resolve();
+    });
 }
