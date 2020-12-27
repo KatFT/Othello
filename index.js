@@ -12,45 +12,67 @@ let updater = require('./updater.js');
 const headers = {
     plain: {
         'Content-Type': 'application/javascript',
-	// força a cache a submeter a requisição ao servidor origem para
-	// validação antes de libertar a cópia em memória
         'Cache-Control': 'no-cache',
-	// uma resposta que diz ao browser para permitir o pedido da origem
-	// twserver.alunos.dcc.fc.up.pt o acesso a um recurso
-        'Access-Control-Allow-Origin': 'twserver.alunos.dcc.fc.up.pt'        
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Methods': 'POST'
     },
     sse: {    
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Access-Control-Allow-Origin': 'twserver.alunos.dcc.fc.up.pt',
-        'Connection': 'keep-alive'
+	'Access-Control-Allow-Origin': '*',
+        'Connection': 'keep-alive',
+	'Access-Control-Allow-Methods': 'GET'
     }
 };
 
+var clear = false;
 http.createServer((request, response) => {
+    let answer = {};
+    const preq = url.parse(request.url,true);
+    const pathname = preq.pathname;
+    console.log(pathname);
 
     switch(request.method) {
     case 'GET': // DPS TRATAR DESTE CASO PARA O UPDATE !!!
-	answer = doGet(request, response);
+	//answer = doGet(request, response);
 	break;
     case 'POST':
-	answer = doPost(request, response);
+	
+	var body = '';
+	
+	request.on('data', async function(data) {
+	    body += data;
+	    console.log('Data: ' + body);
+	    answer = await doPost(body, response, pathname);
+	    clear = true;
+	    console.log(answer);
+	})
+
+	esperar();
 	break;
+	
     default:
 	answer.status = 400;
+	break;
     }
 
     if(answer.status === undefined)
-        answer.status = 200;
+	answer.status = 200;
     if(answer.style === undefined)
-        answer.style = 'plain';
+	answer.style = 'plain';
 
     response.writeHead(answer.status, headers[answer.style]);
+    console.log(response);
     // método POST sem corpo de resposta
     if(answer.style === 'plain')
-        response.end();
-    
+	response.end();
+
 }).listen(conf.port);
+
+function esperar() {
+    if (!clear)
+	setTimeout(esperar, 2500);
+}
 
 // converter nomes caminhos relativos em caminhos absolutos
 function getPathname(request) {
@@ -65,10 +87,9 @@ function getPathname(request) {
     return pathname;
 }
 
-function doPost(request, response) {
+async function doPost(request, response, pathname) {    
     let data = JSON.parse(request);
-    let pathname = getPathname(request);
-    let answer = '';
+    let answer = {};
 
     switch(pathname) {
     case '/register':
@@ -78,10 +99,10 @@ function doPost(request, response) {
 	    answer.status = 400;
 	    break;
 	}
-
+	
 	let nickname = data.nick;
 	let password = data.pass;
-	let found = false;
+	let found = false;	
 
 	// a password deve ser cifrada antes de ser guardada
 	// e também antes de ser comparada uma vez que as passwords
@@ -93,62 +114,79 @@ function doPost(request, response) {
 
 	// se, anteriormente, já foi inserido um nickname 'nickname'
 	// verificar se a pass corresponde à password associada a 'nickname'
-	fs.readFile('credentials.json', function(err, creds) {
-	    if (!err) { // ficheiro existe
-		
-		let users = JSON.parse(creds.toString());
-		// procura se o user com o nickname 'nickname' já foi utilizado
-		for (let user in users) {
+	try {
+	    await fs.readFile('credentials.json', function(err, creds) {
+		if (!err) { // ficheiro existe
+		    //console.log(creds.toString());
+		    let users = JSON.parse(creds.toString());
+		    if (!Array.isArray(users))
+			users = [users];
 		    
-		    if (user.nick == nickname) {
+		    console.log(users);
+		    // procura se o user com o nickname 'nickname' já foi utilizado
+		    for (let i=0; i<users.length; i++) {
+
+			let user = users[i];
 			
-			if (user.pass == password) {
-			    answer.body = '{}';
-			    console.log('Successful login.');
-			} else {
-			    answer.body = JSON.stringfy({error: "User registered with a different password"});
-			    answer.status = 401;
-			    console.log('Bad login.');
+			console.log(user);
+			
+			if (user.nick == nickname) {
+			    
+			    if (user.pass == password) {
+				answer.body = '{}';
+				console.log('Successful login.');
+			    } else {
+				answer.body = JSON.stringify({error: "User registered with a different password"});
+				answer.status = 401;
+				console.log('Bad login.');
+				console.log(answer);
+				return answer;
+			    }
+
+			    found = true;
+			    break;
 			}
 			
-			found = true;
-			break;
+		    }
+
+		    // novo user
+		    if (found == false) {
+			
+			users.push({nick: nickname, pass: password});
+			
+			fs.writeFile('credentials.json',
+				     JSON.stringify(users),
+				     function(err) {
+					 if (err) throw err;
+					 console.log('New user added.');
+				     });
+			
+			answer.body = '{}';
+			console.log('Successful login.');
 			
 		    }
-		}
+		    
+		} else { // se o ficheiro ainda não foi criado
 
-		// novo user
-		if (found == false) {
-		    
-		    users.push({nick: nickname, pass: password});
-		    
+		    var users = [{nick: nickname, pass: password}];
+		    console.log(users);
 		    fs.writeFile('credentials.json',
-				 [{nick: nickname, pass: password}],
+				 JSON.stringify(users),
 				 function(err) {
 				     if (err) throw err;
-				     console.log('New user added.');
+				     console.log('Credentials file created.');
 				 });
-		    
 		    answer.body = '{}';
 		    console.log('Successful login.');
-		    
 		}
-		
-	    } else { // se o ficheiro ainda não foi criado
-		
-		fs.writeFile('credentials.json',
-			     [{nick: nickname, pass: password}],
-			     function(err) {
-				 if (err) throw err;
-				 console.log('Credentials file created.');
-			     });
-		answer.body = '{}';
-		console.log('Successful login.');
-	    }
 
-	    updater.update(answer);
-	    
-	});
+		updater.update(answer);
+		
+	    });
+	}
+	catch(error) {
+	    console.error(error.message);
+	}
 	break;
 	
     case '/ranking':
@@ -184,5 +222,5 @@ function doPost(request, response) {
     case '/notify':
     default:
     }
-    
+    return answer;    
 }
