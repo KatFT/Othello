@@ -123,7 +123,7 @@ async function doPost(request, response, pathname) {
 	    .then(res => { answer = res; })
 	    .catch(console.log);
 	
-	console.log("ANSWER: " + answer);
+	//console.log("ANSWER: " + answer);
 	break;
 	
     case '/ranking':
@@ -133,17 +133,14 @@ async function doPost(request, response, pathname) {
 	if (!(data.hasOwnProperty("nick") && data.hasOwnProperty("pass")
 	      && data.hasOwnProperty("game") && Object.keys(data).length == 3)) {
 	    answer.status = 400;
-	    break;
+	    return answer;
 	}
 
-	let users = '';
-	fs.readFile('players.json', function(err, games) {
-	    if (!err) { // ficheiro existe
-		users = JSON.parse(games.toString());
-		users = users.filter(u => u.nick !== data.nick);
-	    } 
-	});
-
+	let users = [];
+	await logout()
+	    .then(res => { users = res; })
+	    .catch(console.log)
+	
 	request.on('close', () => {
 	    console.log(data.nick + " closed connection.");
 	    fs.writeFile('players.json', users,
@@ -247,5 +244,18 @@ function newLogin(users) {
 			 console.log('Written in file.');
 		     });
 	resolve();
+    });
+}
+
+function logout() {
+    return new Promise((resolve, reject) => {
+	let users = [];
+	fs.readFile('players.json', function(err, games) {
+	    if (!err) { // ficheiro existe
+		users = JSON.parse(games.toString());
+		users = users.filter(u => u.nick !== data.nick);
+	    } else reject(users);
+	});
+	resolve(users);
     });
 }
