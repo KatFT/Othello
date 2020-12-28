@@ -31,9 +31,9 @@ async function areaAutenticacao() {
 	    
 	    document.getElementById("form").style.display="none";
 	    document.getElementById("login").style.display="none";
-	    twoPlayers(user.value, pass.value);
-	    await ranking();
+	    ranking();
 	    document.getElementById("ranking").style.display="block";
+	    await twoPlayers(user.value, pass.value);
 	    area_de_jogo();
 	    
 	}
@@ -1195,7 +1195,7 @@ async function join(grp, nickname, password) {
 	body: JSON.stringify({group: grp, nick: nickname, pass: password})
     })
 	.then(response => {
-	    return Promise.resolve(response.json())
+	    return response.json()
 	})
 	.then(info => {
 	    gameReference = info.game;
@@ -1213,7 +1213,7 @@ async function ranking(){
 	body: '{}'
     })
 	.then(response => {
-	    return Promise.resolve(response.json())
+	    return response.json()
 	})
 	.then(info => {
 	    
