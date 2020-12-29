@@ -1,18 +1,18 @@
-let responses = [];
+let users = [];
 
-module.exports.remember = function(response) {
-    responses.push(response);
+module.exports.remember = function(user) {
+    users.push(user);
 }
 
-module.exports.forget = function(response) {
-    let pos = responses.findIndex((resp) => resp === response);
+module.exports.forget = function(user) {
+    let pos = users.findIndex(usr => usr.id === user.id);
     if (pos > -1)
-	responses.splice(pos, 1);
+	users.splice(pos, 1);
 }
 
-// sends update to all users
+// difundir a mensagem para todos os clientes que têm uma conexão aberta
 module.exports.update = function(message) {
-    for(let response of responses) {
-	response.write(message + '\n\n');
+    for(let u of users) {
+        u.response.write('data: '+ message + '\n\n');
     }
 }
