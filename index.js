@@ -2,13 +2,24 @@
 
 const http = require('http');
 const url = require('url');
-const path = require('path');
 const fs = require('fs');
 const conf = require('./conf.js');
 const crypto = require('crypto');
 
-let fun = require('./possible.js');
 let updater = require('./updater.js');
+
+// guardará os efeitos dos pedidos POST feitos
+let nests = [];
+
+let conteudo = [ ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','light','dark','empty','empty', 'empty'],
+		 ['empty','empty','empty','dark','light','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+		 ['empty','empty','empty','empty','empty','empty','empty', 'empty']
+	       ];
 
 const headers = {
     plain: {
@@ -33,8 +44,8 @@ http.createServer((request, response) => {
     switch(request.method) {
     case 'GET':
 	answer = doGet(parsedUrl, request, response);
-	console.log(answer);
 	break;
+	
     case 'POST':
 	
 	var body = '';
@@ -42,14 +53,18 @@ http.createServer((request, response) => {
 	request.on('data', function(data) {
 	    body += data;
 	    console.log('Data: ' + body);
-	    //console.log(answer);
+	    
 	}) .on('end', async function() {
 	    // espera a promessa de uma resposta, ou seja, o tratamento do 'body'
 	    await doPost(body, response, pathname)
 		.then(res => { answer = res; })
 		.catch(console.log);
 
-	    console.log("POST: " + answer.body);
+	    // pedidos que são afetados pelo update
+	    if (pathname != '/register' && pathname != '/ranking')
+		nests.push(answer.data);
+
+	    //console.log("POST: " + answer.body);
 	    handleRequest(answer, response);
 	})
 
@@ -73,10 +88,11 @@ function handleRequest(request, response) {
 	request.style = 'plain';
 
     response.writeHead(request.status, headers[request.style]);
-    response.write(request.body);
     // método POST sem corpo de resposta
-    if(request.style === 'plain')
+    if(request.style === 'plain') {
+	response.write(request.body);
 	response.end();
+    }
     
 }
 
@@ -88,24 +104,19 @@ function doGet(parsedUrl, request, response) {
     let nick = query.nick;
     let game = query.game;
 
-    // se contiver nrs e letras então ok
-    let ok = false;
-    if (!((/^[a-zA-Z]+$/).test(game) || (/^\d+$/).test(game)))
-	ok = true;
-    
-    if (ok == false) {
-	answer.status = 500;
-	answer.body = JSON.stringify({error: "Invalid game reference"});
-	return answer;
-    }
-
     switch(pathname) {
     case '/update':
-	updater.remember(response); // abre a conexão a um cliente
-	request.on('close', () => updater.forget(response)); // no fecho da conexão, esquece esta ligação
-	setImmediate(() => updater.update('{}'));
-	answer.style = 'sse';
+
+	response.writeHead(200, headers['sse']);
+	let data = JSON.stringify(nests.shift()); // vai tratando dos pedidos por ordem
+	//console.log(data);
+	let connId = Date.now(); // identificador da conexão
+	let newConn = { id: connId, response }; // objeto que representa o cliente
+	updater.remember(newConn); // início de uma conexão
+	request.on('close', () => updater.forget(newConn)); // fechar conexão no fim da ligação
+	setImmediate(() => updater.update(data));
 	break;
+	
     default:
 	answer.status = 400;
 	break;
@@ -203,7 +214,8 @@ async function doPost(request, response, pathname) {
 	// se não, é retornado como winner o oponente
 	await inGame(game)
 	    .then(win => async function() {
-		updater.update(JSON.stringify({winner: win}));
+		let msg = JSON.stringify({winner: win})
+		
 		if (win == data.nick) await updateScores(data.nick, true);
 		else await updateScores(data.nick, false);
 	    })
@@ -220,7 +232,7 @@ async function doPost(request, response, pathname) {
 function updateScores(player, won) {
     return new Promise(resolve => {
 	fs.readFile('scores.json', async function(err, scores) {
-	    if (err) {
+	    if (!err) {
 		let players = JSON.parse(scores.toString());
 
 		for (let i=0; i<players.length; i++) {
@@ -332,7 +344,7 @@ async function joinGame(answer, nickname, hash) {
 			active.push({game: hash, player1: opponent, player2: nickname});
 			await newGame(active);
 			// estado inicial do jogo
-			updater.update(JSON.stringify({board: fun.conteudo, turn: opponent, count: {dark: 2, light: 2, empty: 60}}));
+			answer.data = JSON.stringify({board: conteudo, turn: opponent, count: {dark: 2, light: 2, empty: 60}});
 			found = true;
 			break;
 		    }
@@ -344,7 +356,7 @@ async function joinGame(answer, nickname, hash) {
 		    active.push({game: hash, player1: nickname});
 		    // espera da promessa que efetuará a inserção do novo game no ficheiro dos jogos ativos
 		    await newGame(active);
-		    updater.update("{}");
+		    answer.data = JSON.stringify({});
 		    answer.body = JSON.stringify({game: hash, color: "dark"});
 		    
 		}
@@ -354,7 +366,7 @@ async function joinGame(answer, nickname, hash) {
 		var active = [{game: hash, player1: nickname}];
 		// espera da promessa que efetuará a inserção do novo game no ficheiro dos jogos ativos
 		await newGame(active);
-		updater.update("{}");
+		answer.data = JSON.stringify({});
 		answer.body = JSON.stringify({game: hash, color: "dark"});
 		
 	    }
