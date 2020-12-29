@@ -7,6 +7,7 @@ const fs = require('fs');
 const conf = require('./conf.js');
 const crypto = require('crypto');
 
+let fun = require('./possible.js');
 let updater = require('./updater.js');
 
 const headers = {
@@ -25,13 +26,14 @@ const headers = {
 
 http.createServer((request, response) => {
     let answer = {};
-    const preq = url.parse(request.url,true);
-    const pathname = preq.pathname;
+    const parsedUrl = url.parse(request.url,true);
+    const pathname = parsedUrl.pathname;
     console.log(pathname);
 
     switch(request.method) {
-    case 'GET': // DPS TRATAR DESTE CASO PARA O UPDATE !!!
-	//answer = doGet(request, response);
+    case 'GET':
+	answer = doGet(parsedUrl, request, response);
+	console.log(answer);
 	break;
     case 'POST':
 	
@@ -49,7 +51,6 @@ http.createServer((request, response) => {
 
 	    console.log("POST: " + answer.body);
 	    handleRequest(answer, response);
-	    //console.log("HANDLE: " + response);
 	})
 
 	break;
@@ -77,6 +78,40 @@ function handleRequest(request, response) {
     if(request.style === 'plain')
 	response.end();
     
+}
+
+// tratamento do pedido com método GET
+function doGet(parsedUrl, request, response) {
+    let answer = {};
+    let pathname = parsedUrl.pathname;
+    let query = parsedUrl.query;
+    let nick = query.nick;
+    let game = query.game;
+
+    // se contiver nrs e letras então ok
+    let ok = false;
+    if (!((/^[a-zA-Z]+$/).test(game) || (/^\d+$/).test(game)))
+	ok = true;
+    
+    if (ok == false) {
+	answer.status = 500;
+	answer.body = JSON.stringify({error: "Invalid game reference"});
+	return answer;
+    }
+
+    switch(pathname) {
+    case '/update':
+	updater.remember(response); // abre a conexão a um cliente
+	request.on('close', () => updater.forget(response)); // no fecho da conexão, esquece esta ligação
+	setImmediate(() => updater.update('{}'));
+	answer.style = 'sse';
+	break;
+    default:
+	answer.status = 400;
+	break;
+    }
+
+    return answer;
 }
 
 // tratamento do pedido com método POST
@@ -147,7 +182,7 @@ async function doPost(request, response, pathname) {
 	    .then(res => { answer = res; })
 	    .catch(console.log);
 
-	console.log(answer.body);
+	//console.log(answer.body);
 	break;
 	
     case '/leave':
@@ -162,13 +197,112 @@ async function doPost(request, response, pathname) {
 	await logout(data.nick);
 
 	answer.body = '{}';
-	updater.update(answer.body);
+	
+	// verificar se fez um leave sem o jogo ter começado
+	// se sim, é retornado um winner null
+	// se não, é retornado como winner o oponente
+	await inGame(game)
+	    .then(win => async function() {
+		updater.update(JSON.stringify({winner: win}));
+		if (win == data.nick) await updateScores(data.nick, true);
+		else await updateScores(data.nick, false);
+	    })
+	    .catch(console.log);
+	
 	break;
 	
     case '/notify':
     default:
     }
     return answer;    
+}
+
+function updateScores(player, won) {
+    return new Promise(resolve => {
+	fs.readFile('scores.json', async function(err, scores) {
+	    if (err) {
+		let players = JSON.parse(scores.toString());
+
+		for (let i=0; i<players.length; i++) {
+		    let p = players[i];
+		    if (p.nick == player) {
+			let vics = p.victories;
+			let g = p.games;
+			g++;
+			if (won) vics++;
+			players.splice(i, 1);
+			players.push({nick: player, victories: vics, games: g});
+			await writeResult(players);
+			break;
+		    }
+		}
+		
+	    } else {
+		
+		let vics = 0;
+		if (won) vics = 1;
+		let g = 1;
+		let players = [{nick: player, victories: vics, games: g}];
+		await writeResult(players);
+		
+	    }
+
+	    resolve();
+	    
+	});
+    });
+}
+
+// regista um novo jogo no ficheiro activeGames.json
+function writeResult(scores) {
+    return new Promise(resolve => {
+	fs.writeFile('scores.json',
+		     JSON.stringify(scores),
+		     function(err) {
+			 if (err) throw err;
+			 console.log('Scores updated in file.');
+		     });
+	resolve();
+    });
+}
+
+function inGame(nick, game) {
+    return new Promise((resolve,reject) => {
+	fs.readFile('activeGames.json', function(err, games) {
+	    if (!err) {
+		
+		let active = JSON.parse(games.toString());
+		if (!Array.isArray(active))
+		    active = [active];
+
+		let winner = '';
+
+		for (let i=0; i<active.length; i++) {
+		    let a = active[i];
+		    if (a.game == game) {
+			// só tem os campos game e o player1
+			if (Object.keys(a).length == 2)
+			    winner = "null";
+			else {
+			    
+			    if (a.player1 == nick)
+				winner =  a.player2;
+			    else if (a.player2 == nick)
+				winner = a.player1;
+			    
+			}
+			
+			break;
+			
+		    }
+		}
+		
+	    } else reject();
+
+	    resolve(winner);
+	    
+	});
+    });
 }
 
 async function joinGame(answer, nickname, hash) {
@@ -197,6 +331,8 @@ async function joinGame(answer, nickname, hash) {
 			active.splice(i, 1);
 			active.push({game: hash, player1: opponent, player2: nickname});
 			await newGame(active);
+			// estado inicial do jogo
+			updater.update(JSON.stringify({board: fun.conteudo, turn: opponent, count: {dark: 2, light: 2, empty: 60}}));
 			found = true;
 			break;
 		    }
@@ -208,6 +344,7 @@ async function joinGame(answer, nickname, hash) {
 		    active.push({game: hash, player1: nickname});
 		    // espera da promessa que efetuará a inserção do novo game no ficheiro dos jogos ativos
 		    await newGame(active);
+		    updater.update("{}");
 		    answer.body = JSON.stringify({game: hash, color: "dark"});
 		    
 		}
@@ -217,6 +354,7 @@ async function joinGame(answer, nickname, hash) {
 		var active = [{game: hash, player1: nickname}];
 		// espera da promessa que efetuará a inserção do novo game no ficheiro dos jogos ativos
 		await newGame(active);
+		updater.update("{}");
 		answer.body = JSON.stringify({game: hash, color: "dark"});
 		
 	    }
@@ -276,7 +414,8 @@ function rank(answer) {
 
 		answer.body = JSON.stringify({ranking: r});
 
-	    }
+	    } else // ainda não houveram jogos
+		answer.body = JSON.stringify({ranking: []});
 
 	    //devolvido com sucesso a promessa
 	    resolve(answer);
