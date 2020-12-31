@@ -11,73 +11,82 @@ let updater = require('./updater.js');
 // guardará os efeitos dos pedidos POST feitos
 let nests = [];
 
-let cont = [ ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
-		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
-		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
-		 ['empty','empty','empty','light','dark','empty','empty', 'empty'],
-		 ['empty','empty','empty','dark','light','empty','empty', 'empty'],
-		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
-		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
-		 ['empty','empty','empty','empty','empty','empty','empty', 'empty']
-	       ];
+let cont = [ ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+	     ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+	     ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+	     ["empty","empty","empty","light","dark","empty","empty", "empty"],
+	     ["empty","empty","empty","dark","light","empty","empty", "empty"],
+	     ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+	     ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+	     ["empty","empty","empty","empty","empty","empty","empty", "empty"]
+	   ];
 
-var turn= ''; //vai verificar os turnos
-var CorPlayer;
+var time = ""; // guarda o jogador que tem a vez
+var oponente = ""; // guarda o nick do oponente
+var p1 = "";
+var p2 = "";
+var corP1 = "";
+var corP2 = "";
+var corPlayer; // cor do jogador
 var pecasJogadorB = [3+3*8, 4+4*8];
 var pecasJogadorP = [3+4*8, 4+3*8];
 var fimJogada = false;
 
 const headers = {
     plain: {
-        'Content-Type': 'application/javascript',
-        'Cache-Control': 'no-cache',
-	'Access-Control-Allow-Origin': '*'
+        "Content-Type": "application/javascript",
+        "Cache-Control": "no-cache",
+	"Access-Control-Allow-Origin": "*"
     },
     sse: {    
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-	'Access-Control-Allow-Origin': '*',
-        'Connection': 'keep-alive'
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+	"Access-Control-Allow-Origin": "*",
+        "Connection": "keep-alive"
     }
 };
 
 http.createServer((request, response) => {
     let answer = {};
-    const parsedUrl = url.parse(request.url,true);
+    let urlStr = 'http://' + request.headers.host + request.url;
+    const parsedUrl = url.parse(urlStr,true);
     const pathname = parsedUrl.pathname;
-    console.log(pathname);
+    const host = parsedUrl.host;
 
     switch(request.method) {
-    case 'GET':
+    case "GET":
 	answer = doGet(parsedUrl, request, response);
 	break;
 	
-    case 'POST':
+    case "POST":
 	
-	var body = '';
+	var body = "";
 	
-	request.on('data', function(data) {
+	request.on("data", function(data) {
 	    body += data;
-	    console.log('Data: ' + body);
+	    console.log("DATA: " + body);
 	    
-	}) .on('end', async function() {
-	    // espera a promessa de uma resposta, ou seja, o tratamento do 'body'
-	    await doPost(body, response, pathname)
+	}) .on("end", async function() {
+	    // espera a promessa de uma resposta, ou seja, o tratamento do "body"
+	    let data = JSON.parse(body);
+	    await doPost(data, response, pathname)
 		.then(res => { answer = res; })
 		.catch(console.log);
 
 	    // pedidos que são afetados pelo update
-	    if (pathname != '/register' && pathname != '/ranking')
+	    if (pathname != "/register" && pathname != "/ranking") {
 		nests.push(answer.data);
+		updater.update(answer.data);
+	    }
 
-	    //console.log("POST: " + answer.body);
 	    handleRequest(answer, response);
+	    
 	})
 
 	break;
 	
     default:
-	answer.status = 400;
+	answer.status = 404; // pedido desconhecido
 	break;
     }
 
@@ -91,14 +100,12 @@ function handleRequest(request, response) {
 	request.status = 200;
     // se não for um pedido do tipo GET (SSE)
     if(request.style === undefined)
-	request.style = 'plain';
+	request.style = "plain";
 
     response.writeHead(request.status, headers[request.style]);
     // método POST sem corpo de resposta
-    if(request.style === 'plain') {
-	response.write(request.body);
-	response.end();
-    }
+    if(request.style === "plain")
+	response.end(JSON.stringify(request.body));
     
 }
 
@@ -111,15 +118,14 @@ function doGet(parsedUrl, request, response) {
     let game = query.game;
 
     switch(pathname) {
-    case '/update':
+    case "/update":
 
-	response.writeHead(200, headers['sse']);
-	let data = JSON.stringify(nests.shift()); // vai tratando dos pedidos por ordem
-	//console.log(data);
+	response.writeHead(200, headers["sse"]);
+	let data = JSON.stringify(JSON.parse(nests.pop())); // vai tratando dos pedidos por ordem
 	let connId = Date.now(); // identificador da conexão
 	let newConn = { id: connId, response }; // objeto que representa o cliente
 	updater.remember(newConn); // início de uma conexão
-	request.on('close', () => updater.forget(newConn)); // fechar conexão no fim da ligação
+	request.on("close", () => { updater.forget(newConn); }); // fechar conexão no fim da ligação
 	setImmediate(() => updater.update(data));
 	break;
 	
@@ -132,12 +138,11 @@ function doGet(parsedUrl, request, response) {
 }
 
 // tratamento do pedido com método POST
-async function doPost(request, response, pathname) {    
-    let data = JSON.parse(request);
+async function doPost(data, response, pathname) {    
     let answer = {};
 
     switch(pathname) {
-    case '/register':
+    case "/register":
 	// se foi efetuado um pedido com o formato incorreto, devolve erro
 	if (!(data.hasOwnProperty("nick") && data.hasOwnProperty("pass")
 	      && Object.keys(data).length == 2)) {
@@ -152,19 +157,19 @@ async function doPost(request, response, pathname) {
 	// e também antes de ser comparada uma vez que as passwords
 	// que já se encontram guardadas estão cifradas
 	const passHash = crypto
-	      .createHash('md5')
+	      .createHash("md5")
 	      .update(password)
-	      .digest('hex');
+	      .digest("hex");
 
 	// espera pela promessa que vem da verificação do login
-	// e o resultado dessa promessa ficará no 'answer'
+	// e o resultado dessa promessa ficará no "answer"
 	await login(answer, nickname, passHash)
 	    .then(res => { answer = res; })
 	    .catch(console.log);
 	
 	break;
 	
-    case '/ranking':
+    case "/ranking":
 	
 	// como um pedido com o pathname /ranking não tem corpo
 	if(Object.keys(data).length > 0){
@@ -179,7 +184,7 @@ async function doPost(request, response, pathname) {
 
 	break;
 
-    case '/join':
+    case "/join":
 
 	// se o corpor do pedido não estiver no formato correto então aborta
 	if (!(data.hasOwnProperty("group") && data.hasOwnProperty("nick")
@@ -191,9 +196,9 @@ async function doPost(request, response, pathname) {
 	let group = (data.group).toString();
 
 	const groupHash = crypto
-	      .createHash('md5')
+	      .createHash("md5")
 	      .update(group)
-	      .digest('hex');
+	      .digest("hex");
 
 	await joinGame(answer, data.nick, groupHash)
 	    .then(res => { answer = res; })
@@ -202,8 +207,8 @@ async function doPost(request, response, pathname) {
 	//console.log(answer.body);
 	break;
 	
-    case '/leave':
-	
+    case "/leave":
+
 	// se foi efetuado um pedido com o formato incorreto, devolve erro
 	if (!(data.hasOwnProperty("nick") && data.hasOwnProperty("pass")
 	      && data.hasOwnProperty("game") && Object.keys(data).length == 3)) {
@@ -211,111 +216,105 @@ async function doPost(request, response, pathname) {
 	    return answer;
 	}
 
-	await logout(data.nick);
-
-	answer.body = '{}';
+	answer.body = "{}";
 	
 	// verificar se fez um leave sem o jogo ter começado
 	// se sim, é retornado um winner null
 	// se não, é retornado como winner o oponente
-	await inGame(game)
-	    .then(win => async function() {
-		let msg = JSON.stringify({winner: win})
-		
-		if (win == data.nick) await updateScores(data.nick, true);
-		else await updateScores(data.nick, false);
-	    })
+	await endGame(answer, data.nick, data.game)
+	    .then(res => { answer = res; })
 	    .catch(console.log);
+
+	console.log("LEAVE: " + answer.data);
 	
 	break;
 	
-    case '/notify':
+    case "/notify":
 
-    if((!(data.hasOwnProperty("nick") && data.hasOwnProperty("pass") && data.hasOwnProperty("game")
-    	 && data.hasOwnProperty("move") && Object.keys(data).length == 4)) || (!(data.hasOwnProperty("nick") 
-    	 && data.hasOwnProperty("pass") && data.hasOwnProperty("game") && Object.keys(data).length == 3))){
-    	answer.status = 400;
-    	return answer;
-    }
-    //chama a funçao
-    await notifica(answer, data.nick, data.move)
-    	.then(res => { answer = res; })
-    	.catch(console.log);
+	if(!(data.hasOwnProperty("nick") && data.hasOwnProperty("pass") && data.hasOwnProperty("game")
+    	     && data.hasOwnProperty("move") && Object.keys(data).length == 4)) {
+    	    answer.status = 400;
+    	    return answer;
+	}
+
+	if((data.turn == "") || (time != data.nick)) {
+	    answer.body = JSON.stringify({error: "Not your turn to play"});
+	    answer.status = 400;
+	    return answer;
+	}
+	
+	//quando falta apenas o campo "row"
+	if(!data.move.hasOwnProperty("row") && data.move.hasOwnProperty("column")){
+	    answer.body = JSON.stringify({error: "Move lacks property row"});
+	    answer.status = 400;
+	    return answer;
+	}
+	
+	//quando falta apenas o campo "column"
+	if(!data.move.hasOwnProperty("column") && data.move.hasOwnProperty("row")){
+	    answer.body = JSON.stringify({error: "Move lacks property column"});
+	    answer.status = 400;
+	    return answer;
+	}
+
+	//quando não tem nem o campo "row" nem o campo "column"
+	if(!data.move.hasOwnProperty("column") && !data.move.hasOwnProperty("row")){
+	    answer.body = JSON.stringify({error: "Move must be an object"});
+	    answer.status = 400;
+	    return answer;
+	}
+
+	//qnd row n esta entre 0 e 7 
+	if(data.move.row < 0 || data.move.row >= 8 ){
+	    answer.body = JSON.stringify({error: "row should be an integer between 0 and 7"});
+	    answer.status = 400;
+	    return answer;
+	}
+
+	//qnd column n esta entre 0 e 7
+	if(data.move.column < 0 || data.move.column >= 8 ){
+	    answer.body = JSON.stringify({error: "column should be an integer between 0 and 7"});
+	    answer.status = 400;
+	    return answer;
+	}
+
+	if (data.move == null) {
+	    
+	    let num_dark = pecasJogadorP.length;
+	    let num_light = pecasJogadorB.length;
+	    let num_empty = 64 - num_dark - num_light;
+
+	    if (data.nick == p1) { time = p2; corPlayer = corP2; }
+	    else { time = p1; corPlayer = corP1; }
+	    answer.data = JSON.stringify({turn: oponente, board: cont, count: {dark: num_dark, light: num_light, empty: num_empty}});
+	    return answer;
+	    
+	}
+	
+	// processa a jogada do player que tem a vez
+	await processarJogada(data.move.row, data.move.column)
+    	    .then(res => { answer = res; })
+    	    .catch(console.log);
+	
+	break;
 
     default:
+	answer.status = 400;
+	break;
     }
+    
     return answer;    
 }
 
-async function notifica(answer, nickname, move){
-	return new Promise(resolve => {
-	fs.readFile('notifyed.json', async function(err, noti){
-		if(!err){
-			let result= JSON.parse(noti.toString());
-			//caso de começar antes de emparelhado e qnd n é o seu turno
-			if((result.move && turn == '') || (result.move && turn != nickname) ){
-			    answer.body = JSON.stringify({error: "Not your turn to play"});
-			    answer.status=400;
-			}
-			
-			//quando n tem row
-			if(!(result.move.hasOwnProperty("row") && Object.keys(result.move)==2)){
-			    answer.body = JSON.stringify({error: "Move lacks property row"});
-			    answer.status=400;
-			    reject(answer);
-
-			}
-			//quando n tem column
-			if(!(result.move.hasOwnProperty("column") && Object.keys(result.move)==2)){
-			    answer.body = JSON.stringify({error: "Move lacks property column"});
-			    answer.status=400;
-			    reject(answer);
-
-			}
-
-			//qnd n tem nem row nem column entao n é um objeto
-			if(!(result.move.hasOwnProperty("row") && result.move.hasOwnProperty("column") && Object.keys(result.move)==2)){
-			    answer.body = JSON.stringify({error: "Move must be an object"});
-			    answer.status=400;
-			    reject(answer);
-
-			}
-
-			//qnd row n esta entre 0 e 7 
-			if(result.move.row < 0 || result.move.row >= 8 ){
-			    answer.body = JSON.stringify({error: "row should be an integer between 0 and 7"});
-			    answer.status=400;
-			    reject(answer);
-
-			}
-
-			//qnd column n esta entre 0 e 7
-			if(result.move.column < 0 || result.move.column >= 8 ){
-			    answer.body = JSON.stringify({error: "column should be an integer between 0 and 7"});
-			    answer.status=400;
-			    reject(answer);
-
-			}
-
-			//vai chamar funçao das possiveis jogadas 
-			processarJogada(result.move.row, result.move.column);
-
-
-		}
-		resolve(answer);
-	});
-	});
-}
-/////////////////////////////////////////////////////////////////
 /* movimentos horizontais possíveis */
 function verificarJogadasHor(player) {
     
     let jogadas = [];
     let pecasJogador = pecasJogadorB;
-    let pecaAdversario = 'dark';
-    if(player == 'dark') {
+    let pecaAdversario = "dark";
+    if(player == "dark") {
 	pecasJogador = pecasJogadorP;
-	pecaAdversario = 'light';
+	pecaAdversario = "light";
     }
 
     for(let i=0; i<pecasJogador.length; i++) {
@@ -345,7 +344,7 @@ function verificarJogadasHor(player) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (y >= y_pos + 2 && cont[x_pos][y-1] == pecaAdversario) {
 		    // HE -> a jogada é propagada na HORIZONTAL para a ESQUERDA até ir de encontro a outra peça do jogador
-		   jogadas.push([j, "HE"]); 
+		    jogadas.push([j, "HE"]); 
 		}
 		break;
 	    }
@@ -389,10 +388,10 @@ function verificarJogadasVer(player) {
     
     let jogadas = [];
     let pecasJogador = pecasJogadorB;
-    let pecaAdversario = 'dark';
-    if(player == 'dark') {
+    let pecaAdversario = "dark";
+    if(player == "dark") {
 	pecasJogador = pecasJogadorP;
-	pecaAdversario = 'light';
+	pecaAdversario = "light";
     }
     
     for(let i=0; i<pecasJogador.length; i++) {
@@ -423,7 +422,7 @@ function verificarJogadasVer(player) {
 		// se ficar garantido que a casa anterior contém uma peça do adversário
 		if (x >= x_pos + 2 && cont[x-1][y_pos] == pecaAdversario) {
 		    // VC -> a jogada é propagada na VERTICAL para CIMA até ir de encontro a outra peça do jogador
-		     jogadas.push([j, "VC"]);
+		    jogadas.push([j, "VC"]);
 		}
 		break;
 	    }
@@ -468,10 +467,10 @@ function verificarJogadasDiag(player) {
     let jogadas = [];
 
     let pecasJogador = pecasJogadorB;
-    let pecaAdversario = 'dark';
-    if(player == 'dark') {
+    let pecaAdversario = "dark";
+    if(player == "dark") {
 	pecasJogador = pecasJogadorP;
-	pecaAdversario = 'light';
+	pecaAdversario = "light";
     }
 
     for(let i=0; i<pecasJogador.length; i++) {
@@ -613,123 +612,127 @@ function possiveisJogadas(player) {
 
 async function processarJogada(x_pos, y_pos) {
 
-
-   
-    //perguntar sobre isto do computador, humano, JogadorAtual
-	
-	let jogadasPossiveis = possiveisJogadas(CorPlayer);
-
-	if(!contem(jogadasPossiveis,x_pos, y_pos)) {//alterei o pos para o x_pos e y_pos
-	   	answer.status=400;
-	   	reject(answer);
+    let jogadasPossiveis = possiveisJogadas(corPlayer);
+    
+    let dir = []; //perguntar a cheila se isto ainda se aplica
+    
+    // obter as direções da propagação da jogada na posição pos
+    for(let i=0; i<jogadasPossiveis.length; i++) {
+	//aqui meti para verificar tanto para o x_pos tanto para o y_pos em vez de pos!!
+	if(jogadasPossiveis[i][0] === x_pos+y_pos*8) { //<- ALTEREI AQUI
+	    dir.push(jogadasPossiveis[i][1]);
 	}
-	
-	
-	let dir = []; //perguntar a cheila se isto ainda se aplica
-	
-	// obter as direções da propagação da jogada na posição pos
-	for(let i=0; i<jogadasPossiveis.length; i++) {
-		//aqui meti para verificar tanto para o x_pos tanto para o y_pos em vez de pos!!
-	    if(jogadasPossiveis[i][0] === x_pos+y_pos*8) { //<- ALTEREI AQUI
-		dir.push(jogadasPossiveis[i][1]);
+    }
+    //no trocar peça n sei se altero por causa de em baixo ter o ind -> confirmar com a cheila
+    trocarPeca(x_pos+y_pos*8); // coloca a peça na casa selecionada pelo jogador na jogada
+    for(let i=0; i<dir.length; i++) {
+	switch(dir[i]) {
+	case "HE": // propagação na HORIZONTAL ANTES da peça colocada
+	    for(let j=y_pos-1; j>=0; j--) {
+		let ind = x_pos + j * 8;
+		trocarPeca(ind);
+		if (fimJogada) { break; }
 	    }
-	}
-	//no trocar peça n sei se altero por causa de em baixo ter o ind -> confirmar com a cheila
-	trocarPeca(x_pos+y_pos*8); // coloca a peça na casa selecionada pelo jogador na jogada
-	for(let i=0; i<dir.length; i++) {
-	    switch(dir[i]) {
-	    case 'HE': // propagação na HORIZONTAL ANTES da peça colocada
-		for(let j=y_pos-1; j>=0; j--) {
-		    let ind = x_pos + j * 8;
-		    trocarPeca(ind);
-		    if (fimJogada) { break; } //<- verificar com a cheila se isto se tira ou n
-		}
-		break;
-	    case 'HD': // propagação na HORIZONTAL DEPOIS da peça colocada
-		for(let j=y_pos+1; j<8; j++) {
-		    let ind = x_pos + j * 8;
-		    trocarPeca(ind);
-		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
-		}
-		break;
-	    case 'VC': // propagação na VERTICAL para CIMA da peça colocada
-		for(let j=x_pos-1; j>=0; j--) {
-		    let ind = j + y_pos * 8;
-		    trocarPeca(ind);
-		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
-		}
-		break;
-	    case 'VB': // propagação na VERTICAL para BAIXO da peça colocada
-		for(let j=x_pos+1; j<8; j++) {
-		    let ind = j + y_pos * 8;
-		    trocarPeca(ind);
-		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
-		}
-		break;
-	    case 'IE': // propagação na DIAGONAL INFERIOR ESQUERDA da peça colocada
-		for(let j=x_pos+1, k=y_pos-1; j<8 && k>=0; j++, k--) {
-		    let ind = j + k * 8;
-		    trocarPeca(ind);
-		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
-		}
-		break;
-	    case 'ID': // propagação na DIAGONAL INFERIOR DIREITA da peça colocada
-		for(let j=x_pos+1, k=y_pos+1; j<8 && k<8; j++, k++) {
-		    let ind = j + k * 8;
-		    trocarPeca(ind, jogadorAtual);
-		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
-		}
-		break;
-	    case 'SE': // propagação na DIAGONAL SUPERIOR ESQUERDA da peça
-		for(let j=x_pos-1, k=y_pos-1; j>=0 && k>=0; j--, k--) {
-		    let ind = j + k * 8;
-		    trocarPeca(ind);
-		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
-		}
-		break;
-	    case 'SD': // propagação na DIAGONAL SUPERIOR DIREITA da peça
-		for(let j=x_pos-1, k=y_pos+1; j>=0 && k<8; j--, k++) {
-		    let ind = j + k * 8;
-		    trocarPeca(ind);
-		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
-		}
-		break;
-	    default:
-		break;
+	    break;
+	case "HD": // propagação na HORIZONTAL DEPOIS da peça colocada
+	    for(let j=y_pos+1; j<8; j++) {
+		let ind = x_pos + j * 8;
+		trocarPeca(ind);
+		if (fimJogada) { break; }
 	    }
-	    fimJogada = false; // reset da variável global 
-
+	    break;
+	case "VC": // propagação na VERTICAL para CIMA da peça colocada
+	    for(let j=x_pos-1; j>=0; j--) {
+		let ind = j + y_pos * 8;
+		trocarPeca(ind);
+		if (fimJogada) { break; }
+	    }
+	    break;
+	case "VB": // propagação na VERTICAL para BAIXO da peça colocada
+	    for(let j=x_pos+1; j<8; j++) {
+		let ind = j + y_pos * 8;
+		trocarPeca(ind);
+		if (fimJogada) { break; }
+	    }
+	    break;
+	case "IE": // propagação na DIAGONAL INFERIOR ESQUERDA da peça colocada
+	    for(let j=x_pos+1, k=y_pos-1; j<8 && k>=0; j++, k--) {
+		let ind = j + k * 8;
+		trocarPeca(ind);
+		if (fimJogada) { break; }
+	    }
+	    break;
+	case "ID": // propagação na DIAGONAL INFERIOR DIREITA da peça colocada
+	    for(let j=x_pos+1, k=y_pos+1; j<8 && k<8; j++, k++) {
+		let ind = j + k * 8;
+		trocarPeca(ind, jogadorAtual);
+		if (fimJogada) { break; }
+	    }
+	    break;
+	case "SE": // propagação na DIAGONAL SUPERIOR ESQUERDA da peça
+	    for(let j=x_pos-1, k=y_pos-1; j>=0 && k>=0; j--, k--) {
+		let ind = j + k * 8;
+		trocarPeca(ind);
+		if (fimJogada) { break; }
+	    }
+	    break;
+	case "SD": // propagação na DIAGONAL SUPERIOR DIREITA da peça
+	    for(let j=x_pos-1, k=y_pos+1; j>=0 && k<8; j--, k++) {
+		let ind = j + k * 8;
+		trocarPeca(ind);
+		if (fimJogada) { break; }
+	    }
+	    break;
+	default:
+	    break;
 	}
-	let Adversario='dark';
-	if(CorPlayer=='dark')
-		Adversario='light';
+	fimJogada = false; // reset da variável global 
 
-	//FALTA ACABAR DE PREENCHER
-	if(jogadasPossiveis(Adversario)==[])
+    }
 
-	    
+    let answer = {};
+
+    answer.body = {};
+
+    let adversario = "dark";
+    if (corPlayer == "dark") adversario = "light";
+
+    let num_dark = pecasJogadorP.length;
+    let num_light = pecasJogadorB.length;
+    let num_empty = 64 - num_dark - num_light;
+
+    // se o adversario não tiver jogadas possiveis, a vez do jogador não muda
+    if (possiveisJogadas(adversario) == []) {
+	answer.data = JSON.stringify({turn: nickname, board: cont, count: {dark: num_dark, light: num_light, empty: num_empty}, skip: true});
+    } else {
+	// troca de jogador
+	if (time == p1) { time = p2; corPlayer = corP2; }
+	else { time = p1; corPlayer = corP1; }
+	answer.data = JSON.stringify({turn: time, board: cont, count: {dark: num_dark, light: num_light, empty: num_empty}});
+    }
+
+    return answer;
+    
 }
+
 //aqui queria verificar por causa do ind na funçao em cima
 function trocarPeca(pos) {
 
-    let x = Math.floor(pos % 8);//isto seria o nosso x_pos
-    let y = Math.floor(pos / 8);//isto seria o nosso y_pos
-
-    //verificar com a cheila o computador, pecasJogador, fumJogada
-
+    // conversão da coordenada unidimensional pos para coordenadas bidimensionais
+    let x = Math.floor(pos % 8);
+    let y = Math.floor(pos / 8);
     
-	// quando se encontrar o outro extremo da peça jogada então cessa a troca de peças do adversário para o jogador
-	if (cont[x][y] == player) { fimJogada = true; return; }
+    // quando se encontrar o outro extremo da peça jogada então cessa a troca de peças do adversário para o jogador
+    if (cont[x][y] == corPlayer) { fimJogada = true; return; }
 
-	// regista a jogada do jogador no array da disposição das peças
-	cont[x][y] = player;
+    // regista a jogada do jogador no array da disposição das peças
+    cont[x][y] = corPlayer;
     
-
     // visualização da jogada do jogador
     
-    if (player == 'light') {
+    if (corPlayer == "light") {
 	
-	//peca.setAttribute('class', 'peca pecaBRANCA');
+	//peca.setAttribute("class", "peca pecaBRANCA");
 	pecasJogadorB.push(pos);
 	for(let i=0; i<pecasJogadorP.length; i++) { // retira a peça do adversário que estava na posição pos
 	    if (pecasJogadorP[i] == pos) { pecasJogadorP.splice(i, 1); }
@@ -737,34 +740,19 @@ function trocarPeca(pos) {
 	
     } else {
 
-	//peca.setAttribute('class', 'peca pecaPRETA');
+	//peca.setAttribute("class", "peca pecaPRETA");
 	pecasJogadorP.push(pos);
 	for(let i=0; i<pecasJogadorB.length; i++) { // retira a peça do adversário que estava na posição pos
 	    if (pecasJogadorB[i] == pos) { pecasJogadorB.splice(i, 1); }
 	}
 	
-	
     }
     
 }
-//funçao contem q e utilizada acima
-//em vez de pos alterei para o x_pos, y_pos mas confirmar com a cheila
-function contem(arr, x_pos, y_pos) {
-
-    for(let i=0; i<arr.length; i++) {
-	if(arr[i][0] == x_pos+y_pos*8) { //alterei aqui tbm
-	    return true;
-	}
-    }
-    
-    return false;
-}
-
-//////////////////////////////////////////////////////////////////
 
 function updateScores(player, won) {
     return new Promise(resolve => {
-	fs.readFile('scores.json', async function(err, scores) {
+	fs.readFile("scores.json", async function(err, scores) {
 	    if (!err) {
 		let players = JSON.parse(scores.toString());
 
@@ -801,41 +789,54 @@ function updateScores(player, won) {
 // regista um novo jogo no ficheiro activeGames.json
 function writeResult(scores) {
     return new Promise(resolve => {
-	fs.writeFile('scores.json',
+	fs.writeFile("scores.json",
 		     JSON.stringify(scores),
 		     function(err) {
 			 if (err) throw err;
-			 console.log('Scores updated in file.');
+			 console.log("Scores updated in file.");
 		     });
 	resolve();
     });
 }
 
-function inGame(nick, game) {
+function endGame(answer, nick, game) {
     return new Promise((resolve,reject) => {
-	fs.readFile('activeGames.json', function(err, games) {
+	fs.readFile("activeGames.json", async function(err, games) {
+	    let win = "";
 	    if (!err) {
 		
 		let active = JSON.parse(games.toString());
 		if (!Array.isArray(active))
 		    active = [active];
 
-		let winner = '';
-
 		for (let i=0; i<active.length; i++) {
 		    let a = active[i];
 		    if (a.game == game) {
 			// só tem os campos game e o player1
-			if (Object.keys(a).length == 2)
-			    winner = "null";
-			else {
+			// ou seja, ainda não houve nenhum emparelhamento (jogo ainda não começou)
+			if (Object.keys(a).length == 2) {
+			    win = "null";
+			    answer.data = JSON.stringify({winner: win});
+			} else {
 			    
-			    if (a.player1 == nick)
-				winner =  a.player2;
-			    else if (a.player2 == nick)
-				winner = a.player1;
+			    if (a.player1 == nick) {
+				win =  a.player2;
+				answer.data = JSON.stringify({winner: win});
+			    } else if (a.player2 == nick) {
+				win = a.player1;
+				answer.data = JSON.stringify({winner: win});
+			    }
 			    
 			}
+
+
+			// remoção do jogo que acabou
+			active.splice(i, 1);
+			// atualiza o ficheiro activeGames.json
+			await newGame(active);
+
+			if (win == nick) await updateScores(nick, true);
+			else await updateScores(nick, false);
 			
 			break;
 			
@@ -844,7 +845,7 @@ function inGame(nick, game) {
 		
 	    } else reject();
 
-	    resolve(winner);
+	    resolve(answer);
 	    
 	});
     });
@@ -852,7 +853,7 @@ function inGame(nick, game) {
 
 async function joinGame(answer, nickname, hash) {
     return new Promise(resolve => {
-	fs.readFile('activeGames.json', async function(err, games) {
+	fs.readFile("activeGames.json", async function(err, games) {
 	    
 	    if(!err) { // se ficheiro existe
 
@@ -868,18 +869,30 @@ async function joinGame(answer, nickname, hash) {
 		for (let i=0; i<active.length; i++) {
 		    let a = active[i];
 		    // se já houver um jogador há espera de emparelhamento com o meu hash
-		    // o jogador que entrar agora tem a cor 'light'
+		    // o jogador que entrar agora tem a cor "light"
 		    // e insere-se o novo jogador no jogo que já está então ativo
 		    if (a.game == hash && Object.keys(a).length == 2) {
+			
 			answer.body = JSON.stringify({game: hash, color: "light"});
-			let opponent = a.player1;
+			oponente = a.player1;
+			p2 = nickname;
+			corP2 = "light";
 			active.splice(i, 1);
-			active.push({game: hash, player1: opponent, player2: nickname});
+			active.push({game: hash, player1: oponente, player2: nickname});
 			await newGame(active);
 			// estado inicial do jogo
-			answer.data = JSON.stringify({board: conteudo, turn: opponent, count: {dark: 2, light: 2, empty: 60}});
+			answer.data = JSON.stringify({board: cont, turn: oponente, count: {dark: 2, light: 2, empty: 60}});
 			found = true;
 			break;
+			
+		    } else if (a.game == hash) { // já há um jogo a decorrer então jogador aguarda novo emparelhamento
+			
+			answer.body = JSON.stringify({game: hash, color: "dark"});
+			active.push({game: hash, player1: nickname});
+			await newGame(active);
+			answer.data = JSON.stringify({});
+			found = true;
+			
 		    }
 		}
 
@@ -889,6 +902,8 @@ async function joinGame(answer, nickname, hash) {
 		    active.push({game: hash, player1: nickname});
 		    // espera da promessa que efetuará a inserção do novo game no ficheiro dos jogos ativos
 		    await newGame(active);
+		    p1 = time = nickname;
+		    corPlayer = corP1 = "dark";
 		    answer.data = JSON.stringify({});
 		    answer.body = JSON.stringify({game: hash, color: "dark"});
 		    
@@ -899,6 +914,8 @@ async function joinGame(answer, nickname, hash) {
 		var active = [{game: hash, player1: nickname}];
 		// espera da promessa que efetuará a inserção do novo game no ficheiro dos jogos ativos
 		await newGame(active);
+		p1 = time = nickname;
+		corPlayer = corP1 = "dark";
 		answer.data = JSON.stringify({});
 		answer.body = JSON.stringify({game: hash, color: "dark"});
 		
@@ -911,14 +928,15 @@ async function joinGame(answer, nickname, hash) {
     });
 }
 
-// regista um novo jogo no ficheiro activeGames.json
+// atualiza o ficheiro activeGames.json de acordo:
+// se há jogos novos ou se um jogo acabou
 function newGame(games) {
     return new Promise(resolve => {
-	fs.writeFile('activeGames.json',
+	fs.writeFile("activeGames.json",
 		     JSON.stringify(games),
 		     function(err) {
 			 if (err) throw err;
-			 console.log('Game written in file.');
+			 console.log("Game written in file.");
 		     });
 	resolve();
     });
@@ -929,7 +947,7 @@ function rank(answer) {
     return new Promise(resolve => {
 	
 	//leitura do ficheiro que contem os dados do ranking
-	fs.readFile('scores.json', async function(err, ranks){
+	fs.readFile("scores.json", async function(err, ranks){
 	    
 	    if(!err) { //ficheiro existe
 		
@@ -974,7 +992,7 @@ function rank(answer) {
 async function login(answer, nickname, hash) {
     return new Promise((resolve, reject) => {
 	// leitura do ficheiro que contém os dados de autenticação dos vários utilizadores
-	fs.readFile('credentials.json', async function(err, creds) {
+	fs.readFile("credentials.json", async function(err, creds) {
 	    
 	    if (!err) { // ficheiro existe
 		// flag utilizada para indicar se o user já alguma vez efetuou o login
@@ -988,7 +1006,7 @@ async function login(answer, nickname, hash) {
 		if (!Array.isArray(users))
 		    users = [users];
 		
-		// procura se o user com o nickname 'nickname' já foi utilizado
+		// procura se o user com o nickname "nickname" já foi utilizado
 		for (let i=0; i<users.length; i++) {
 
 		    let user = users[i];
@@ -997,14 +1015,14 @@ async function login(answer, nickname, hash) {
 			
 			if (user.pass == hash) { // dados introduzidos corretos
 			    
-			    answer.body = '{}';
-			    console.log('Successful login.');
+			    answer.body = "{}";
+			    console.log("Successful login.");
 			    
 			} else { // dados introduzidos incorretos
 			    
 			    answer.body = JSON.stringify({error: "User registered with a different password"});
 			    answer.status = 401;
-			    console.log('Bad login.');
+			    console.log("Bad login.");
 			    // rejeita a promessa (é devolvido erro)
 			    reject(answer);
 			    
@@ -1023,8 +1041,8 @@ async function login(answer, nickname, hash) {
 		    users.push({nick: nickname, pass: hash});
 		    // espera da promessa que efetuará a inserção do novo user no ficheiro das credenciais
 		    await newLogin(users);
-		    answer.body = '{}';
-		    console.log('Successful login.');
+		    answer.body = "{}";
+		    console.log("Successful login.");
 		    
 		}
 		
@@ -1033,8 +1051,8 @@ async function login(answer, nickname, hash) {
 		var users = [{nick: nickname, pass: hash}];
 		// espera da promessa que efetuará a inserção do novo user no ficheiro das credenciais
 		await newLogin(users);
-		answer.body = '{}';
-		console.log('Successful login.');
+		answer.body = "{}";
+		console.log("Successful login.");
 	    }
 
 	    // é devolvida, com sucesso, a promessa
@@ -1048,45 +1066,12 @@ async function login(answer, nickname, hash) {
 // no ficheiro das credenciais
 function newLogin(users) {
     return new Promise(resolve => {
-		fs.writeFile('credentials.json',
-			     JSON.stringify(users),
-			     function(err) {
-				 if (err) throw err;
-				 console.log('Written in file.');
-			     });
-		resolve();
-    });
-}
-
-function logout(nick) {
-    return new Promise((resolve, reject) => {
-	let active = [];
-	
-	fs.readFile('activeGames.json', async function(err, games) {
-	    
-	    if (!err) { // ficheiro existe
-		// jogos que estão ativos de momento
-		active = JSON.parse(games.toString());
-
-		// se só tiversos um só jogo ativo
-		if(!Array.isArray(active))
-		    active = [active];
-
-		for (let i=0; i<active.length; i++) {
-		    let a = active[i];
-		    // se o jogador q tem o nickname 'nick' estiver num jogo ativo
-		    // então retira-o desse jogo ativo
-		    if (a.player1 == nick || a.player2 == nick) {
-			active.splice(i, 1);
-			await newGame(active);
-			break;
-		    }
-		}
-		
-	    } else reject();
-	    
-	});
-	
+	fs.writeFile("credentials.json",
+		     JSON.stringify(users),
+		     function(err) {
+			 if (err) throw err;
+			 console.log("Written in file.");
+		     });
 	resolve();
     });
 }
