@@ -11,7 +11,7 @@ let updater = require('./updater.js');
 // guardará os efeitos dos pedidos POST feitos
 let nests = [];
 
-let conteudo = [ ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
+let cont = [ ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
 		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
 		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
 		 ['empty','empty','empty','light','dark','empty','empty', 'empty'],
@@ -20,6 +20,12 @@ let conteudo = [ ['empty','empty','empty','empty','empty','empty','empty', 'empt
 		 ['empty','empty','empty','empty','empty','empty','empty', 'empty'],
 		 ['empty','empty','empty','empty','empty','empty','empty', 'empty']
 	       ];
+
+var turn= ''; //vai verificar os turnos
+var CorPlayer;
+var pecasJogadorB = [3+3*8, 4+4*8];
+var pecasJogadorP = [3+4*8, 4+3*8];
+var fimJogada = false;
 
 const headers = {
     plain: {
@@ -224,10 +230,537 @@ async function doPost(request, response, pathname) {
 	break;
 	
     case '/notify':
+
+    if((!(data.hasOwnProperty("nick") && data.hasOwnProperty("pass") && data.hasOwnProperty("game")
+    	 && data.hasOwnProperty("move") && Object.keys(data).length == 4)) || (!(data.hasOwnProperty("nick") 
+    	 && data.hasOwnProperty("pass") && data.hasOwnProperty("game") && Object.keys(data).length == 3))){
+    	answer.status = 400;
+    	return answer;
+    }
+    //chama a funçao
+    await notifica(answer, data.nick, data.move)
+    	.then(res => { answer = res; })
+    	.catch(console.log);
+
     default:
     }
     return answer;    
 }
+
+async function notifica(answer, nickname, move){
+	return new Promise(resolve => {
+	fs.readFile('notifyed.json', async function(err, noti){
+		if(!err){
+			let result= JSON.parse(noti.toString());
+			//caso de começar antes de emparelhado e qnd n é o seu turno
+			if((result.move && turn == '') || (result.move && turn != nickname) ){
+			    answer.body = JSON.stringify({error: "Not your turn to play"});
+			    answer.status=400;
+			}
+			
+			//quando n tem row
+			if(!(result.move.hasOwnProperty("row") && Object.keys(result.move)==2)){
+			    answer.body = JSON.stringify({error: "Move lacks property row"});
+			    answer.status=400;
+			    reject(answer);
+
+			}
+			//quando n tem column
+			if(!(result.move.hasOwnProperty("column") && Object.keys(result.move)==2)){
+			    answer.body = JSON.stringify({error: "Move lacks property column"});
+			    answer.status=400;
+			    reject(answer);
+
+			}
+
+			//qnd n tem nem row nem column entao n é um objeto
+			if(!(result.move.hasOwnProperty("row") && result.move.hasOwnProperty("column") && Object.keys(result.move)==2)){
+			    answer.body = JSON.stringify({error: "Move must be an object"});
+			    answer.status=400;
+			    reject(answer);
+
+			}
+
+			//qnd row n esta entre 0 e 7 
+			if(result.move.row < 0 || result.move.row >= 8 ){
+			    answer.body = JSON.stringify({error: "row should be an integer between 0 and 7"});
+			    answer.status=400;
+			    reject(answer);
+
+			}
+
+			//qnd column n esta entre 0 e 7
+			if(result.move.column < 0 || result.move.column >= 8 ){
+			    answer.body = JSON.stringify({error: "column should be an integer between 0 and 7"});
+			    answer.status=400;
+			    reject(answer);
+
+			}
+
+			//vai chamar funçao das possiveis jogadas 
+			processarJogada(result.move.row, result.move.column);
+
+
+		}
+		resolve(answer);
+	});
+	});
+}
+/////////////////////////////////////////////////////////////////
+/* movimentos horizontais possíveis */
+function verificarJogadasHor(player) {
+    
+    let jogadas = [];
+    let pecasJogador = pecasJogadorB;
+    let pecaAdversario = 'dark';
+    if(player == 'dark') {
+	pecasJogador = pecasJogadorP;
+	pecaAdversario = 'light';
+    }
+
+    for(let i=0; i<pecasJogador.length; i++) {
+	let pos = pecasJogador[i];
+	// conversão dos indices unidimensionais para bidimensionais
+	let x_pos = Math.floor(pos % 8);
+	let y_pos = Math.floor(pos / 8);	    
+
+	// Horizontal DEPOIS da peça do jogador que se encontra na posição i
+	for (let y = y_pos+1; y < 8; y++) {
+
+	    // conversão indice bidimensional para unidimensional
+	    // como estamos a tratar da variante horizontal, o único elemento que varia é o y
+	    // sendo, portanto, o x_pos constante
+	    let j = x_pos + y * 8; 
+	    
+	    if (cont[x_pos][y] == player) { // se o jogador se der com uma peça sua então a jogada j não é possível
+		
+		break;
+		
+	    } else if (cont[x_pos][y] == pecaAdversario) { // ciclo continua enquanto forem encontradas peças do adversário
+
+		continue;
+		
+	    } else { // quando é encontrada uma casa livre
+
+		// se ficar garantido que a casa anterior contém uma peça do adversário
+		if (y >= y_pos + 2 && cont[x_pos][y-1] == pecaAdversario) {
+		    // HE -> a jogada é propagada na HORIZONTAL para a ESQUERDA até ir de encontro a outra peça do jogador
+		   jogadas.push([j, "HE"]); 
+		}
+		break;
+	    }
+	}
+
+	// Horizontal ANTES da peça do jogador que se encontra na posição i
+	for (let y = y_pos-1; y >= 0; y--) {
+
+	    // conversão indice bidimensional para unidimensional
+	    // como estamos a tratar da variante horizontal, o único elemento que varia é o y
+	    // sendo, portanto, o x_pos constante
+	    let j = x_pos + y * 8; 
+	    
+	    if (cont[x_pos][y] == player) { // se o jogador se der com uma peça sua então a jogada j não é possível
+		
+		break;
+		
+	    } else if (cont[x_pos][y] == pecaAdversario) { // ciclo continua enquanto forem encontradas peças do adversário
+		
+		continue;
+		
+	    } else { // quando é encontrada uma casa livre
+
+		// se ficar garantido que a casa anterior contém uma peça do adversário
+		if (y <= y_pos - 2 && cont[x_pos][y+1] == pecaAdversario) {
+		    // HD -> a jogada é propagada na HORIZONTAL para a DIREITA até ir de encontro a outra peça do jogador
+		    jogadas.push([j, "HD"]);	
+		}
+		break;
+	    }
+	}
+	
+    }
+
+    return jogadas;
+    
+}
+
+/* jogadas verticais possiveis */
+function verificarJogadasVer(player) {
+    
+    let jogadas = [];
+    let pecasJogador = pecasJogadorB;
+    let pecaAdversario = 'dark';
+    if(player == 'dark') {
+	pecasJogador = pecasJogadorP;
+	pecaAdversario = 'light';
+    }
+    
+    for(let i=0; i<pecasJogador.length; i++) {
+	
+	let pos = pecasJogador[i];
+	// conversão dos indices unidimensionais para bidimensionais
+	let x_pos = Math.floor(pos % 8);
+	let y_pos = Math.floor(pos / 8);	    
+
+	// Vertical DEPOIS da peça do jogador que se encontra na posição i
+	for (let x = x_pos+1; x < 8; x++) {
+
+	    // conversão indice bidimensional para unidimensional
+	    // como estamos a tratar da variante vertical, o único elemento que varia é o x
+	    // sendo, portanto, o y_pos constante
+	    let j = x + y_pos * 8;
+	    
+	    if (cont[x][y_pos] == player) { // se o jogador se der com uma peça sua então a jogada j não é possível
+		
+		break;
+		
+	    } else if (cont[x][y_pos] == pecaAdversario) { // ciclo continua enquanto forem encontradas peças do adversário
+		
+		continue;
+		
+	    } else { // quando é encontrada uma casa livre
+
+		// se ficar garantido que a casa anterior contém uma peça do adversário
+		if (x >= x_pos + 2 && cont[x-1][y_pos] == pecaAdversario) {
+		    // VC -> a jogada é propagada na VERTICAL para CIMA até ir de encontro a outra peça do jogador
+		     jogadas.push([j, "VC"]);
+		}
+		break;
+	    }
+	}
+
+	// Vertical ANTES da peça do jogador que se encontra na posição i
+	for (let x = x_pos-1; x >= 0; x--) {
+
+	    // conversão indice bidimensional para unidimensional
+	    // como estamos a tratar da variante vertical, o único elemento que varia é o x
+	    // sendo, portanto, o y_pos constante
+	    let j = x + y_pos * 8;
+	    
+	    if (cont[x][y_pos] == player) { // se o jogador se der com uma peça sua então a jogada j não é possível
+		
+		break;
+		
+	    } else if (cont[x][y_pos] == pecaAdversario) { // ciclo continua enquanto forem encontradas peças do adversário
+		
+		continue;
+		
+	    } else { // quando é encontrada uma casa livre
+
+		// se ficar garantido que a casa anterior contém uma peça do adversário
+		if (x <= x_pos - 2 && cont[x+1][y_pos] == pecaAdversario) {
+		    // VB -> a jogada é propagada na VERTICAL para BAIXO até ir de encontro a outra peça do jogador
+		    jogadas.push([j, "VB"]);
+		}
+		break;		
+	    }
+	}
+	
+    }
+    
+    return jogadas;
+    
+}
+
+/* jogadas possiveis na diagonal */
+function verificarJogadasDiag(player) {
+    
+    let jogadas = [];
+
+    let pecasJogador = pecasJogadorB;
+    let pecaAdversario = 'dark';
+    if(player == 'dark') {
+	pecasJogador = pecasJogadorP;
+	pecaAdversario = 'light';
+    }
+
+    for(let i=0; i<pecasJogador.length; i++) {
+	let pos = pecasJogador[i];
+	// conversão dos indices unidimensionais para bidimensionais
+	let x_pos = Math.floor(pos % 8);
+	let y_pos = Math.floor(pos / 8);
+
+	// parte inferior direita
+	for(let x=x_pos+1, y=y_pos+1; x<8 && y<8; x++, y++) {
+
+	    // conversão indice bidimensional para unidimensional
+	    // na diagonal, tanto o x como o y variam 
+	    let j = x + y * 8;
+	    
+	    if (cont[x][y] == player) { // se o jogador se der com uma peça sua então a jogada j não é possível
+		
+		break;
+		
+	    } else if (cont[x][y] == pecaAdversario) { // ciclo continua enquanto forem encontradas peças do adversário
+		
+		continue;
+		
+	    } else { // quando é encontrada uma casa livre
+
+		// se ficar garantido que a casa anterior contém uma peça do adversário
+		if (x >= x_pos + 2 && y >= y_pos + 2 && cont[x-1][y-1] == pecaAdversario) {
+		    // SE -> a jogada é propagada na diagonal SUPERIOR ESQUERDA da peça colocada
+		    // até a outro extremo que contenha outra peça do jogador
+		    jogadas.push([j, "SE"]);
+		} 
+
+		break;
+		
+	    } 
+	}
+
+	// parte inferior esquerda
+	for(let x=x_pos+1, y=y_pos-1; x<8 && y>=0; x++, y--) {
+
+	    // conversão indice bidimensional para unidimensional
+	    // na diagonal, tanto o x como o y variam 
+	    let j = x + y * 8;
+	    
+	    if (cont[x][y] == player) { // se o jogador se der com uma peça sua então a jogada j não é possível
+		
+		break;
+		
+	    } else if (cont[x][y] == pecaAdversario) {  // ciclo continua enquanto forem encontradas peças do adversário
+		
+		continue;
+		
+	    } else { // quando é encontrada uma casa livre
+
+		// se ficar garantido que a casa anterior contém uma peça do adversário
+		if (x >= x_pos + 2 && y <= y_pos - 2 && cont[x-1][y+1] == pecaAdversario) {
+		    // SD -> a jogada é propagada na diagonal SUPERIOR DIREITA da peça colocada
+		    // até ao outro extremo que contenha outra peça do jogador
+		    jogadas.push([j, "SD"]); 
+		} 
+		break;
+	    }
+	}
+	
+	// parte superior esquerda
+	for(let x=x_pos-1, y=y_pos-1; x>=0 && y>=0; x--, y--) {
+
+	    // conversão indice bidimensional para unidimensional
+	    // na diagonal, tanto o x como o y variam 
+	    let j = x + y * 8;
+	    
+	    if (cont[x][y] == player) { // se o jogador se der com uma peça sua então a jogada j não é possível
+		
+		break;
+		
+	    } else if (cont[x][y] == pecaAdversario) { // ciclo continua enquanto forem encontradas peças do adversário
+		
+		continue;
+		
+	    } else { // quando é encontrada uma casa livre
+
+		// se ficar garantido que a casa anterior contém uma peça do adversário
+		if (x <= x_pos - 2 && y <= y_pos - 2 && cont[x+1][y+1] == pecaAdversario) {
+		    // ID -> a jogada é propagada na diagonal INFERIOR DIREITA da peça colocada
+		    // até a outro extremo que contenha outra peça do jogador
+		    jogadas.push([j, "ID"]);
+		}
+		break;
+	    }
+	}
+
+	// parte superior direita
+	for(let x=x_pos-1, y=y_pos+1; x>=0 && y<8; x--, y++) {
+
+	    // conversão indice bidimensional para unidimensional
+	    // na diagonal, tanto o x como o y variam 
+	    let j = x + y * 8;
+	    
+	    if (cont[x][y] == player) { // se o jogador se der com uma peça sua então a jogada j não é possível
+		
+		break;
+		
+	    } else if (cont[x][y] == pecaAdversario) { // ciclo continua enquanto forem encontradas peças do adversário
+		
+		continue;
+		
+	    } else { // quando é encontrada uma casa livre
+		
+		// se ficar garantido que a casa anterior contém uma peça do adversário
+		if (x <= x_pos - 2 && y >= y_pos + 2 && cont[x+1][y-1] == pecaAdversario) {
+		    // IE -> a jogada é propagada na diagonal INFERIOR ESQUERDA da peça colocada
+		    // até a outro extremo que contenha outra peça do jogador
+		    jogadas.push([j, "IE"]);
+
+		} 
+		break;
+	    }
+	}
+    }
+
+    return jogadas;
+    
+}
+
+/*
+  -- verificará que posições o jogador pode optar por jogar tendo em conta a sua cor;
+  -- retornará um array que contém elementos do tipo [ posição, direção ] em que "direção" refere-se à direção 
+  em que são propagadas as viragens das peças do adversário
+*/
+function possiveisJogadas(player) {
+
+    let hor = verificarJogadasHor(player);
+    let ver = verificarJogadasVer(player);
+    let diag = verificarJogadasDiag(player);
+
+    return hor.concat(ver, diag);
+    
+}
+
+async function processarJogada(x_pos, y_pos) {
+
+
+   
+    //perguntar sobre isto do computador, humano, JogadorAtual
+	
+	let jogadasPossiveis = possiveisJogadas(CorPlayer);
+
+	if(!contem(jogadasPossiveis,x_pos, y_pos)) {//alterei o pos para o x_pos e y_pos
+	   	answer.status=400;
+	   	reject(answer);
+	}
+	
+	
+	let dir = []; //perguntar a cheila se isto ainda se aplica
+	
+	// obter as direções da propagação da jogada na posição pos
+	for(let i=0; i<jogadasPossiveis.length; i++) {
+		//aqui meti para verificar tanto para o x_pos tanto para o y_pos em vez de pos!!
+	    if(jogadasPossiveis[i][0] === x_pos+y_pos*8) { //<- ALTEREI AQUI
+		dir.push(jogadasPossiveis[i][1]);
+	    }
+	}
+	//no trocar peça n sei se altero por causa de em baixo ter o ind -> confirmar com a cheila
+	trocarPeca(x_pos+y_pos*8); // coloca a peça na casa selecionada pelo jogador na jogada
+	for(let i=0; i<dir.length; i++) {
+	    switch(dir[i]) {
+	    case 'HE': // propagação na HORIZONTAL ANTES da peça colocada
+		for(let j=y_pos-1; j>=0; j--) {
+		    let ind = x_pos + j * 8;
+		    trocarPeca(ind);
+		    if (fimJogada) { break; } //<- verificar com a cheila se isto se tira ou n
+		}
+		break;
+	    case 'HD': // propagação na HORIZONTAL DEPOIS da peça colocada
+		for(let j=y_pos+1; j<8; j++) {
+		    let ind = x_pos + j * 8;
+		    trocarPeca(ind);
+		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
+		}
+		break;
+	    case 'VC': // propagação na VERTICAL para CIMA da peça colocada
+		for(let j=x_pos-1; j>=0; j--) {
+		    let ind = j + y_pos * 8;
+		    trocarPeca(ind);
+		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
+		}
+		break;
+	    case 'VB': // propagação na VERTICAL para BAIXO da peça colocada
+		for(let j=x_pos+1; j<8; j++) {
+		    let ind = j + y_pos * 8;
+		    trocarPeca(ind);
+		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
+		}
+		break;
+	    case 'IE': // propagação na DIAGONAL INFERIOR ESQUERDA da peça colocada
+		for(let j=x_pos+1, k=y_pos-1; j<8 && k>=0; j++, k--) {
+		    let ind = j + k * 8;
+		    trocarPeca(ind);
+		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
+		}
+		break;
+	    case 'ID': // propagação na DIAGONAL INFERIOR DIREITA da peça colocada
+		for(let j=x_pos+1, k=y_pos+1; j<8 && k<8; j++, k++) {
+		    let ind = j + k * 8;
+		    trocarPeca(ind, jogadorAtual);
+		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
+		}
+		break;
+	    case 'SE': // propagação na DIAGONAL SUPERIOR ESQUERDA da peça
+		for(let j=x_pos-1, k=y_pos-1; j>=0 && k>=0; j--, k--) {
+		    let ind = j + k * 8;
+		    trocarPeca(ind);
+		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
+		}
+		break;
+	    case 'SD': // propagação na DIAGONAL SUPERIOR DIREITA da peça
+		for(let j=x_pos-1, k=y_pos+1; j>=0 && k<8; j--, k++) {
+		    let ind = j + k * 8;
+		    trocarPeca(ind);
+		    if (fimJogada) { break; }//<- verificar com a cheila se isto se tira ou n
+		}
+		break;
+	    default:
+		break;
+	    }
+	    fimJogada = false; // reset da variável global 
+
+	}
+	let Adversario='dark';
+	if(CorPlayer=='dark')
+		Adversario='light';
+
+	//FALTA ACABAR DE PREENCHER
+	if(jogadasPossiveis(Adversario)==[])
+
+	    
+}
+//aqui queria verificar por causa do ind na funçao em cima
+function trocarPeca(pos) {
+
+    let x = Math.floor(pos % 8);//isto seria o nosso x_pos
+    let y = Math.floor(pos / 8);//isto seria o nosso y_pos
+
+    //verificar com a cheila o computador, pecasJogador, fumJogada
+
+    
+	// quando se encontrar o outro extremo da peça jogada então cessa a troca de peças do adversário para o jogador
+	if (cont[x][y] == player) { fimJogada = true; return; }
+
+	// regista a jogada do jogador no array da disposição das peças
+	cont[x][y] = player;
+    
+
+    // visualização da jogada do jogador
+    
+    if (player == 'light') {
+	
+	//peca.setAttribute('class', 'peca pecaBRANCA');
+	pecasJogadorB.push(pos);
+	for(let i=0; i<pecasJogadorP.length; i++) { // retira a peça do adversário que estava na posição pos
+	    if (pecasJogadorP[i] == pos) { pecasJogadorP.splice(i, 1); }
+	}
+	
+    } else {
+
+	//peca.setAttribute('class', 'peca pecaPRETA');
+	pecasJogadorP.push(pos);
+	for(let i=0; i<pecasJogadorB.length; i++) { // retira a peça do adversário que estava na posição pos
+	    if (pecasJogadorB[i] == pos) { pecasJogadorB.splice(i, 1); }
+	}
+	
+	
+    }
+    
+}
+//funçao contem q e utilizada acima
+//em vez de pos alterei para o x_pos, y_pos mas confirmar com a cheila
+function contem(arr, x_pos, y_pos) {
+
+    for(let i=0; i<arr.length; i++) {
+	if(arr[i][0] == x_pos+y_pos*8) { //alterei aqui tbm
+	    return true;
+	}
+    }
+    
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////
 
 function updateScores(player, won) {
     return new Promise(resolve => {
