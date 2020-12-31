@@ -1198,6 +1198,7 @@ async function join(grp, nickname, password) {
 	    return response.json()
 	})
 	.then(info => {
+	    info = JSON.parse(info);
 	    gameReference = info.game;
 	    colorPlayer = info.color;
 	    console.log(gameReference + " - " + colorPlayer);
@@ -1216,7 +1217,7 @@ async function ranking(){
 	    return response.json()
 	})
 	.then(info => {
-	    
+	    info = JSON.parse(info);  
 	    const rank = document.getElementById("ranking");
 	    
 	    let header = rank.insertRow(0);
