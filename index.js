@@ -5,6 +5,7 @@ const url = require('url');
 const fs = require('fs');
 const conf = require('./conf.js');
 const crypto = require('crypto');
+const performance = require('perf_hooks').performance;
 
 let updater = require('./updater.js');
 
@@ -28,8 +29,8 @@ var p2 = "";
 var corP1 = "";
 var corP2 = "";
 var corPlayer; // cor do jogador
-var pecasJogadorB = [3+3*8, 4+4*8];
-var pecasJogadorP = [3+4*8, 4+3*8];
+var pecasJogadorB = []; 
+var pecasJogadorP = []; 
 var fimJogada = false;
 
 const headers = {
@@ -66,7 +67,7 @@ http.createServer((request, response) => {
 	    body += data;
 	    console.log("DATA: " + body);
 	    
-	}) .on("end", async function() {
+	}).on("end", async function() {
 	    // espera a promessa de uma resposta, ou seja, o tratamento do "body"
 	    let data = JSON.parse(body);
 	    await doPost(data, response, pathname)
@@ -243,36 +244,36 @@ async function doPost(data, response, pathname) {
 	    return answer;
 	}
 	
-	//quando falta apenas o campo "row"
-	if(!data.move.hasOwnProperty("row") && data.move.hasOwnProperty("column")){
+	// quando falta apenas o campo "row"
+	if (!data.move.hasOwnProperty("row") && data.move.hasOwnProperty("column")){
 	    answer.body = JSON.stringify({error: "Move lacks property row"});
 	    answer.status = 400;
 	    return answer;
 	}
 	
-	//quando falta apenas o campo "column"
-	if(!data.move.hasOwnProperty("column") && data.move.hasOwnProperty("row")){
+	// quando falta apenas o campo "column"
+	if (!data.move.hasOwnProperty("column") && data.move.hasOwnProperty("row")){
 	    answer.body = JSON.stringify({error: "Move lacks property column"});
 	    answer.status = 400;
 	    return answer;
 	}
 
-	//quando não tem nem o campo "row" nem o campo "column"
-	if(!data.move.hasOwnProperty("column") && !data.move.hasOwnProperty("row")){
+	// quando não tem nem o campo "row" nem o campo "column"
+	if (!data.move.hasOwnProperty("column") && !data.move.hasOwnProperty("row")){
 	    answer.body = JSON.stringify({error: "Move must be an object"});
 	    answer.status = 400;
 	    return answer;
 	}
 
-	//qnd row n esta entre 0 e 7 
-	if(data.move.row < 0 || data.move.row >= 8 ){
+	// quando row não está entre 0 e 7 
+	if (data.move.row < 0 || data.move.row >= 8 ){
 	    answer.body = JSON.stringify({error: "row should be an integer between 0 and 7"});
 	    answer.status = 400;
 	    return answer;
 	}
 
-	//qnd column n esta entre 0 e 7
-	if(data.move.column < 0 || data.move.column >= 8 ){
+	// quando column não esta entre 0 e 7
+	if (data.move.column < 0 || data.move.column >= 8 ){
 	    answer.body = JSON.stringify({error: "column should be an integer between 0 and 7"});
 	    answer.status = 400;
 	    return answer;
@@ -289,6 +290,20 @@ async function doPost(data, response, pathname) {
 	    answer.data = JSON.stringify({turn: oponente, board: cont, count: {dark: num_dark, light: num_light, empty: num_empty}});
 	    return answer;
 	    
+	}
+
+	// verifica se foi feita uma jogada dentro das possiveis
+	let jogadasPossiveis = possiveisJogadas(corPlayer);
+	let found = false; // flag que indicará se a jogada é válida
+	let pos = data.move.row + data.move.column * 8; // conversão de coordenadas dimensionais para unidimensionais
+	for (let i=0; i<jogadasPossiveis.length; i++)
+	    if (jogadasPossiveis[i][0] == pos)
+		found = true;
+
+	// se o move não corresponder a uma das jogadas impossiveis
+	if (found == false) {
+	    answer.status = 400;
+	    return answer;
 	}
 	
 	// processa a jogada do player que tem a vez
@@ -851,6 +866,28 @@ function endGame(answer, nick, game) {
     });
 }
 
+function removeGame() {
+    return new Promise((resolve, reject) => {
+	fs.readFile("activeGames.json", async function(err, games) {
+	    if (!err) {
+		let active = JSON.parse(games.toString());
+		if(!Array.isArray(active))
+		    active = [active];
+		for (let i=0; i<active.length; i++) {
+		    let a = active[i];
+		    if (a.player1 == p1) {
+			active.splice(i, 1);
+			await newGame(active);
+			break;
+		    }
+		}
+	    } else reject();
+
+	    resolve();
+	});
+    });
+}
+
 async function joinGame(answer, nickname, hash) {
     return new Promise(resolve => {
 	fs.readFile("activeGames.json", async function(err, games) {
@@ -882,6 +919,8 @@ async function joinGame(answer, nickname, hash) {
 			await newGame(active);
 			// estado inicial do jogo
 			answer.data = JSON.stringify({board: cont, turn: oponente, count: {dark: 2, light: 2, empty: 60}});
+			pecasJogadorB.push(27, 36); // (3,3) -> 27 ; (4,4) -> 36
+			pecasJogadorP.push(28, 35); // (3,4) -> 35 ; (4,3) -> 28
 			found = true;
 			break;
 			
