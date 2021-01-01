@@ -28,8 +28,8 @@ var p2 = "";
 var corP1 = "";
 var corP2 = "";
 var corPlayer; // cor do jogador
-var pecasJogadorB = [3+3*8, 4+4*8];
-var pecasJogadorP = [3+4*8, 4+3*8];
+var pecasJogadorB = []; 
+var pecasJogadorP = []; 
 var fimJogada = false;
 
 const headers = {
@@ -55,7 +55,6 @@ http.createServer((request, response) => {
 
     switch(request.method) {
     case "GET":
-
 	answer = doGet(parsedUrl, request, response);
 	break;
 	
@@ -67,7 +66,7 @@ http.createServer((request, response) => {
 	    body += data;
 	    console.log("DATA: " + body);
 	    
-	}) .on("end", async function() {
+	}).on("end", async function() {
 	    // espera a promessa de uma resposta, ou seja, o tratamento do "body"
 	    let data = JSON.parse(body);
 	    await doPost(data, response, pathname)
@@ -118,13 +117,10 @@ function doGet(parsedUrl, request, response) {
     let nick = query.nick;
     let game = query.game;
 
-    
-
     switch(pathname) {
     case "/update":
 
 	response.writeHead(200, headers["sse"]);
-
 	let data = JSON.stringify(JSON.parse(nests.pop())); // vai tratando dos pedidos por ordem
 	let connId = Date.now(); // identificador da conexão
 	let newConn = { id: connId, response }; // objeto que representa o cliente
@@ -134,47 +130,11 @@ function doGet(parsedUrl, request, response) {
 	break;
 	
     default:
-    //para ver se e uma request vazia
-    if(pathname==='/'){
-    pathname = conf.defaultIndex;
-    }
-
-
-    response.setHeader('Content-Type', getTypes(pathname));
-
-    
-    fs.readFile(conf.documentRoot + pathname, function(error, data){
-    	if(error){
-    	response.writeHead(404);
-    	response.end('404 - File Not Found');
-    	}
-    	else{
-    	response.writeHead(200);
-    	response.end(data);
-
-    	}
-
-    });
-	
+	answer.status = 400;
 	break;
-
     }
 
     return answer;
-}
-
-//verificar tipo de ficheiro a ser transmitido
-function getTypes(pathname){
-	let typeContent= 'application/octet-stream'; //isto e o nosso caso de erro(nunca vai acontecer na vida real)
-
-	let type = conf.mediaTypes; //buscar os tipos
-	for(let key in type){
-		if(type.hasOwnProperty(key)){ //existe o tipo
-			if(pathname.indexOf(key) > -1) //se existir o index
-				typeContent= type[key]; //return do q deu
-		}
-	}
-	return typeContent;
 }
 
 // tratamento do pedido com método POST
@@ -261,9 +221,32 @@ async function doPost(data, response, pathname) {
 	// verificar se fez um leave sem o jogo ter começado
 	// se sim, é retornado um winner null
 	// se não, é retornado como winner o oponente
-	await endGame(answer, data.nick, data.game)
+	await endGame(answer, data.nick, data.game, true)
 	    .then(res => { answer = res; })
 	    .catch(console.log);
+	
+	// reset de variáveis depois do fim de um jogo
+	cont = [ ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		 ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		 ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		 ["empty","empty","empty","light","dark","empty","empty", "empty"],
+		 ["empty","empty","empty","dark","light","empty","empty", "empty"],
+		 ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		 ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		 ["empty","empty","empty","empty","empty","empty","empty", "empty"]
+	       ];
+
+	time = ""; // guarda o jogador que tem a vez
+	oponente = ""; // guarda o nick do oponente
+	p1 = "";
+	p2 = "";
+	corP1 = "";
+	corP2 = "";
+	corPlayer; // cor do jogador
+	pecasJogadorB = []; 
+	pecasJogadorP = [];
+	pecasJogadorB.push(27, 36); // (3,3) -> 27 ; (4,4) -> 36
+	pecasJogadorP.push(28, 35); // (3,4) -> 35 ; (4,3) -> 28
 
 	console.log("LEAVE: " + answer.data);
 	
@@ -283,36 +266,36 @@ async function doPost(data, response, pathname) {
 	    return answer;
 	}
 	
-	//quando falta apenas o campo "row"
-	if(!data.move.hasOwnProperty("row") && data.move.hasOwnProperty("column")){
+	// quando falta apenas o campo "row"
+	if (!data.move.hasOwnProperty("row") && data.move.hasOwnProperty("column")){
 	    answer.body = JSON.stringify({error: "Move lacks property row"});
 	    answer.status = 400;
 	    return answer;
 	}
 	
-	//quando falta apenas o campo "column"
-	if(!data.move.hasOwnProperty("column") && data.move.hasOwnProperty("row")){
+	// quando falta apenas o campo "column"
+	if (!data.move.hasOwnProperty("column") && data.move.hasOwnProperty("row")){
 	    answer.body = JSON.stringify({error: "Move lacks property column"});
 	    answer.status = 400;
 	    return answer;
 	}
 
-	//quando não tem nem o campo "row" nem o campo "column"
-	if(!data.move.hasOwnProperty("column") && !data.move.hasOwnProperty("row")){
+	// quando não tem nem o campo "row" nem o campo "column"
+	if (!data.move.hasOwnProperty("column") && !data.move.hasOwnProperty("row")){
 	    answer.body = JSON.stringify({error: "Move must be an object"});
 	    answer.status = 400;
 	    return answer;
 	}
 
-	//qnd row n esta entre 0 e 7 
-	if(data.move.row < 0 || data.move.row >= 8 ){
+	// quando row não está entre 0 e 7 
+	if (data.move.row < 0 || data.move.row >= 8 ){
 	    answer.body = JSON.stringify({error: "row should be an integer between 0 and 7"});
 	    answer.status = 400;
 	    return answer;
 	}
 
-	//qnd column n esta entre 0 e 7
-	if(data.move.column < 0 || data.move.column >= 8 ){
+	// quando column não esta entre 0 e 7
+	if (data.move.column < 0 || data.move.column >= 8 ){
 	    answer.body = JSON.stringify({error: "column should be an integer between 0 and 7"});
 	    answer.status = 400;
 	    return answer;
@@ -329,6 +312,20 @@ async function doPost(data, response, pathname) {
 	    answer.data = JSON.stringify({turn: oponente, board: cont, count: {dark: num_dark, light: num_light, empty: num_empty}});
 	    return answer;
 	    
+	}
+
+	// verifica se foi feita uma jogada dentro das possiveis
+	let jogadasPossiveis = possiveisJogadas(corPlayer);
+	let found = false; // flag que indicará se a jogada é válida
+	let pos = data.move.row + data.move.column * 8; // conversão de coordenadas dimensionais para unidimensionais
+	for (let i=0; i<jogadasPossiveis.length; i++)
+	    if (jogadasPossiveis[i][0] == pos)
+		found = true;
+
+	// se o move não corresponder a uma das jogadas impossiveis
+	if (found == false) {
+	    answer.status = 400;
+	    return answer;
 	}
 	
 	// processa a jogada do player que tem a vez
@@ -705,7 +702,7 @@ async function processarJogada(x_pos, y_pos) {
 	case "ID": // propagação na DIAGONAL INFERIOR DIREITA da peça colocada
 	    for(let j=x_pos+1, k=y_pos+1; j<8 && k<8; j++, k++) {
 		let ind = j + k * 8;
-		trocarPeca(ind, jogadorAtual);
+		trocarPeca(ind);
 		if (fimJogada) { break; }
 	    }
 	    break;
@@ -742,7 +739,24 @@ async function processarJogada(x_pos, y_pos) {
     let num_empty = 64 - num_dark - num_light;
 
     // se o adversario não tiver jogadas possiveis, a vez do jogador não muda
-    if (possiveisJogadas(adversario) == []) {
+    if (possiveisJogadas(adversario) == [] && possiveisJogadas(corPlayer) == []) {
+	
+	if (num_dark == num_light) // empate
+	    answer.data = JSON.stringify({winner: null, board: cont, count: {dark: num_dark, light: num_light, empty: num_empty}});
+	else {
+
+	    let w;
+	    if (num_dark > num_light && corP1 == "dark") w = p1;
+	    else w = p2;
+	    await endGame(answer, w, game, false)
+		.then(res => function() {
+		    let win = res.data.winner;
+		    answer.data = JSON.stringify({winner: win, board: cont, count: {dark: num_dark, light: num_light, empty: num_empty}});
+		})
+		.catch(console.log);
+	}
+	
+    } if (possiveisJogadas(adversario) == []) {
 	answer.data = JSON.stringify({turn: nickname, board: cont, count: {dark: num_dark, light: num_light, empty: num_empty}, skip: true});
     } else {
 	// troca de jogador
@@ -839,7 +853,7 @@ function writeResult(scores) {
     });
 }
 
-function endGame(answer, nick, game) {
+function endGame(answer, nick, game, desistencia) {
     return new Promise((resolve,reject) => {
 	fs.readFile("activeGames.json", async function(err, games) {
 	    let win = "";
@@ -859,12 +873,36 @@ function endGame(answer, nick, game) {
 			    answer.data = JSON.stringify({winner: win});
 			} else {
 			    
-			    if (a.player1 == nick) {
-				win =  a.player2;
+			    let loser;
+			    if (desistencia) {
+				
+				if (a.player1 == nick) {				    
+				    win =  a.player2;
+				    loser = a.player1;				    
+				} else if (a.player2 == nick) {
+				    win = a.player1;
+				    loser = a.player2; 
+				}
+
+				await updateScores(nick, true);
+				await updateScores(nick, false);
 				answer.data = JSON.stringify({winner: win});
-			    } else if (a.player2 == nick) {
-				win = a.player1;
+				
+			    } else {
+				
+				if (nick == a.player1) {
+				    win = a.player1;
+				    loser = a.player2;
+				} else {
+				    win = a.player1;
+				    loser = a.player2;
+				}
+
+				await updateScores(win, true);
+				await updateScores(loser, false);
+
 				answer.data = JSON.stringify({winner: win});
+				
 			    }
 			    
 			}
@@ -874,9 +912,6 @@ function endGame(answer, nick, game) {
 			active.splice(i, 1);
 			// atualiza o ficheiro activeGames.json
 			await newGame(active);
-
-			if (win == nick) await updateScores(nick, true);
-			else await updateScores(nick, false);
 			
 			break;
 			
@@ -922,6 +957,8 @@ async function joinGame(answer, nickname, hash) {
 			await newGame(active);
 			// estado inicial do jogo
 			answer.data = JSON.stringify({board: cont, turn: oponente, count: {dark: 2, light: 2, empty: 60}});
+			pecasJogadorB.push(27, 36); // (3,3) -> 27 ; (4,4) -> 36
+			pecasJogadorP.push(28, 35); // (3,4) -> 35 ; (4,3) -> 28
 			found = true;
 			break;
 			
