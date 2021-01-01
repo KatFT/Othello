@@ -130,12 +130,51 @@ function doGet(parsedUrl, request, response) {
 	break;
 	
     default:
-	answer.status = 400;
+	 //para ver se e uma request vazia
+    if(pathname==='/'){
+    pathname = conf.defaultIndex;
+    }
+
+
+    response.setHeader('Content-Type', getTypes(pathname));
+
+    
+    fs.readFile(conf.documentRoot + pathname, function(error, data){
+    	
+        if(error){
+        response.writeHead(404);
+        response.end('404 - File Not Found');
+        }
+
+        else{
+        response.writeHead(200);
+        response.end(data);
+
+        }
+
+    });
+    
+    
 	break;
     }
 
     return answer;
 }
+
+//verificar tipo de ficheiro a ser transmitido
+function getTypes(pathname){
+    let typeContent= 'application/octet-stream'; //isto e o nosso caso de erro(nunca vai acontecer na vida real)
+
+    let type = conf.mediaTypes; //buscar os tipos
+    for(let key in type){
+        if(type.hasOwnProperty(key)){ //existe o tipo
+            if(pathname.indexOf(key) > -1) //se existir o index
+                typeContent= type[key]; //return do q deu
+        }
+    }
+    return typeContent;
+}
+
 
 // tratamento do pedido com método POST
 async function doPost(data, response, pathname) {    
