@@ -5,7 +5,6 @@ const url = require('url');
 const fs = require('fs');
 const conf = require('./conf.js');
 const crypto = require('crypto');
-const performance = require('perf_hooks').performance;
 
 let updater = require('./updater.js');
 
@@ -225,6 +224,29 @@ async function doPost(data, response, pathname) {
 	await endGame(answer, data.nick, data.game)
 	    .then(res => { answer = res; })
 	    .catch(console.log);
+		    
+		    // reset de variáveis depois do fim de um jogo
+	    cont = [ ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		     ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		     ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		     ["empty","empty","empty","light","dark","empty","empty", "empty"],
+		     ["empty","empty","empty","dark","light","empty","empty", "empty"],
+		     ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		     ["empty","empty","empty","empty","empty","empty","empty", "empty"],
+		     ["empty","empty","empty","empty","empty","empty","empty", "empty"]
+		   ];
+
+	    time = ""; // guarda o jogador que tem a vez
+	    oponente = ""; // guarda o nick do oponente
+	    p1 = "";
+	    p2 = "";
+	    corP1 = "";
+	    corP2 = "";
+	    corPlayer; // cor do jogador
+	    pecasJogadorB = []; 
+	    pecasJogadorP = [];
+		    pecasJogadorB.push(27, 36); // (3,3) -> 27 ; (4,4) -> 36
+	    pecasJogadorP.push(28, 35); // (3,4) -> 35 ; (4,3) -> 28
 
 	console.log("LEAVE: " + answer.data);
 	
@@ -862,28 +884,6 @@ function endGame(answer, nick, game) {
 
 	    resolve(answer);
 	    
-	});
-    });
-}
-
-function removeGame() {
-    return new Promise((resolve, reject) => {
-	fs.readFile("activeGames.json", async function(err, games) {
-	    if (!err) {
-		let active = JSON.parse(games.toString());
-		if(!Array.isArray(active))
-		    active = [active];
-		for (let i=0; i<active.length; i++) {
-		    let a = active[i];
-		    if (a.player1 == p1) {
-			active.splice(i, 1);
-			await newGame(active);
-			break;
-		    }
-		}
-	    } else reject();
-
-	    resolve();
 	});
     });
 }
